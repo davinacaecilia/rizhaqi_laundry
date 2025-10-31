@@ -23,7 +23,7 @@ Website Rizhaqi Laundry ini dibuat dengan harapan dapat menyelesaikan permasalah
 - **Generate Laporan Harian** : Pemilik dapat dengan mudah mencetak laporan harian yang dibutuhkan (laporan cucian masuk, laporan uang masuk, laporan uang keluar, laporan cuci harian pegawai) secara otomatis tanpa harus melakukan rekap data secara manual
 - **View Log** : Pemilik dapat memantau aktivitas yang berhubungan dengan database (INSERT, UPDATE, DELETE)
   
-4. **Pegawai**
+3. **Pegawai**
 - **Update Status Order**
 - **Generate Laporan Cucian Harian** : Pegawai dapat mencetak laporan cucian harian pegawai yang dibutuhkan untuk menghitung gaji harian
 

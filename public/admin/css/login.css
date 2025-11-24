@@ -1,0 +1,170 @@
+* {
+    box-sizing: border-box;
+}
+
+/* ===== Background & layout ===== */
+body {
+    margin: 0;
+    font-family: Poppins, Arial, sans-serif;
+    height: 100vh;
+
+    /* Background image + blur overlay */
+    background:
+        linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+        url('../img/laundry-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Bubble background */
+body::before, body::after {
+    content: "";
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    filter: blur(50px);
+}
+body::before { top: -80px; left: -80px; }
+body::after { bottom: -80px; right: -80px; }
+
+/* ===== WRAPPER (dua form dalam satu card) ===== */
+.wrapper {
+    width: 800px;
+    height: 450px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn .4s ease-in-out;
+}
+
+/* Panel slider (bagian dekor swipe) */
+.slider-panel {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, #2a9708, #73e737);
+    right: 0;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease;
+    text-align: center;
+}
+
+.slider-panel h2 {
+    color: #ffffff; /* ganti sesuai warna yang kamu mau */
+}
+
+.wrapper.active .slider-panel {
+    transform: translateX(-100%);
+}
+
+/* ===== FORM BOXES ===== */
+.form-container {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    padding: 40px;
+    transition: .5s;
+}
+
+.login-container {
+    left: 0;
+}
+.signup-container {
+    right: 0;
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.wrapper.active .signup-container {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.wrapper.active .login-container {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+/* Title */
+h2 {
+    color: #2a9708;
+    margin-bottom: 18px;
+    font-weight: 600;
+}
+
+/* Inputs */
+.input-box {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.input-box input:focus {
+    border-color: #2a9708;
+    box-shadow: 0 0 6px rgba(42,151,8,0.35);
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #2a9708;
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    display: block;
+}
+
+button:hover { opacity: .85; }
+
+/* Link */
+.small-link {
+    font-size: 13px;
+    color: #555;
+    margin-top: 10px;
+}
+
+.small-link span {
+    color: #2a9708;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Messages */
+.success { color: green; font-size: 14px; margin-bottom: 10px; }
+.error { color: red; font-size: 14px; margin-bottom: 10px; }
+
+/* FadeIn effect */
+@keyframes fadeIn {
+    from {opacity:0; transform: translateY(20px);}
+    to {opacity:1; transform: translateY(0);}
+}

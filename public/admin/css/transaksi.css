@@ -1,0 +1,80 @@
+/* File: public/admin/css/transaksi.css */
+
+.table-data {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: var(--primary-white);
+    padding: 24px;
+    border-radius: 20px;
+    margin-top: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.table-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid var(--grey);
+    color: var(--dark);
+    font-size: 14px;
+}
+
+table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--grey);
+    color: var(--dark-grey);
+    font-size: 14px;
+}
+
+/* Badge untuk Status Order */
+.status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+.status.diterima { background-color: #A0A0A0; } /* Abu-abu */
+.status.dicuci { background-color: #3C91E6; }   /* Biru */
+.status.disetrika { background-color: #FFCE26; color: black; } /* Kuning */
+.status.siap { background-color: #DB504A; }     /* Merah (atau Hijau) */
+.status.selesai { background-color: #388E3C; }  /* Hijau Tua */
+
+/* Badge untuk Status Pembayaran (Baru) */
+.bayar {
+    font-weight: 700;
+    font-size: 12px;
+}
+.bayar.lunas { color: #388E3C; } /* Hijau Text */
+.bayar.dp { color: #FBC02D; }    /* Kuning Text */
+.bayar.belum { color: #D32F2F; } /* Merah Text */
+
+/* Tombol Aksi */
+.action-btn {
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+    font-size: 18px;
+    margin-right: 5px;
+}
+.btn-detail { background-color: #3C91E6; }
+.btn-edit { background-color: #FFCE26; color: black; }

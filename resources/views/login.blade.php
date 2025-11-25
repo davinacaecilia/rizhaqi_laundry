@@ -50,10 +50,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="input-box">
                 <input type="email" name="email" placeholder="Email" required>
             </div>
-
             <div class="input-box">
                 <input type="password" name="password" placeholder="Password" required>
             </div>
+
 
             <p class="small-link">
                 Lupa password? <span id="goReset">Reset Password</span>

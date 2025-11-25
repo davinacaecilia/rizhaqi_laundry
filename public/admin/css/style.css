@@ -1,0 +1,1067 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+a {
+	text-decoration: none;
+}
+
+li {
+	list-style: none;
+}
+
+:root {
+	--google-sans: 'Google Sans', 'Roboto', sans-serif;
+	--roboto: 'Roboto', sans-serif;
+
+	/* Google Arts & Culture Color Palette */
+	--primary-white: #FFFFFF;
+	--surface-white: #FAFAFA;
+	--border-light: #E8EAED;
+	--text-primary: #202124;
+	--text-secondary: #5F6368;
+	--text-tertiary: #9AA0A6;
+	--accent-blue: #2a9708;
+	--accent-blue-hover: #2a9708;
+	--accent-red: #EA4335;
+	--accent-green: #34A853;
+	--accent-yellow: #5ffb04;
+	--accent-orange: #FF6D01;
+	--shadow-light: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+	--shadow-medium: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+	--shadow-heavy: 0 2px 6px 2px rgba(60,64,67,.15), 0 8px 24px 4px rgba(60,64,67,.15);
+}
+
+html {
+	overflow-x: hidden;
+}
+
+body.dark {
+	--primary-white: #1F1F1F;
+	--surface-white: #2D2D2D;
+	--border-light: #3C4043;
+	--text-primary: #E8EAED;
+	--text-secondary: #9AA0A6;
+	--text-tertiary: #5F6368;
+}
+
+body {
+	background: var(--surface-white);
+	overflow-x: hidden;
+	font-family: var(--roboto);
+	color: var(--text-primary);
+}
+
+/* SIDEBAR */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100%;
+    background: var(--primary-white);
+    z-index: 2000;
+    font-family: var(--google-sans);
+    transition: .3s ease;
+    overflow-y: auto; /* Perubahan: Mengizinkan scroll vertikal */
+    overflow-x: hidden;
+    scrollbar-width: none;
+    border-right: 1px solid var(--border-light);
+    box-shadow: var(--shadow-light);
+}
+
+#sidebar::--webkit-scrollbar {
+    display: none;
+}
+
+#sidebar.hide {
+    width: 0;
+    border-right: none;
+    box-shadow: none;
+}
+
+#sidebar .brand {
+    font-size: 22px;
+    font-weight: 500;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    position: sticky;
+    top: 0;
+    left: 0;
+    background: var(--primary-white);
+    z-index: 500;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+#sidebar .brand .bx {
+    min-width: 24px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    color: var(--accent-blue);
+}
+
+#sidebar .side-menu {
+    width: 100%;
+    margin-top: 8px;
+    padding: 0 12px;
+}
+
+#sidebar .side-menu li {
+    /* PERUBAHAN UTAMA DI SINI */
+    /* Hapus height: 48px; */
+    height: auto; /* Memungkinkan LI untuk melar sesuai konten anak */
+    background: transparent;
+    margin-bottom: 4px;
+    border-radius: 24px;
+    padding: 0; /* Padding tetap 0 di LI, padding untuk link ada di A */
+    transition: all 0.2s ease;
+}
+
+#sidebar .side-menu li.active {
+    background: var(--surface-white);
+    position: relative;
+    box-shadow: var(--shadow-light);
+}
+
+#sidebar .side-menu li:hover:not(.active) {
+    background: rgba(26, 115, 232, 0.04);
+}
+
+#sidebar .side-menu li a {
+    width: 100%;
+    /* PERUBAHAN DI SINI: Height dipindahkan dari LI ke A */
+    height: 48px; /* Tinggi link utama */
+    background: transparent;
+    display: flex;
+    align-items: center;
+    border-radius: 24px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow-x: hidden;
+    padding: 0 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+/* KHUSUS UNTUK LINK DROPDOWN TOGGLE */
+#sidebar .side-menu li.has-dropdown > a.dropdown-toggle {
+    cursor: pointer; /* Menunjukkan bahwa ini bisa diklik */
+}
+
+/* Styling untuk ikon panah pada dropdown toggle */
+#sidebar .side-menu li.has-dropdown .dropdown-toggle .toggle-icon {
+    margin-left: auto; /* Dorong panah ke kanan */
+    transition: transform 0.3s ease;
+}
+
+/* Memutar panah saat menu terbuka */
+#sidebar .side-menu li.has-dropdown.open .dropdown-toggle .toggle-icon {
+    transform: rotate(90deg);
+}
+
+/* Submenu container (UL) */
+#sidebar .side-menu .submenu {
+    display: none; /* Default tersembunyi */
+    list-style: none;
+    padding: 8px 0; /* Padding vertikal untuk sub-menu */
+    margin: 0; /* Hapus margin default ul */
+    border-radius: 12px;
+    background: var(--surface-white); /* Warna background untuk sub-menu */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); /* Sedikit shadow di dalam */
+    margin-top: 4px; /* Sedikit jarak dari item parent */
+}
+
+/* Tampilkan submenu saat parent memiliki class 'open' atau 'active' */
+#sidebar .side-menu li.has-dropdown.open .submenu {
+    display: block; /* Menampilkan sub-menu */
+}
+
+/* Style untuk item di dalam submenu (LI) */
+#sidebar .side-menu .submenu li {
+    height: auto; /* Pastikan height auto juga untuk sub-item LI */
+    margin-bottom: 0; /* Hapus margin bottom untuk item sub-menu LI */
+    border-radius: 0; /* Hapus border radius untuk sub-item jika ingin lurus */
+    background: transparent; /* Pastikan transparan agar background submenu terlihat */
+}
+
+/* Style untuk link di dalam submenu (A) */
+#sidebar .side-menu .submenu li a {
+    height: 40px; /* Tinggi lebih kecil untuk sub-item link */
+    padding: 0 16px 0 36px; /* Padding lebih ke kanan agar indentasi */
+    font-size: 13px; /* Ukuran font lebih kecil untuk sub-item */
+    color: var(--text-secondary);
+    border-radius: 0; /* Hapus border radius */
+    /* Pastikan overflow-x: hidden; juga ada di sini jika diperlukan */
+}
+
+#sidebar .side-menu .submenu li a .bx {
+    min-width: 20px; /* Sesuaikan ukuran ikon */
+    margin-right: 12px; /* Sesuaikan margin ikon */
+}
+
+#sidebar .side-menu .submenu li.active a {
+    background: rgba(26, 115, 232, 0.08); /* Background aktif untuk sub-item */
+    color: var(--accent-blue);
+    font-weight: 600;
+    border-radius: 4px; /* Sedikit border radius untuk highlight */
+    margin: 0 8px; /* Margin agar ada jarak dari border submenu */
+}
+
+#sidebar .side-menu .submenu li a:hover {
+    background: rgba(26, 115, 232, 0.04);
+    color: var(--accent-blue);
+    border-radius: 4px;
+    margin: 0 8px;
+}
+
+#sidebar .side-menu.top li.active a {
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+#sidebar.hide .side-menu li a {
+    justify-content: center;
+    padding: 0;
+}
+
+#sidebar .side-menu li a.logout {
+    color: var(--accent-red);
+}
+
+#sidebar .side-menu.top li a:hover {
+    color: var(--accent-blue);
+}
+
+#sidebar .side-menu li a .bx {
+    min-width: 24px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+}
+
+#sidebar.hide .side-menu li a .bx {
+    margin-right: 0;
+}
+
+/* Remove the curved design elements */
+#sidebar .side-menu li.active::before,
+#sidebar .side-menu li.active::after {
+    display: none;
+}
+
+/* CONTENT */
+#content {
+	position: relative;
+	width: calc(100% - 280px);
+	left: 280px;
+	transition: .3s ease;
+	min-height: 100vh;
+}
+
+#sidebar.hide ~ #content {
+	width: 100%;
+	left: 0;
+}
+
+/* NAVBAR */
+#content nav {
+	height: 64px;
+	background: var(--primary-white);
+	padding: 0 24px;
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	font-family: var(--google-sans);
+	position: sticky;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	border-bottom: 1px solid var(--border-light);
+	box-shadow: var(--shadow-light);
+}
+
+#content nav::before {
+	display: none;
+}
+
+#content nav .nav-brand {
+	font-size: 22px;
+	font-weight: 500;
+	color: var(--text-primary);
+	margin-right: 16px;
+	white-space: nowrap;
+}
+
+#content nav a {
+	color: var(--text-secondary);
+	font-weight: 500;
+}
+
+#content nav .bx.bx-menu {
+	cursor: pointer;
+	color: var(--text-secondary);
+	font-size: 24px;
+	padding: 8px;
+	border-radius: 50%;
+	transition: all 0.2s ease;
+}
+
+#content nav .bx.bx-menu:hover {
+	background: var(--surface-white);
+	color: var(--text-primary);
+}
+
+#content nav .nav-link {
+	font-size: 14px;
+	transition: .2s ease;
+	padding: 8px 16px;
+	border-radius: 20px;
+}
+
+#content nav .nav-link:hover {
+	color: var(--accent-blue);
+	background: rgba(26, 115, 232, 0.04);
+}
+
+#content nav form {
+	max-width: 600px;
+	width: 100%;
+	margin-right: auto;
+}
+
+#content nav form .form-input {
+	display: flex;
+	align-items: center;
+	height: 40px;
+	background: var(--surface-white);
+	border-radius: 20px;
+	border: 1px solid var(--border-light);
+	transition: all 0.2s ease;
+}
+
+#content nav form .form-input:focus-within {
+	border-color: var(--accent-blue);
+	box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+#content nav form .form-input input {
+	flex-grow: 1;
+	padding: 0 16px;
+	height: 100%;
+	border: none;
+	background: transparent;
+	border-radius: 20px;
+	outline: none;
+	width: 100%;
+	color: var(--text-primary);
+	font-size: 14px;
+	font-family: var(--roboto);
+}
+
+#content nav form .form-input input::placeholder {
+	color: var(--text-tertiary);
+}
+
+#content nav form .form-input button {
+	width: 40px;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: transparent;
+	color: var(--text-secondary);
+	font-size: 18px;
+	border: none;
+	outline: none;
+	border-radius: 20px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+#content nav form .form-input button:hover {
+	background: rgba(26, 115, 232, 0.04);
+	color: var(--accent-blue);
+}
+
+#content nav .notification {
+	font-size: 20px;
+	position: relative;
+	padding: 8px;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	color: var(--text-secondary);
+}
+
+#content nav .notification:hover {
+	background: var(--surface-white);
+	color: var(--text-primary);
+}
+
+#content nav .notification .num {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	border: 2px solid var(--primary-white);
+	background: var(--accent-red);
+	color: var(--primary-white);
+	font-weight: 500;
+	font-size: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#content nav .profile img {
+	width: 32px;
+	height: 32px;
+	object-fit: cover;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+#content nav .profile img:hover {
+	box-shadow: var(--shadow-medium);
+}
+
+#content nav .switch-mode {
+	display: block;
+	min-width: 44px;
+	height: 24px;
+	border-radius: 12px;
+	background: var(--border-light);
+	cursor: pointer;
+	position: relative;
+	transition: all 0.3s ease;
+}
+
+#content nav .switch-mode::before {
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 20px;
+	height: 20px;
+	background: var(--primary-white);
+	border-radius: 50%;
+	transition: all .3s ease;
+	box-shadow: var(--shadow-light);
+}
+
+#content nav #switch-mode:checked + .switch-mode {
+	background: var(--accent-blue);
+}
+
+#content nav #switch-mode:checked + .switch-mode::before {
+	left: calc(100% - 22px);
+}
+
+/* MAIN */
+#content main {
+	width: 100%;
+	padding: 24px;
+	font-family: var(--roboto);
+	max-height: calc(100vh - 64px);
+	overflow-y: auto;
+}
+
+#content main .head-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-bottom: 32px;
+}
+
+#content main .head-title .left h1 {
+	font-size: 28px;
+	font-weight: 400;
+	margin-bottom: 8px;
+	color: var(--text-primary);
+	font-family: var(--google-sans);
+}
+
+#content main .head-title .left .breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+#content main .head-title .left .breadcrumb li {
+	color: var(--text-secondary);
+	font-size: 14px;
+}
+
+#content main .head-title .left .breadcrumb li a {
+	color: var(--text-tertiary);
+	pointer-events: none;
+}
+
+#content main .head-title .left .breadcrumb li a.active {
+	color: var(--accent-blue);
+	pointer-events: unset;
+}
+
+#content main .head-title .btn-download {
+	height: 36px;
+	padding: 0 16px;
+	border-radius: 18px;
+	background: var(--accent-blue);
+	color: var(--primary-white);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	font-weight: 500;
+	font-size: 14px;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: var(--shadow-light);
+}
+
+#content main .btn-download:hover {
+	background: var(--accent-blue-hover);
+	box-shadow: var(--shadow-medium);
+}
+
+/* BOX INFO - Cards */
+#content main .box-info {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 24px;
+	margin-bottom: 32px;
+}
+
+#content main .box-info li {
+	padding: 24px;
+	background: var(--primary-white);
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	border: 1px solid var(--border-light);
+	box-shadow: var(--shadow-light);
+	transition: all 0.2s ease;
+}
+
+#content main .box-info li:hover {
+	box-shadow: var(--shadow-medium);
+	transform: translateY(-2px);
+}
+
+#content main .box-info li .bx {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	font-size: 24px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+#content main .box-info li:nth-child(1) .bx {
+	background: rgba(26, 115, 232, 0.1);
+	color: var(--accent-blue);
+}
+
+#content main .box-info li:nth-child(2) .bx {
+	background: rgba(251, 188, 4, 0.1);
+	color: var(--accent-yellow);
+}
+
+#content main .box-info li:nth-child(3) .bx {
+	background: rgba(52, 168, 83, 0.1);
+	color: var(--accent-green);
+}
+
+#content main .box-info li .text h3 {
+	font-size: 24px;
+	font-weight: 500;
+	color: var(--text-primary);
+	margin-bottom: 4px;
+	font-family: var(--google-sans);
+}
+
+#content main .box-info li .text p {
+	color: var(--text-secondary);
+	font-size: 14px;
+}
+
+/* TABLE DATA */
+#content main .table-data {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 24px;
+	width: 100%;
+	color: var(--text-primary);
+}
+
+#content main .table-data > div {
+	border-radius: 12px;
+	background: var(--primary-white);
+	padding: 24px;
+	overflow-x: auto;
+	border: 1px solid var(--border-light);
+	box-shadow: var(--shadow-light);
+}
+
+#content main .table-data .head {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+#content main .table-data .head h3 {
+	margin-right: auto;
+	font-size: 20px;
+	font-weight: 500;
+	font-family: var(--google-sans);
+	color: var(--text-primary);
+}
+
+#content main .table-data .head .bx {
+	cursor: pointer;
+	padding: 8px;
+	border-radius: 50%;
+	color: var(--text-secondary);
+	transition: all 0.2s ease;
+}
+
+#content main .table-data .head .bx:hover {
+	background: var(--surface-white);
+	color: var(--text-primary);
+}
+
+#content main .table-data .order {
+	flex-grow: 1;
+	flex-basis: 500px;
+}
+
+#content main .table-data .order table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+#content main .table-data .order table th {
+	padding: 12px 16px;
+	font-size: 14px;
+	text-align: left;
+	border-bottom: 1px solid var(--border-light);
+	color: var(--text-secondary);
+	font-weight: 500;
+	font-family: var(--google-sans);
+}
+
+#content main .table-data .order table td {
+	padding: 16px;
+	border-bottom: 1px solid var(--border-light);
+	font-size: 14px;
+}
+
+#content main .table-data .order table tr:last-child td {
+	border-bottom: none;
+}
+
+#content main .table-data .order table tr td:first-child {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+#content main .table-data .order table td img {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+#content main .table-data .order table tbody tr:hover {
+	background: var(--surface-white);
+}
+
+#content main .table-data .order table tr td .status {
+	font-size: 12px;
+	padding: 4px 12px;
+	border-radius: 16px;
+	font-weight: 500;
+	display: inline-block;
+}
+
+.status.process {
+	background-color: rgba(26, 115, 232, 0.1);
+	color: var(--accent-blue);
+}
+
+.status.completed {
+	background-color: rgba(52, 168, 83, 0.1);
+	color: var(--accent-green);
+}
+
+.status.pending {
+	background-color: rgba(251, 188, 4, 0.1);
+	color: #E37400;
+}
+
+.status.canceled {
+	background-color: rgba(234, 67, 53, 0.1);
+	color: var(--accent-red);
+}
+
+/* TODO SECTION */
+#content main .table-data .todo {
+	flex-grow: 1;
+	flex-basis: 300px;
+}
+
+#content main .table-data .todo .todo-list {
+	width: 100%;
+}
+
+#content main .table-data .todo .todo-list li {
+	width: 100%;
+	margin-bottom: 12px;
+	background: var(--surface-white);
+	border-radius: 8px;
+	padding: 16px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border: 1px solid var(--border-light);
+	transition: all 0.2s ease;
+}
+
+#content main .table-data .todo .todo-list li:hover {
+	box-shadow: var(--shadow-light);
+}
+
+#content main .table-data .todo .todo-list li .bx {
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 50%;
+	color: var(--text-secondary);
+	transition: all 0.2s ease;
+}
+
+#content main .table-data .todo .todo-list li .bx:hover {
+	background: var(--surface-white);
+	color: var(--text-primary);
+}
+
+#content main .table-data .todo .todo-list li.completed {
+	border-left: 4px solid var(--accent-green);
+	background: rgba(52, 168, 83, 0.02);
+}
+
+#content main .table-data .todo .todo-list li.not-completed {
+	border-left: 4px solid var(--accent-orange);
+	background: rgba(255, 109, 1, 0.02);
+}
+
+#content main .table-data .todo .todo-list li:last-child {
+	margin-bottom: 0;
+}
+
+/* BUTTONS */
+.btn-add {
+	padding: 12px 24px;
+	background-color: var(--accent-blue);
+	color: var(--primary-white);
+	text-decoration: none;
+	border-radius: 8px;
+	font-weight: 500;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	box-shadow: var(--shadow-light);
+}
+
+.btn-add:hover {
+	background-color: var(--accent-blue-hover);
+	box-shadow: var(--shadow-medium);
+}
+
+.btn-detail {
+	padding: 6px 12px;
+	font-size: 12px;
+	background-color: var(--surface-white);
+	color: var(--text-secondary);
+	border: 1px solid var(--border-light);
+	border-radius: 6px;
+	cursor: pointer;
+	text-decoration: none;
+	display: inline-block;
+	transition: all 0.2s ease;
+	font-weight: 500;
+}
+
+.btn-detail:hover {
+	background-color: var(--accent-blue);
+	color: var(--primary-white);
+	border-color: var(--accent-blue);
+}
+
+/* REPLY BOX */
+.reply-box {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.reply-input {
+	flex: 1;
+	padding: 8px 12px;
+	border: 1px solid var(--border-light);
+	border-radius: 6px;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	font-family: var(--roboto);
+	background: var(--primary-white);
+	color: var(--text-primary);
+}
+
+.reply-input:focus {
+	outline: none;
+	border-color: var(--accent-blue);
+	box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+}
+
+.btn-reply {
+	padding: 8px 16px;
+	background-color: var(--accent-blue);
+	color: var(--primary-white);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+}
+
+.btn-reply:hover {
+	background-color: var(--accent-blue-hover);
+}
+
+/* ADDRESS COLUMN */
+td.address {
+	max-width: 200px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 14px;
+}
+
+/* BRAND COLORS */
+.octa {
+	color: var(--text-primary);
+}
+
+.prime {
+	color: var(--text-primary);
+	font-weight: 300;
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 1024px) {
+	#content main .box-info {
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	}
+}
+
+@media screen and (max-width: 768px) {
+	#sidebar {
+		width: 0;
+		border-right: none;
+		box-shadow: none;
+	}
+
+	#sidebar .brand {
+		padding: 0 12px;
+	}
+
+	#sidebar .brand span {
+		display: none;
+	}
+
+	#content {
+		width: 100%;
+		left: 0;
+	}
+
+	#content nav .nav-link {
+		display: none;
+	}
+
+	#content main {
+		padding: 16px;
+	}
+
+	#content main .head-title .left h1 {
+		font-size: 24px;
+	}
+
+	#content main .box-info {
+		grid-template-columns: 1fr;
+		gap: 16px;
+	}
+
+	#content main .table-data {
+		gap: 16px;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	#content nav form .form-input input {
+		display: none;
+	}
+
+	#content nav form .form-input button {
+		width: auto;
+		height: auto;
+		background: transparent;
+		border-radius: 50%;
+		color: var(--text-secondary);
+		padding: 8px;
+	}
+
+	#content nav form.show .form-input input {
+		display: block;
+		width: 100%;
+	}
+
+	#content nav form.show .form-input button {
+		width: 40px;
+		height: 100%;
+		border-radius: 0 20px 20px 0;
+		color: var(--primary-white);
+		background: var(--accent-blue);
+		padding: 0;
+	}
+
+	#content nav form.show ~ .notification,
+	#content nav form.show ~ .profile {
+		display: none;
+	}
+
+	#content main .table-data .head {
+		min-width: 420px;
+	}
+
+	#content main .table-data .order table {
+		min-width: 420px;
+	}
+
+	#content main .table-data .todo .todo-list {
+		min-width: 420px;
+	}
+
+	td.address {
+		max-width: 120px;
+	}
+
+/* Untuk menyembunyikan sub-menu secara default */
+.side-menu .submenu {
+    display: none;
+    padding-left: 20px; /* Indentasi untuk sub-menu */
+    list-style: none; /* Hapus bullet default */
+}
+
+/* Untuk menampilkan sub-menu saat parent-nya aktif atau di-toggle */
+.side-menu .has-dropdown.active .submenu,
+.side-menu .has-dropdown.open .submenu { /* 'open' class akan ditambahkan JS */
+    display: block;
+}
+
+/* Styling untuk ikon panah */
+.side-menu .has-dropdown .dropdown-toggle .toggle-icon {
+    transition: transform 0.3s ease; /* Animasi rotasi panah */
+}
+
+/* Memutar panah saat menu terbuka */
+.side-menu .has-dropdown.open .dropdown-toggle .toggle-icon {
+    transform: rotate(90deg); /* Sesuaikan rotasi jika perlu */
+}
+/* Styling untuk head dari blok tabel (misalnya, di .table-data .order) */
+.table-data .order .head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    /* Tambahan: pastikan ada ruang untuk input search.
+       Jika elemen lain menggunakan margin-right: auto, maka input search akan menempel ke ikon search.
+       Jika tidak, Anda mungkin perlu menyesuaikan width atau flexbox. */
+}
+
+/* Styling untuk ikon search dan filter */
+.table-data .order .head .bx {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.table-data .order .head .bx:hover {
+    background: var(--surface-white);
+    color: var(--text-primary);
+}
+
+/* CSS KHUSUS UNTUK FITUR SEARCH INPUT YANG BISA DIKLIK */
+/* Ini adalah input teks yang akan muncul saat ikon search diklik */
+.table-search-input {
+    width: 0; /* Awalnya tersembunyi */
+    padding: 0;
+    border: none;
+    transition: width 0.3s ease, padding 0.3s ease, border 0.3s ease; /* Transisi untuk animasi */
+    box-sizing: border-box; /* Memastikan padding tidak menambah lebar */
+    background: var(--surface-white);
+    color: var(--text-primary);
+    font-size: 14px;
+    border-radius: 20px; /* Sesuai dengan form-input di navbar */
+    margin-left: auto; /* Dorong input ke kanan, menempel ke ikon search */
+    outline: none; /* Hilangkan outline default saat fokus */
+    height: 40px; /* Sesuaikan tinggi agar sejajar dengan ikon */
+}
+
+/* Saat class 'show' ditambahkan ke input search */
+.table-search-input.show {
+    width: 200px; /* Lebar saat ditampilkan */
+    padding: 8px 12px;
+    border: 1px solid var(--border-light); /* Border saat ditampilkan */
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1); /* Shadow saat ditampilkan */
+}
+
+/* Styling saat input search difokus */
+.table-search-input.show:focus {
+    border-color: var(--accent-blue); /* Warna border saat fokus */
+}
+
+/* Pastikan ikon search memiliki sedikit jarak dari input ketika input terlihat */
+.table-data .order .head .bx-search {
+    /* Anda bisa menambahkan margin-left di sini jika ingin jaraknya lebih jauh dari input */
+    /* Misalnya: margin-left: 10px; */
+}
+
+}

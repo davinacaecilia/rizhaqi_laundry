@@ -4,12 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
+    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
-    <title>Tambah Alat Baru - Rizhaqi Laundry Admin</title>
-    
+    <title>Tambah Alat - Rizhaqi Laundry Admin</title>
     <style>
         .form-card {
             background: var(--primary-white);
@@ -17,7 +18,7 @@
             border-radius: 12px;
             box-shadow: var(--shadow-light);
             border: 1px solid var(--border-light);
-            max-width: 600px; 
+            max-width: 800px;
             margin: 24px auto;
         }
 
@@ -35,7 +36,9 @@
 
         .form-group input[type="text"],
         .form-group input[type="number"],
-        .form-group input[type="date"], 
+        .form-group input[type="date"],
+        .form-group input[type="file"],
+        .form-group textarea,
         .form-group select {
             width: 100%;
             padding: 10px 12px;
@@ -48,11 +51,17 @@
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        
+
         .form-group input:focus,
+        .form-group textarea:focus,
         .form-group select:focus {
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .form-actions {
@@ -100,58 +109,56 @@
     @include('partial.sidebar')
 
     <section id="content">
-        @include('partial.navbar')
+       	@include('partial.navbar')
+
+        <!-- MAIN -->
         <main>
             <div class="head-title">
                 <div class="left">
-                    <h1>Tambah Alat Baru</h1>
+                    <h1>Tambah Alat</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a href="{{ route('admin.alat.index') }}">Manajemen Alat</a></li>
+                        <li><a href="{{ url('admin/alat') }}">Data Alat</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="{{ route('admin.alat.create') }}">Tambah Alat</a></li>
+                        <li><a class="active" href="{{ url('admin/alat/create') }}">Tambah Alat</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form action="{{ route('admin.alat.store') }}" method="POST">
-                    @csrf
-                    
                     <div class="form-group">
                         <label for="nama_alat">Nama Alat</label>
-                        <input type="text" id="nama_alat" name="nama_alat" placeholder="Contoh: Mesin Cuci, Setrika Uap" required>
+                        <input type="text" id="nama_alat" name="nama_alat" placeholder="Masukkan nama alat" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="jumlah">Jumlah Unit</label>
-                        <input type="number" id="jumlah" name="jumlah" placeholder="Contoh: 5" required>
-                        <small style="color: var(--text-secondary); font-size: 12px;">Total unit mesin atau alat yang dimiliki.</small>
+                        <label for="jumlah">Jumlah Alat</label>
+                        <input type="text" id="jumlah" name="jumlah" placeholder="contoh: 4" required>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="tgl_maintenance">Tanggal Maintenance Terakhir</label>
-                        <input type="date" id="tgl_maintenance" name="tgl_maintenance"> 
-                        <small style="color: var(--text-secondary); font-size: 12px;">Tanggal terakhir alat diservis/dicek (Opsional).</small>
+                        <label for="tanggal_maintenance">Tanggal Maintenance Terakhir</label>
+                        <input type="date" id="tanggal_maintenance" required>
                     </div>
-                    
+
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.alat.index') }}'">
-                            <i class='bx bx-x'></i> Batal
+                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/alat') }}'">
+                            <i class='bx bx-x'></i> Cancel
                         </button>
                         <button type="submit" class="btn-submit">
-                            <i class='bx bx-save'></i> Simpan Alat
+                            <i class='bx bx-save'></i> Simpan Data
                         </button>
                     </div>
                 </form>
             </div>
 
         </main>
-        </section>
+        <!-- MAIN -->
+    </section>
+
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-
 </body>
 </html>

@@ -17,27 +17,27 @@
                 <span class="text">Manajemen Transaksi</span>
                 <i class='bx bx-chevron-down toggle-icon'></i> </a>
             <ul class="submenu">
-                
+
                 <li class="{{ Request::is('admin/transaksi') && !Request::is('admin/transaksi/*') ? 'active' : '' }}">
                     <a href="{{ route('admin.transaksi.index') }}">
                         <i class='bx bx-list-ul'></i> <span class="text">Data Transaksi</span>
                     </a>
                 </li>
-                
+
                 <li class="{{ Request::is('admin/transaksi/status*') ? 'active' : '' }}">
                     <a href="{{ route('admin.transaksi.status') }}">
                         <i class='bx bx-check-shield'></i>
                         <span class="text">Status Order</span>
                     </a>
                 </li>
-                
+
                 <li class="{{ Request::is('admin/transaksi/create') ? 'active' : '' }}">
                     <a href="{{ route('admin.transaksi.create') }}">
                         <i class='bx bx-plus-circle'></i>
                         <span class="text">Tambah Order</span>
                     </a>
                 </li>
-                
+
                 </ul>
         </li>
 
@@ -104,6 +104,12 @@
                         <span class="text">Tambah Layanan</span>
                     </a>
                 </li>
+                <li class="{{ Request::is('admin/layanan/kategori/create') ? 'active' : '' }}">
+                    <a href="{{ route('admin.layanan.kategori.create') }}">
+                        <i class='bx bx-layer-plus'></i>
+                        <span class="text">Tambah Kategori</span>
+                    </a>
+                </li>
             </ul>
         </li>
 
@@ -160,7 +166,7 @@
 
     <ul class="side-menu">
         <li>
-            <a href="{{ route('logout') }}" class="logout" 
+            <a href="{{ route('logout') }}" class="logout"
             onclick="event.preventDefault(); if(confirm('Are you sure you want to log out?')) { document.getElementById('logout-form').submit(); }">
                 <i class='bx bxs-log-out-circle'></i>
                 <span class="text">Logout</span>

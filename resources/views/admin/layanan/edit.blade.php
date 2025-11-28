@@ -4,21 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
+    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
     <title>Edit Layanan - Rizhaqi Laundry Admin</title>
-    
     <style>
-        /* Styling tambahan untuk form */
         .form-card {
             background: var(--primary-white);
             padding: 24px;
             border-radius: 12px;
             box-shadow: var(--shadow-light);
             border: 1px solid var(--border-light);
-            max-width: 600px; 
+            max-width: 800px;
             margin: 24px auto;
         }
 
@@ -34,24 +34,19 @@
             margin-bottom: 8px;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group textarea,
+        .form-group input,
         .form-group select {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            font-family: var(--roboto);
             font-size: 14px;
             background: var(--surface-white);
             color: var(--text-primary);
             outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        
+
         .form-group input:focus,
-        .form-group textarea:focus,
         .form-group select:focus {
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
@@ -64,35 +59,33 @@
             margin-top: 24px;
         }
 
-        .form-actions .btn-submit,
-        .form-actions .btn-cancel {
+        .btn-submit, .btn-cancel {
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: 0.2s;
         }
 
-        .form-actions .btn-submit {
+        .btn-submit {
             background-color: var(--accent-blue);
-            color: var(--primary-white);
+            color: white;
         }
 
-        .form-actions .btn-submit:hover {
+        .btn-submit:hover {
             background-color: var(--accent-blue-hover);
         }
 
-        .form-actions .btn-cancel {
+        .btn-cancel {
             background-color: var(--text-tertiary);
-            color: var(--primary-white);
+            color: white;
         }
 
-        .form-actions .btn-cancel:hover {
+        .btn-cancel:hover {
             background-color: #7a8086;
         }
     </style>
@@ -103,60 +96,74 @@
 
     <section id="content">
         @include('partial.navbar')
+
         <main>
             <div class="head-title">
                 <div class="left">
-                    <h1>Edit Layanan (LYN-001)</h1>
+                    <h1>Edit Layanan</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a href="{{ route('admin.layanan.index') }}">Manajemen Layanan</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="#">Edit Layanan</a></li>
+                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a href="{{ url('admin/layanan') }}">Data Layanan</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="{{ url('admin/layanan/1/edit') }}">Edit Layanan</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form action="{{ route('admin.layanan.update', ['layanan' => 1]) }}" method="POST">
-                    @csrf
-                    @method('PUT') <div class="form-group">
-                        <label for="nama_layanan">Nama Layanan</label>
-                        <input type="text" id="nama_layanan" name="nama_layanan" value="Cuci Setrika (Dummy)" required>
+                <form id="editLayananForm">
+                    <div class="form-group">
+                        <label for="kategori">Kategori</label>
+                        <select id="kategori" name="kategori">
+                            <option value="regular" selected>Regular</option>
+                            <option value="paket">Paket</option>
+                            <option value="satuan">Satuan</option>
+                            <option value="karpet">Karpet</option>
+                            <option value="add_on">Add On</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="harga">Harga Satuan (Rp)</label>
-                        <input type="number" id="harga" name="harga" value="7000" required>
-                        <small style="color: var(--text-secondary); font-size: 12px;">Masukkan harga tanpa titik atau koma (misalnya 7000).</small>
+                        <label for="nama_layanan">Nama Layanan</label>
+                        <input type="text" id="nama_layanan" value="Cuci Setrika" />
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="satuan">Satuan Harga</label>
-                        <select id="satuan" name="satuan" required>
-                            <option value="">-- Pilih Satuan --</option>
-                            <option value="kg" selected>Per Kilogram (Kg)</option> 
-                            <option value="pcs">Per Buah (Pcs)</option>
+                        <label for="satuan">Satuan</label>
+                        <select id="satuan" name="satuan">
+                            <option value="kg" selected>kg</option>
+                            <option value="pcs">pcs</option>
+                            <option value="m2">m²</option>
                         </select>
-                        <small style="color: var(--text-secondary); font-size: 12px;">Satuan yang digunakan untuk menghitung biaya.</small>
                     </div>
-                    
+
+                    <div class="form-group">
+                        <label for="harga_satuan">Harga Satuan</label>
+                        <input type="text" id="harga_satuan" value="15000" />
+                    </div>
+
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.layanan.index') }}'">
+                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/layanan') }}'">
                             <i class='bx bx-x'></i> Batal
                         </button>
-                        <button type="submit" class="btn-submit">
-                            <i class='bx bx-save'></i> Update Layanan
+                        <button type="button" class="btn-submit" onclick="simpanData()">
+                            <i class='bx bx-save'></i> Simpan Perubahan
                         </button>
                     </div>
                 </form>
             </div>
-
         </main>
-        </section>
+    </section>
+
+    <script>
+        function simpanData() {
+            alert('Data layanan berhasil diperbarui (dummy).');
+            window.location.href = '{{ url('admin/layanan') }}';
+        }
+    </script>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-
 </body>
 </html>

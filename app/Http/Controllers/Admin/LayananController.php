@@ -17,11 +17,21 @@ class LayananController extends Controller
         return view('admin.layanan.create');
     }
 
-    public function store(Request $request) { }
-    public function show(string $id) { }
-    public function edit(string $id) { 
-    return view('admin.layanan.edit');
+    public function createKategori()
+    {
+        return view('admin.layanan.create_kategori');
     }
+
+    public function store(Request $request) { }
+
+    public function show(string $id) { }
+
+    public function edit(string $id)
+    {
+        return view('admin.layanan.edit');
+    }
+
     public function update(Request $request, string $id) { }
+
     public function destroy(string $id) { }
 }

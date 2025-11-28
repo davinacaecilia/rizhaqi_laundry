@@ -8,9 +8,9 @@
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
     <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
-    <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
-    <title>Tambah Layanan - Rizhaqi Laundry Admin</title>
+    <title>Tambah Kategori - Rizhaqi Laundry Admin</title>
+
     <style>
         .form-card {
             background: var(--primary-white);
@@ -18,7 +18,7 @@
             border-radius: 12px;
             box-shadow: var(--shadow-light);
             border: 1px solid var(--border-light);
-            max-width: 800px;
+            max-width: 700px;
             margin: 24px auto;
         }
 
@@ -35,11 +35,7 @@
         }
 
         .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group input[type="date"],
-        .form-group input[type="file"],
-        .form-group textarea,
-        .form-group select {
+        .form-group textarea {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border-light);
@@ -52,16 +48,15 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
-        }
-
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
         }
 
         .form-actions {
@@ -106,22 +101,21 @@
 </head>
 <body>
 
-     @include('partial.sidebar')
+    @include('partial.sidebar')
 
     <section id="content">
         @include('partial.navbar')
 
-        <!-- MAIN -->
         <main>
             <div class="head-title">
                 <div class="left">
-                    <h1>Tambah Layanan</h1>
+                    <h1>Tambah Kategori</h1>
                     <ul class="breadcrumb">
                         <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a href="layanan.html">Data Layanan</a></li>
+                        <li><a href="{{ url('admin/kategori') }}">Data Kategori</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="{{ url('admin/layanan/create') }}">Tambah Layanan</a></li>
+                        <li><a class="active">Tambah Kategori</a></li>
                     </ul>
                 </div>
             </div>
@@ -129,57 +123,31 @@
             <div class="form-card">
                 <form>
                     <div class="form-group">
-                        <label for="kategori">Kategori</label>
-                        <select id="kategori" name="kategori">
-                            <option value="">Pilih kategori</option>
-                            <option value="regular">Regular</option>
-                            <option value="paket">Paket</option>
-                            <option value="satuan">Satuan</option>
-                            <option value="karpet">Karpet</option>
-                            <option value="add_on">Add On</option>
-                        </select>
+                        <label for="nama_kategori">Nama Kategori</label>
+                        <input type="text" id="nama_kategori" name="nama_kategori" placeholder="Contoh: Regular, Paket, Karpet">
                     </div>
 
                     <div class="form-group">
-                        <label for="nama_layanan">Nama Layanan</label>
-                        <input type="text" id="nama_layanan" name="nama_layanan" placeholder="Masukkan nama layanan">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="satuan">Satuan</label>
-                        <select id="satuan" name="satuan">
-                            <option value="">Pilih satuan</option>
-                            <option value="kg">kg</option>
-                            <option value="pcs">pcs</option>
-                            <option value="m2">m²</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="harga_satuan">Harga Satuan</label>
-                        <input type="text" id="harga_satuan" name="harga_satuan" placeholder="Contoh: 15.000">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="deskripsi">Deskripsi</label>
-                        <textarea id="deskripsi" name="deskripsi" placeholder="Tambahkan deskripsi layanan"></textarea>
+                        <label for="deskripsi">Deskripsi (Opsional)</label>
+                        <textarea id="deskripsi" name="deskripsi" placeholder="Tambahkan deskripsi kategori jika diperlukan"></textarea>
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/layanan') }}'">
+                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/kategori') }}'">
                             <i class='bx bx-x'></i> Batal
                         </button>
                         <button type="submit" class="btn-submit">
-                            <i class='bx bx-save'></i> Simpan Data
+                            <i class='bx bx-save'></i> Simpan Kategori
                         </button>
                     </div>
                 </form>
             </div>
+
         </main>
-        <!-- MAIN -->
     </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+
 </body>
 </html>

@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet" />
+    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
-    <title>Tambah Pelanggan Baru - Rizhaqi Laundry Admin</title>
-    
+    <title>Tambah Pelanggan - Rizhaqi Laundry Admin</title>
     <style>
-        /* Styling tambahan untuk form */
         .form-card {
             background: var(--primary-white);
             padding: 24px;
@@ -35,8 +35,10 @@
         }
 
         .form-group input[type="text"],
-        .form-group input[type="tel"], 
-        .form-group textarea, 
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group input[type="file"],
+        .form-group textarea,
         .form-group select {
             width: 100%;
             padding: 10px 12px;
@@ -49,17 +51,17 @@
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
 
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .form-actions {
@@ -108,55 +110,57 @@
 
     <section id="content">
         @include('partial.navbar')
+
+        <!-- MAIN -->
         <main>
             <div class="head-title">
                 <div class="left">
-                    <h1>Tambah Pelanggan Baru</h1>
+                    <h1>Tambah Pelanggan</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a href="{{ route('admin.pelanggan.index') }}">Manajemen Pelanggan</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="{{ route('admin.pelanggan.create') }}">Tambah Pelanggan</a></li>
+                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a href="#">Data Pelanggan</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="{{ url('admin/pelanggan/create') }}">Tambah Pelanggan</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form action="{{ route('admin.pelanggan.store') }}" method="POST">
-                    @csrf 
-                    
+                <form action="{{ route('admin.pelanggan.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+
                     <div class="form-group">
-                        <label for="name">Nama Lengkap Pelanggan</label>
-                        <input type="text" id="name" name="name" placeholder="Masukkan nama pelanggan" required>
+                        <label for="nama_pelanggan">Nama Pelanggan</label>
+                        <input type="text" id="nama_pelanggan" name="nama_pelanggan" placeholder="Masukkan nama pelanggan" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="no_hp">Nomor HP (WhatsApp)</label>
-                        <input type="tel" id="no_hp" name="no_hp" placeholder="Contoh: 08123456789" required>
+                        <label for="alamat">Alamat</label>
+                        <input type="text" id="alamat" name="alamat" placeholder="Masukkan alamat pelanggan">
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="alamat">Alamat (Opsional)</label>
-                        <textarea id="alamat" name="alamat" placeholder="Contoh: Jl. Merdeka No. 10" rows="3"></textarea>
+                        <label for="no_telepon">Nomor Telepon</label>
+                        <input type="text" id="no_telepon" name="no_telepon" placeholder="Masukkan nomor telepon">
                     </div>
-                    
+
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.pelanggan.index') }}'">
+                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/pelanggan') }}'">
                             <i class='bx bx-x'></i> Batal
                         </button>
                         <button type="submit" class="btn-submit">
-                            <i class='bx bx-save'></i> Simpan Pelanggan
+                            <i class='bx bx-save'></i> Simpan Data
                         </button>
                     </div>
                 </form>
             </div>
 
         </main>
-        </section>
+        <!-- MAIN -->
+    </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-
 </body>
 </html>

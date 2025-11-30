@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\PelangganController;
 use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\AlatController;
 use App\Http\Controllers\Admin\LaporanController;
-use App\Http\Controllers\Admin\PengeluaranController; 
+use App\Http\Controllers\Admin\PengeluaranController;
 
 Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');

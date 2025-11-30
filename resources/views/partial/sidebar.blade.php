@@ -19,16 +19,21 @@
                 <i class='bx bx-chevron-down toggle-icon'></i> 
             </a>
             <ul class="submenu">
-                <li class="{{ Request::is('admin/transaksi') && !Request::is('admin/transaksi/status*') && !Request::is('admin/transaksi/create*') ? 'active' : '' }}">
+                {{-- Data Transaksi (Index) --}}
+                <li class="{{ Request::is('admin/transaksi') && !Request::is('admin/transaksi/*') ? 'active' : '' }}">
                     <a href="{{ route('admin.transaksi.index') }}">
                         <i class='bx bx-list-ul'></i> <span class="text">Data Transaksi</span>
                     </a>
                 </li>
+
+                {{-- Tambah Order (Create) --}}
                 <li class="{{ Request::is('admin/transaksi/create') ? 'active' : '' }}">
                     <a href="{{ route('admin.transaksi.create') }}">
                         <i class='bx bx-plus-circle'></i> <span class="text">Tambah Order</span>
                     </a>
                 </li>
+
+                {{-- Status Order --}}
                 <li class="{{ Request::is('admin/transaksi/status*') ? 'active' : '' }}">
                     <a href="{{ route('admin.transaksi.status') }}">
                         <i class='bx bx-check-shield'></i> <span class="text">Status Order</span>
@@ -162,3 +167,20 @@
         </li>
     </ul>
 </section>
+```
+
+### Langkah Terakhir (Wajib)
+
+Setelah di-save, jalankan perintah ini di terminal VS Code untuk menyelesaikan konflik dan mengirim kode ke GitHub:
+
+1.  **Add file sidebar:**
+    ```powershell
+    git add resources/views/partial/sidebar.blade.php
+    ```
+2.  **Commit:**
+    ```powershell
+    git commit -m "Fix conflict sidebar menu"
+    ```
+3.  **Push:**
+    ```powershell
+    git push origin admin-panel-igun

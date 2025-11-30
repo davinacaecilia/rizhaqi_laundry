@@ -34,9 +34,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // 5. Manajemen Layanan
     Route::resource('layanan', LayananController::class);
-    // 5.1 Tambah Kategori Layanan
-    Route::get('/layanan/kategori/create', [LayananController::class, 'createKategori'])
-    ->name('layanan.kategori.create');
 
 
     // 6. Manajemen Alat

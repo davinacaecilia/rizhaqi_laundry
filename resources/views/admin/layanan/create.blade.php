@@ -129,16 +129,30 @@
             <div class="form-card">
                 <form>
                     <div class="form-group">
-                        <label for="kategori">Kategori</label>
-                        <select id="kategori" name="kategori">
-                            <option value="">Pilih kategori</option>
-                            <option value="regular">Regular</option>
-                            <option value="paket">Paket</option>
-                            <option value="satuan">Satuan</option>
-                            <option value="karpet">Karpet</option>
-                            <option value="add_on">Add On</option>
-                        </select>
+                    <label for="kategori_select">Kategori</label>
+
+                    <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+                        <label style="display:flex; align-items:center; gap:6px;">
+                            <input type="radio" name="kategori_mode" value="existing">
+                            Pilih kategori yang sudah ada
+                        </label>
+
+                        <label style="display:flex; align-items:center; gap:6px;">
+                            <input type="radio" name="kategori_mode" value="new">
+                            Buat kategori baru
+                        </label>
                     </div>
+
+                    <!-- Input dinamis -->
+                    <div id="kategori_container">
+                        <input
+                            type="text"
+                            disabled
+                            placeholder="Pilih salah satu opsi di atas"
+                            style="background:#f1f1f1; cursor:not-allowed;"
+                        >
+                    </div>
+                </div>
 
                     <div class="form-group">
                         <label for="nama_layanan">Nama Layanan</label>
@@ -181,5 +195,59 @@
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+
+    <script>
+    const radios = document.querySelectorAll('input[name="kategori_mode"]');
+    const container = document.getElementById('kategori_container');
+
+    function updateKategoriInput() {
+        const selected = document.querySelector('input[name="kategori_mode"]:checked');
+
+        // Jika belum ada radio yang dipilih → tetap disabled
+        if (!selected) {
+            container.innerHTML = `
+                <input
+                    type="text"
+                    disabled
+                    placeholder="Pilih salah satu opsi di atas"
+                    style="background:#f1f1f1; cursor:not-allowed;"
+                >
+            `;
+            return;
+        }
+
+        // Kalau pilih kategori lama
+        if (selected.value === "existing") {
+            container.innerHTML = `
+                <select id="kategori_select" name="kategori">
+                    <option value="">Pilih kategori</option>
+                    <option value="regular">Regular</option>
+                    <option value="paket">Paket</option>
+                    <option value="satuan">Satuan</option>
+                    <option value="karpet">Karpet</option>
+                    <option value="add_on">Add On</option>
+                </select>
+            `;
+        }
+
+        // Kalau pilih kategori baru
+        else if (selected.value === "new") {
+            container.innerHTML = `
+                <input
+                    type="text"
+                    id="kategori_baru"
+                    name="kategori_baru"
+                    placeholder="Masukkan kategori baru"
+                >
+            `;
+        }
+    }
+
+    radios.forEach(r => r.addEventListener('change', updateKategoriInput));
+
+    // Kondisi awal → disable
+    updateKategoriInput();
+</script>
+
 </body>
 </html>

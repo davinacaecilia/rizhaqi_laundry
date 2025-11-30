@@ -104,12 +104,6 @@
                         <span class="text">Tambah Layanan</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('admin/layanan/kategori/create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.layanan.kategori.create') }}">
-                        <i class='bx bx-layer-plus'></i>
-                        <span class="text">Tambah Kategori</span>
-                    </a>
-                </li>
             </ul>
         </li>
 
@@ -130,12 +124,6 @@
                     <a href="{{ route('admin.alat.create') }}">
                         <i class='bx bx-plus-circle'></i>
                         <span class="text">Tambah Alat</span>
-                    </a>
-                </li>
-                <li class="{{ Request::is('admin/alat/stok') ? 'active' : '' }}">
-                    <a href="{{ route('admin.alat.stok') }}">
-                        <i class='bx bx-package'></i>
-                        <span class="text">Jumlah Alat Tersedia</span>
                     </a>
                 </li>
             </ul>

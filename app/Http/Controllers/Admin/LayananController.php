@@ -17,11 +17,6 @@ class LayananController extends Controller
         return view('admin.layanan.create');
     }
 
-    public function createKategori()
-    {
-        return view('admin.layanan.create_kategori');
-    }
-
     public function store(Request $request) { }
 
     public function show(string $id) { }

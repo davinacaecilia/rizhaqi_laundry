@@ -11,9 +11,10 @@
     <title>Status Order - Rizhaqi Laundry Admin</title>
     
     <style>
+        /* CSS TABEL FULL GRID (KOTAK-KOTAK) - SAMA DENGAN INDEX */
         .table-container table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: collapse; /* KUNCI: Agar garis nyambung */
             border: 1px solid var(--border-light);
             border-radius: 8px;
             overflow: hidden;
@@ -25,10 +26,11 @@
             border-bottom: 1px solid var(--border-light);
         }
 
+        /* SEL KOTAK-KOTAK (Border di semua sisi) */
         .table-container th,
         .table-container td {
             padding: 15px;
-            border: 1px solid var(--border-light);
+            border: 1px solid var(--border-light); /* Garis Keliling */
             text-align: left;
             font-size: 14px;
             color: var(--text-primary);
@@ -41,112 +43,72 @@
             background-color: var(--surface-white);
         }
 
-        .table-container tbody tr:nth-child(even) {
-            background-color: var(--surface-white);
-        }
-
         .table-container tbody tr:hover {
             background-color: rgba(26, 115, 232, 0.04);
         }
 
+        /* TOMBOL AKSI KHUSUS STATUS */
         .table-container .btn-action-group {
             display: flex;
             gap: 5px;
             flex-wrap: wrap;
         }
 
-        .table-container .btn-action-group .btn-detail {
-            padding: 6px 12px;
-            font-size: 12px;
+        .btn-status {
+            padding: 8px 16px;
             border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             text-decoration: none;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            background-color: var(--surface-white);
-            border: 1px solid var(--border-light);
-            color: var(--text-secondary);
-            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-status:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Tombol Disabled (Mati) */
+        .btn-status.disabled {
+            background-color: #e0e0e0 !important;
+            color: #999 !important;
+            cursor: not-allowed;
+            pointer-events: none;
+            transform: none;
+            box-shadow: none;
         }
 
-        /* Styling for Status buttons */
-        .table-container .btn-action-group .btn-approve {
-            background-color: var(--accent-green);
-            color: var(--primary-white);
-            border: 1px solid var(--accent-green);
-        }
-        .table-container .btn-action-group .btn-approve:hover {
-            background-color: #288a42;
-            border-color: #288a42;
-        }
+        /* Warna Tombol Status */
+        .btn-blue { background-color: var(--accent-blue); }
+        .btn-orange { background-color: #FF9800; }
+        .btn-purple { background-color: #9C27B0; }
+        .btn-teal { background-color: #009688; } /* Warna Packing */
+        .btn-green { background-color: var(--accent-green); }
+        .btn-dark { background-color: #455A64; }
+        .btn-red { background-color: var(--accent-red); }
 
-        .table-container .btn-action-group .btn-reject {
-            background-color: var(--accent-red);
-            color: var(--primary-white);
-            border: 1px solid var(--accent-red);
-        }
-        .table-container .btn-action-group .btn-reject:hover {
-            background-color: #c52c20;
-            border-color: #c52c20;
-        }
-        
-        /* Status Badges */
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .status-pending {
-            background-color: rgba(251, 188, 4, 0.1);
-            color: #F8B500;
-        }
-        .status-approved {
-            background-color: rgba(52, 168, 83, 0.1);
-            color: var(--accent-green);
-        }
-        .status-rejected {
-            background-color: rgba(234, 67, 53, 0.1);
-            color: var(--accent-red);
-        }
-        .status-processing {
-            background-color: rgba(26, 115, 232, 0.1);
-            color: var(--accent-blue);
-        }
+        /* BADGES STATUS */
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+        .st-diterima { background: #E0E0E0; color: #424242; }
+        .st-dicuci { background: #E3F2FD; color: #1565C0; }
+        .st-dikeringkan { background: #FFF3E0; color: #EF6C00; }
+        .st-disetrika { background: #F3E5F5; color: #7B1FA2; }
+        .st-packing { background: #E0F2F1; color: #00695C; }
+        .st-siap { background: #E8F5E9; color: #2E7D32; }
+        .st-selesai { background: #1B5E20; color: #fff; }      /* Hijau Tua (Selesai) */
+        .st-batal { background: #FFEBEE; color: #C62828; }     /* Merah (Batal) */
 
-        /* Search */
-        .table-data .order .head {
-            position: relative;
-        }
+
+        /* SEARCH BAR */
+        .table-data .order .head { position: relative; }
         .table-search-input {
-            width: 0;
-            padding: 0;
-            border: none;
-            transition: width 0.3s ease, padding 0.3s ease, border 0.3s ease;
-            box-sizing: border-box;
-            background: var(--surface-white);
-            color: var(--text-primary);
-            font-size: 14px;
-            border-radius: 20px;
-            margin-left: auto;
-            outline: none;
-            height: 40px;
+            width: 0; padding: 0; border: none; transition: width 0.3s ease;
+            background: var(--surface-white); border-radius: 20px; margin-left: auto; outline: none; height: 40px; 
         }
-        .table-search-input.show {
-            width: 200px;
-            padding: 8px 12px;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
-        }
-        .table-search-input.show:focus {
-            border-color: var(--accent-blue);
-        }
-        .table-data .order .head .bx-search {
-            margin-left: 10px;
-        }
+        .table-search-input.show { width: 200px; padding: 8px 12px; border: 1px solid var(--border-light); }
+        .table-data .order .head .bx-search { margin-left: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -164,7 +126,7 @@
                         <li><i class='bx bx-chevron-right' ></i></li>
                         <li><a href="{{ route('admin.transaksi.index') }}">Manajemen Transaksi</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="{{ route('admin.transaksi.status') }}">Status Order</a></li>
+                        <li><a class="active" href="#">Status Order</a></li>
                     </ul>
                 </div>
             </div>
@@ -179,93 +141,112 @@
                     </div>
                     
                     <div class="table-container">
-                        <table style="width: 100%; border-collapse: collapse;">
+                        <table>
                             <thead>
                                 <tr style="background-color: #f2f2f2;">
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Kode Invoice</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Nama Pelanggan</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Status Sekarang</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Aksi Selanjutnya</th>
+                                    <th>Kode Invoice</th>
+                                    <th>Nama Pelanggan</th>
+                                    <th>Status Sekarang</th>
+                                    <th>Aksi Selanjutnya</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- SKENARIO 1: Status DITERIMA -> Tombol "Mulai Cuci" --}}
+                                {{-- SKENARIO 1: DITERIMA -> MULAI CUCI --}}
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;"><strong>D0225</strong></td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Ibu Ratna</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <span class="status-badge" style="background-color: #E0E0E0; color: #424242;">Diterima</span>
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <div class="btn-action-group">
-                                            <button type="button" class="btn-detail" style="background-color: var(--accent-blue); color: white; border: none;">
-                                                <i class='bx bx-water'></i> Mulai Cuci
-                                            </button>
-                                        </div>
+                                    <td><strong>D0226</strong></td>
+                                    <td>Ibu Ratna</td>
+                                    <td><span class="status-badge st-diterima">Diterima</span></td>
+                                    <td>
+                                        <button type="button" class="btn-status btn-blue" onclick="return confirm('Mulai cuci pesanan ini?')">
+                                            <i class='bx bx-water'></i> Mulai Cuci
+                                        </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 2: Status DICUCI -> Tombol "Ke Pengeringan" --}}
+                                {{-- SKENARIO 2: DICUCI -> KERINGKAN --}}
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;"><strong>D0224</strong></td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Kak Dinda</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <span class="status-badge status-processing">Dicuci</span>
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <div class="btn-action-group">
-                                            <button type="button" class="btn-detail" style="background-color: #FF9800; color: white; border: none;">
-                                                <i class='bx bx-wind'></i> Ke Pengeringan
-                                            </button>
-                                        </div>
+                                    <td><strong>D0225</strong></td>
+                                    <td>Kak Dinda</td>
+                                    <td><span class="status-badge st-dicuci">Dicuci</span></td>
+                                    <td>
+                                        <button type="button" class="btn-status btn-orange" onclick="return confirm('Selesai cuci? Lanjut keringkan?')">
+                                            <i class='bx bx-wind'></i> Ke Pengeringan
+                                        </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 3: Status DIKERINGKAN -> Tombol "Mulai Setrika" --}}
+                                {{-- SKENARIO 3: DIKERINGKAN -> SETRIKA --}}
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;"><strong>D0223</strong></td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Bu Siti</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <span class="status-badge status-pending" style="color: #EF6C00;">Dikeringkan</span>
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <div class="btn-action-group">
-                                            <button type="button" class="btn-detail" style="background-color: #9C27B0; color: white; border: none;">
-                                                <i class='bx bx-iron'></i> Mulai Setrika
-                                            </button>
-                                        </div>
+                                    <td><strong>D0224</strong></td>
+                                    <td>Bu Siti</td>
+                                    <td><span class="status-badge st-dikeringkan">Dikeringkan</span></td>
+                                    <td>
+                                        <button type="button" class="btn-status btn-purple" onclick="return confirm('Sudah kering? Lanjut setrika?')">
+                                            <!-- Icon Baju (Pengganti Icon Setrika) -->
+                                            <i class='bx bxs-t-shirt'></i> Mulai Setrika
+                                        </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 4: Status DISETRIKA -> Tombol "Selesai/Siap" --}}
+                                {{-- SKENARIO 4: DISETRIKA -> PACKING (NEW STATUS) --}}
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;"><strong>D0222</strong></td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Pak Rahmat</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <span class="status-badge status-processing" style="background-color: #F3E5F5; color: #7B1FA2;">Disetrika</span>
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <div class="btn-action-group">
-                                            <button type="button" class="btn-detail btn-approve">
-                                                <i class='bx bx-check-circle'></i> Tandai Siap
-                                            </button>
-                                        </div>
+                                    <td><strong>D0223</strong></td>
+                                    <td>Pak Rahmat</td>
+                                    <td><span class="status-badge st-disetrika">Disetrika</span></td>
+                                    <td>
+                                        <button type="button" class="btn-status btn-teal" onclick="return confirm('Selesai setrika? Lanjut packing?')">
+                                            <i class='bx bx-box'></i> Mulai Packing
+                                        </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 5: Status SIAP DIAMBIL -> Tombol "Sudah Diambil" --}}
+                                {{-- SKENARIO 5: PACKING -> SIAP (NEW STATUS) --}}
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;"><strong>D0221</strong></td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Mas Tono</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <span class="status-badge status-approved">Siap Diambil</span>
+                                    <td><strong>D0222</strong></td>
+                                    <td>Mbak Rini</td>
+                                    <td><span class="status-badge st-packing">Packing</span></td>
+                                    <td>
+                                        <button type="button" class="btn-status btn-green" onclick="return confirm('Selesai packing? Tandai siap diambil?')">
+                                            <i class='bx bx-check-circle'></i> Tandai Siap
+                                        </button>
                                     </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">
-                                        <div class="btn-action-group">
-                                            <button type="button" class="btn-detail" style="background-color: #455A64; color: white; border: none;">
-                                                <i class='bx bx-package'></i> Konfirmasi Ambil
-                                            </button>
-                                        </div>
+                                </tr>
+
+                                {{-- SKENARIO 6: SIAP -> DIAMBIL --}}
+                                <tr>
+                                    <td><strong>D0221</strong></td>
+                                    <td>Mas Tono</td>
+                                    <td><span class="status-badge st-siap">Siap Diambil</span></td>
+                                    <td>
+                                        <button type="button" class="btn-status btn-dark" onclick="return confirm('Barang sudah diambil pelanggan?')">
+                                            <i class='bx bx-package'></i> Konfirmasi Ambil
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                {{-- SKENARIO 7: SUDAH DIAMBIL (FINAL) -> TOMBOL MATI --}}
+                                <tr>
+                                    <td><strong>D0220</strong></td>
+                                    <td>Pak Yusuf</td>
+                                    <td><span class="status-badge st-selesai">Sudah Diambil</span></td>
+                                    <td>
+                                        {{-- Tombol Mati (Disabled) --}}
+                                        <button type="button" class="btn-status disabled" title="Transaksi Selesai">
+                                            <i class='bx bx-check-double'></i> Selesai
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                {{-- SKENARIO 8: DIBATALKAN (FINAL) -> TOMBOL MATI --}}
+                                <tr>
+                                    <td><strong>D0219</strong></td>
+                                    <td>Ibu Susi</td>
+                                    <td><span class="status-badge st-batal">Dibatalkan</span></td>
+                                    <td>
+                                        {{-- Tombol Mati (Disabled) --}}
+                                        <button type="button" class="btn-status disabled" title="Transaksi Dibatalkan">
+                                            <i class='bx bx-x-circle'></i> Batal
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>

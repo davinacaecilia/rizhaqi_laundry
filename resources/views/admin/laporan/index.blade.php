@@ -4,110 +4,96 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
-    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
-    <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
-
-    <title>Product Management</title>
+    
+    <title>Laporan Keuangan - Rizhaqi Laundry</title>
+    
     <style>
-        .table-data .order .head {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+        /* --- STYLE UMUM --- */
+        .head-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .head-title .left h1 { font-size: 28px; font-weight: 600; color: var(--text-primary); }
 
-        .table-data .order .head h3 {
-            margin-right: auto;
-            font-size: 20px;
-            font-weight: 500;
-            font-family: var(--google-sans);
-            color: var(--text-primary);
+        /* --- TABS NAVIGATION --- */
+        .tabs-box { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); }
+        .tab-btn {
+            padding: 10px 20px; background: none; border: none; cursor: pointer;
+            font-size: 14px; font-weight: 600; color: var(--text-secondary);
+            border-bottom: 3px solid transparent; transition: 0.2s;
         }
+        .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+        .tab-btn:hover { color: var(--accent-blue); }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
 
-        .table-data .order .head .bx {
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
+        /* --- FILTER CARD --- */
+        .filter-card {
+            background: var(--primary-white); padding: 20px; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid var(--border-light);
+            margin-bottom: 24px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
+        }
+        .filter-group label { font-size: 14px; font-weight: 600; margin-right: 5px; }
+        .filter-group input, .filter-group select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
+        
+        .btn-filter { background: var(--accent-blue); color: white; padding: 8px 20px; border-radius: 6px; border:none; cursor: pointer; }
+        .btn-print { background: var(--accent-orange); color: white; padding: 8px 20px; border-radius: 6px; border:none; cursor: pointer; margin-left: auto; }
+
+        /* --- LAYOUT HARIAN (KIRI-KANAN) --- */
+        .report-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 768px) { .report-layout { grid-template-columns: 1fr; } }
+
+        .report-section { background: white; border-radius: 10px; border: 1px solid var(--border-light); padding: 20px; height: fit-content;}
+        .report-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: var(--accent-blue); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+
+        /* --- TABLE STYLING --- */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #eee; text-align: left; }
+        th { font-weight: 600; background: #f9f9f9; color: #555; }
+        
+        /* Helpers */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .text-green { color: #2E7D32; font-weight: 600; }
+        .text-red { color: #C62828; font-weight: 600; }
+        .text-blue { color: #1565C0; font-weight: 600; }
+        
+        /* TOTAL ROW */
+        .row-total { background-color: #E3F2FD; font-weight: bold; border-top: 2px solid #90CAF9; }
+        .row-total td { padding: 15px 10px; font-size: 14px; }
+
+        /* --- EMPTY STATE STYLE (DISIMPAN JIKA PERLU) --- */
+        .empty-state {
+            padding: 50px 20px;
+            text-align: center;
             color: var(--text-secondary);
-            transition: all 0.2s ease;
-        }
-
-        .table-data .order .head .bx:hover {
-            background: var(--surface-white);
-            color: var(--text-primary);
-        }
-
-        .table-search-input {
-            width: 0;
-            padding: 0;
-            border: none;
-            transition: width 0.3s ease, padding 0.3s ease, border 0.3s ease;
-            box-sizing: border-box;
-            background: var(--surface-white);
-            color: var(--text-primary);
-            font-size: 14px;
-            border-radius: 20px;
-            margin-left: auto; 
-            outline: none;
-        }
-
-        .table-search-input.show {
-            width: 200px;
-            padding: 8px 12px;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
-        }
-        .table-search-input.show:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid var(--border-light);
+            background-color: #fcfcfc;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--shadow-light);
         }
-
-        .table-container thead tr {
-            background-color: var(--surface-white);
-            border-bottom: 1px solid var(--border-light);
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ddd;
+            display: block;
         }
-
-        .table-container th,
-        .table-container td {
-            padding: 15px;
-            border: 1px solid var(--border-light);
-            text-align: left;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .table-container th {
+        .empty-state h4 {
+            font-size: 18px;
             font-weight: 600;
-            color: var(--text-secondary);
-            font-family: var(--google-sans);
-            background-color: var(--surface-white);
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .empty-state p {
+            font-size: 13px;
+            color: #999;
         }
 
-        .table-container tbody tr:nth-child(even) {
-            background-color: var(--surface-white);
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media print {
+            #sidebar, nav, .tabs-box, .filter-card, .breadcrumb, .btn-print { display: none; }
+            .dashboard-container { margin: 0; padding: 0; }
+            .tab-content { display: block !important; margin-bottom: 50px; page-break-after: always; } 
         }
-
-        .table-container tbody tr:hover {
-            background-color: rgba(26, 115, 232, 0.04);
-        }
-
-        .table-container td.hash-password {
-            font-family: monospace;
-            font-size: 0.85rem;
-            word-break: break-all;
-        }
-
     </style>
 </head>
 <body>
@@ -115,93 +101,227 @@
     @include('partial.sidebar')
 
     <section id="content">
-        <!-- NAVBAR -->
         @include('partial.navbar')
-        <!-- NAVBAR -->
 
-        <!-- MAIN -->
         <main>
             <div class="head-title">
                 <div class="left">
-                    <h1>User List</h1>
+                    <h1>Laporan Keuangan</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="{{ url('admin/users') }}">User List</a></li>
+                        <li><a class="active" href="#">Laporan</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="table-data">
-                <div class="order">
-                    <div class="head">
-                        <h3>User List</h3>
-                        <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Search user...">
-                        <i class='bx bx-search' id="tableSearchIcon"></i>
-                        <i class='bx bx-filter'></i>
+            <div class="tabs-box">
+                <button class="tab-btn active" onclick="openTab(event, 'tab-harian')">Laporan Harian (Detail)</button>
+                <button class="tab-btn" onclick="openTab(event, 'tab-bulanan')">Rekap Bulanan (Summary)</button>
+            </div>
+
+            <div id="tab-harian" class="tab-content active">
+                
+                <div class="filter-card">
+                    <div class="filter-group">
+                        <label>Lihat Tanggal:</label>
+                        <input type="date" value="{{ date('Y-m-d') }}">
                     </div>
-                    <!-- Tabel Statis Daftar Pengguna -->
-                    <div class="table-container">
-                        <table style="width: 100%; border-collapse: collapse;">
+                    <button class="btn-filter"><i class='bx bx-search-alt'></i> Lihat Data</button>
+                    <button class="btn-print" onclick="window.print()"><i class='bx bx-printer'></i> Cetak</button>
+                </div>
+
+                <div class="report-layout">
+                    <div class="report-section">
+                        <h3><i class='bx bx-basket'></i> Laporan Cucian Masuk</h3>
+                        <p style="font-size: 12px; color: #888; margin-bottom: 10px;">*Mencatat nilai transaksi berdasarkan nota (Accrual Basis)</p>
+                        <table>
                             <thead>
-                                <tr style="background-color: #f2f2f2;">
-                                    <th style="padding: 10px; border: 1px solid #ccc;">ID User</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Name</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Email</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Hash Password</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">User Level</th>
-                                    <th style="padding: 10px; border: 1px solid #ccc;">Registered At</th>
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Pelanggan</th>
+                                    <th>Berat</th>
+                                    <th class="text-right">Total Tagihan</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- Dummy Data Statis --}}
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">1</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Igun</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">igun@example.com</td>
-                                    <td class="hash-password" style="padding: 10px; border: 1px solid #ccc;">
-                                        $2y$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Admin</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">01 Jan 2023, 10:00</td>
+                                    <td>TRX-001</td>
+                                    <td>Pak Rahmat</td>
+                                    <td>4.5 Kg</td>
+                                    <td class="text-right">Rp 45.000</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">2</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Budi Santoso</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">budi.santoso@example.com</td>
-                                    <td class="hash-password" style="padding: 10px; border: 1px solid #ccc;">
-                                        $2y$10$ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz789012
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">User</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">15 Feb 2023, 14:30</td>
+                                    <td>TRX-002</td>
+                                    <td>Ani Wijaya</td>
+                                    <td>15.0 Kg</td>
+                                    <td class="text-right">Rp 150.000</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">3</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Citra Dewi</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">citra.dewi@example.com</td>
-                                    <td class="hash-password" style="padding: 10px; border: 1px solid #ccc;">
-                                        $2y$10$QRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP1234567
-                                    </td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">Supervisor</td>
-                                    <td style="padding: 10px; border: 1px solid #ccc;">20 Mar 2023, 09:15</td>
+                                    <td>TRX-003</td>
+                                    <td>Citra Lestari</td>
+                                    <td>-</td>
+                                    <td class="text-right">Rp 20.000</td>
                                 </tr>
-                                {{-- Tambahkan baris <tr> lainnya untuk data statis jika diperlukan --}}
+                                <tr class="row-total">
+                                    <td colspan="2">TOTAL HARI INI</td>
+                                    <td>19.5 Kg</td>
+                                    <td class="text-right text-blue">Rp 215.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="report-section">
+                        <h3><i class='bx bx-wallet'></i> Arus Kas (Cashflow)</h3>
+                        <p style="font-size: 12px; color: #888; margin-bottom: 10px;">*Mencatat uang fisik yang diterima/keluar hari ini (Cash Basis)</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Keterangan</th>
+                                    <th class="text-right">Masuk (+)</th>
+                                    <th class="text-right">Keluar (-)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pelunasan Pak Rahmat</td>
+                                    <td class="text-right text-green">Rp 45.000</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>DP Ani Wijaya</td>
+                                    <td class="text-right text-green">Rp 75.000</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Beli Deterjen 5L</td>
+                                    <td>-</td>
+                                    <td class="text-right text-red">Rp 50.000</td>
+                                </tr>
+                                <tr class="row-total">
+                                    <td>TOTAL KAS</td>
+                                    <td class="text-right text-green">Rp 120.000</td>
+                                    <td class="text-right text-red">Rp 50.000</td>
+                                </tr>
+                                <tr style="background: #2E7D32; color: white; font-weight: bold;">
+                                    <td colspan="2">SISA UANG DI KASIR</td>
+                                    <td class="text-right">Rp 70.000</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
+            <div id="tab-bulanan" class="tab-content">
+                
+                <div class="filter-card">
+                    <div class="filter-group">
+                        <label>Bulan:</label>
+                        <select>
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11" selected>November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Tahun:</label>
+                        <select style="min-width: 100px;">
+                            <option value="2024">2024</option>
+                            <option value="2025" selected>2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-filter"><i class='bx bx-search-alt'></i> Tampilkan</button>
+                    <button class="btn-print" onclick="window.print()"><i class='bx bx-printer'></i> Cetak</button>
+                </div>
+
+                <div class="report-section">
+                    <h3><i class='bx bx-calendar'></i> Rekapitulasi Pendapatan</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="text-center" width="15%">Tanggal</th>
+                                <th class="text-right" width="25%">Total Pemasukan (Rp)</th>
+                                <th class="text-right" width="25%">Total Pengeluaran (Rp)</th>
+                                <th class="text-right" width="35%">Pendapatan Bersih (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-center">01 Nov</td>
+                                <td class="text-right text-green">450.000</td>
+                                <td class="text-right text-red">50.000</td>
+                                <td class="text-right text-blue">400.000</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">02 Nov</td>
+                                <td class="text-right text-green">600.000</td>
+                                <td class="text-right text-red">0</td>
+                                <td class="text-right text-blue">600.000</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center">03 Nov</td>
+                                <td class="text-right text-green">550.000</td>
+                                <td class="text-right text-red">250.000</td>
+                                <td class="text-right text-blue">300.000</td>
+                            </tr>
+                            <tr style="background-color: #fff8e1;">
+                                <td class="text-center"><strong>Hari Ini</strong></td>
+                                <td class="text-right text-green"><strong>120.000</strong></td>
+                                <td class="text-right text-red"><strong>50.000</strong></td>
+                                <td class="text-right text-blue"><strong>70.000</strong></td>
+                            </tr>
+
+                            <tr class="row-total" style="font-size: 16px; background: #f0f0f0; border-top: 3px double #aaa;">
+                                <td class="text-center">GRAND TOTAL</td>
+                                <td class="text-right text-green">Rp 1.720.000</td>
+                                <td class="text-right text-red">Rp 350.000</td>
+                                <td class="text-right text-blue" style="font-size: 18px;">Rp 1.370.000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </main>
-        <!-- MAIN -->
     </section>
 
-    <!-- Pagination di paling bawah -->
-    <div id="pagination" class="pagination-container"></div>
-
     <script src="{{ asset('admin/script/script.js') }}"></script>
-    <script src="{{ asset('admin/script/pagination.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
- 
+
+    <script>
+        function openTab(evt, tabName) {
+            // Sembunyikan semua konten
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+
+            // Hapus class active dari semua tombol
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+
+            // Tampilkan tab yang dipilih
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+
 </body>
 </html>

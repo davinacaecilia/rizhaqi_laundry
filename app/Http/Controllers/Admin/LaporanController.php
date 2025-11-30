@@ -7,13 +7,11 @@ use Illuminate\Http\Request;
 
 class LaporanController extends Controller
 {
-    public function transaksi()
+    public function index()
     {
-        return view('admin.laporan.transaksi');
-    }
-
-    public function pendapatan()
-    {
-        return view('admin.laporan.pendapatan');
+        // Di sini nanti kamu bisa kirim data summary keuangan ke view
+        // Misal: $totalPemasukan = Transaksi::where('status_bayar', 'lunas')->sum('total_biaya');
+        
+        return view('admin.laporan.index');
     }
 }

@@ -11,7 +11,7 @@
     <title>Manajemen Transaksi - Rizhaqi Laundry Admin</title>
     
     <style>
-        /* CSS TABEL BERSIH (TANPA GARIS DOUBLE) */
+        /* CSS BAWAAN TEMPLATE (TIDAK DIUBAH) */
         .table-container table {
             width: 100%;
             border-collapse: collapse;
@@ -26,11 +26,11 @@
             border-bottom: 1px solid var(--border-light);
         }
 
+        /* BORDER 1PX SOLID (GRID KOTAK) */
         .table-container th,
         .table-container td {
             padding: 15px;
-            border: none; 
-            border-bottom: 1px solid var(--border-light);
+            border: 1px solid var(--border-light);
             text-align: left;
             font-size: 14px;
             color: var(--text-primary);
@@ -47,7 +47,6 @@
             background-color: rgba(26, 115, 232, 0.04);
         }
 
-        /* TOMBOL AKSI */
         .table-container .btn-action-group {
             display: flex;
             gap: 5px;
@@ -64,13 +63,22 @@
             text-decoration: none;
             transition: all 0.2s ease;
             font-weight: 500;
-            border: none; /* Hapus border default */
+            border: none;
             cursor: pointer;
         }
 
         .btn-detail.show { background-color: var(--accent-green); color: white; }
         .btn-detail.edit { background-color: var(--accent-blue); color: white; }
         .btn-detail.delete { background-color: var(--accent-red); color: white; }
+        
+        /* Disabled Button */
+        .btn-detail.disabled {
+            background-color: #e0e0e0 !important;
+            color: #999 !important;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         .btn-detail:hover { opacity: 0.9; }
 
         /* BADGES STATUS ORDER */
@@ -78,12 +86,17 @@
         .st-siap { background: #E8F5E9; color: #2E7D32; }      /* Hijau */
         .st-dicuci { background: #E3F2FD; color: #1565C0; }    /* Biru */
         .st-diterima { background: #E0E0E0; color: #424242; }  /* Abu */
+        .st-selesai { background: #1B5E20; color: #fff; }      /* Hijau Tua */
+        .st-batal { background: #FFEBEE; color: #C62828; }     /* Merah */
+        /* Tambahan Baru: PACKING */
+        .st-packing { background: #E0F2F1; color: #00695C; }   /* Teal */
 
         /* STATUS PEMBAYARAN TEXT */
         .badge-bayar { font-weight: 700; font-size: 12px; }
         .bayar-lunas { color: #2E7D32; }
         .bayar-dp { color: #F9A825; }
         .bayar-belum { color: #C62828; }
+        .bayar-batal { color: #C62828; text-decoration: line-through; }
 
         /* SEARCH BAR */
         .table-data .order .head { position: relative; }
@@ -106,12 +119,13 @@
                 <div class="left">
                     <h1>Manajemen Transaksi</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
                         <li><a class="active" href="{{ route('admin.transaksi.index') }}">Data Transaksi</a></li>
                     </ul>
                 </div>
                 
+                <!-- Tombol Tambah Order -->
                 <a href="{{ route('admin.transaksi.create') }}" class="btn-download">
                     <i class='bx bx-plus'></i> Tambah Order
                 </a>
@@ -129,7 +143,7 @@
                     <div class="table-container">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
-                                <tr>
+                                <tr style="background-color: #f2f2f2;">
                                     <th>Kode Invoice</th>
                                     <th>Nama Pelanggan</th>
                                     <th>Tanggal Masuk</th>
@@ -141,10 +155,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- DATA 1: Lunas & Siap --}}
+                                {{-- DATA 1: Budi (Siap & Lunas) --}}
                                 <tr>
-                                    <td><strong>D0222</strong></td>
-                                    <td>Pak Rahmat</td>
+                                    <td><strong>TRX-001</strong></td>
+                                    <td>Budi Santoso</td>
                                     <td>24 Nov 2025</td>
                                     <td>26 Nov 2025</td>
                                     <td><span class="badge-status st-siap">Siap Diambil</span></td>
@@ -152,41 +166,37 @@
                                     <td>Rp 45.000</td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <a href="{{ route('admin.transaksi.show', 1) }}" class="btn-detail show" title="Lihat Invoice">
-                                                <i class='bx bx-show'></i>
-                                            </a>
-                                            <a href="{{ route('admin.transaksi.edit', 1) }}" class="btn-detail edit" title="Edit">
-                                                <i class='bx bx-edit'></i>
-                                            </a>
-                                            <a href="#" class="btn-detail delete" onclick="return confirm('Hapus data ini?')" title="Hapus">
-                                                <i class='bx bx-trash'></i>
-                                            </a>
+                                            <a href="{{ route('admin.transaksi.show', 1) }}" class="btn-detail show" title="Lihat Invoice"><i class='bx bx-show'></i></a>
+                                            {{-- Edit MATI (Sudah Siap) --}}
+                                            <a href="#" class="btn-detail edit disabled" title="Selesai"><i class='bx bx-edit'></i></a>
+                                            <a href="#" class="btn-detail delete" onclick="return confirm('Hapus?')" title="Hapus"><i class='bx bx-trash'></i></a>
                                         </div>
                                     </td>
                                 </tr>
                                 
-                                {{-- DATA 2: DP & Dicuci --}}
+                                {{-- DATA 2: Ani (Dicuci & DP) --}}
                                 <tr>
-                                    <td><strong>D0223</strong></td>
-                                    <td>Bu Siti</td>
+                                    <td><strong>TRX-002</strong></td>
+                                    <td>Ani Wijaya</td>
                                     <td>24 Nov 2025</td>
                                     <td>26 Nov 2025</td>
                                     <td><span class="badge-status st-dicuci">Dicuci</span></td>
-                                    <td><span class="badge-bayar bayar-dp">DP (50%)</span></td>
+                                    <td><span class="badge-bayar bayar-dp">DP 50.000</span></td>
                                     <td>Rp 150.000</td>
                                     <td>
                                         <div class="btn-action-group">
                                             <a href="{{ route('admin.transaksi.show', 2) }}" class="btn-detail show"><i class='bx bx-show'></i></a>
+                                            {{-- Edit HIDUP (Masih Proses) --}}
                                             <a href="{{ route('admin.transaksi.edit', 2) }}" class="btn-detail edit"><i class='bx bx-edit'></i></a>
                                             <a href="#" class="btn-detail delete"><i class='bx bx-trash'></i></a>
                                         </div>
                                     </td>
                                 </tr>
 
-                                {{-- DATA 3: Belum Bayar & Diterima --}}
+                                {{-- DATA 3: Citra (Baru & Belum Bayar) --}}
                                 <tr>
-                                    <td><strong>D0224</strong></td>
-                                    <td>Kak Dinda</td>
+                                    <td><strong>TRX-003</strong></td>
+                                    <td>Citra Lestari</td>
                                     <td>25 Nov 2025</td>
                                     <td>27 Nov 2025</td>
                                     <td><span class="badge-status st-diterima">Diterima</span></td>
@@ -195,11 +205,70 @@
                                     <td>
                                         <div class="btn-action-group">
                                             <a href="{{ route('admin.transaksi.show', 3) }}" class="btn-detail show"><i class='bx bx-show'></i></a>
+                                            {{-- Edit HIDUP --}}
                                             <a href="{{ route('admin.transaksi.edit', 3) }}" class="btn-detail edit"><i class='bx bx-edit'></i></a>
                                             <a href="#" class="btn-detail delete"><i class='bx bx-trash'></i></a>
                                         </div>
                                     </td>
                                 </tr>
+
+                                {{-- DATA BARU: Mbak Rini (PACKING & LUNAS) --}}
+                                <tr>
+                                    <td><strong>TRX-006</strong></td>
+                                    <td>Mbak Rini</td>
+                                    <td>24 Nov 2025</td>
+                                    <td>26 Nov 2025</td>
+                                    <td><span class="badge-status st-packing">Packing</span></td>
+                                    <td><span class="badge-bayar bayar-lunas">LUNAS</span></td>
+                                    <td>Rp 75.000</td>
+                                    <td>
+                                        <div class="btn-action-group">
+                                            <a href="{{ route('admin.transaksi.show', 6) }}" class="btn-detail show"><i class='bx bx-show'></i></a>
+                                            {{-- Edit HIDUP (Masih Packing belum Selesai) --}}
+                                            <a href="{{ route('admin.transaksi.edit', 6) }}" class="btn-detail edit"><i class='bx bx-edit'></i></a>
+                                            <a href="#" class="btn-detail delete"><i class='bx bx-trash'></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                {{-- DATA 4: Rina (SUDAH DIAMBIL - Final) --}}
+                                <tr>
+                                    <td><strong>TRX-004</strong></td>
+                                    <td>Rina Nose</td>
+                                    <td>22 Nov 2025</td>
+                                    <td>24 Nov 2025</td>
+                                    <td><span class="badge-status st-selesai">Sudah Diambil</span></td>
+                                    <td><span class="badge-bayar bayar-lunas">LUNAS</span></td>
+                                    <td>Rp 35.000</td>
+                                    <td>
+                                        <div class="btn-action-group">
+                                            <a href="{{ route('admin.transaksi.show', 4) }}" class="btn-detail show"><i class='bx bx-show'></i></a>
+                                            {{-- Edit MATI --}}
+                                            <a href="#" class="btn-detail edit disabled"><i class='bx bx-edit'></i></a>
+                                            <a href="#" class="btn-detail delete" onclick="return confirm('Hapus arsip?')"><i class='bx bx-trash'></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                {{-- DATA 5: Doni (DIBATALKAN) --}}
+                                <tr>
+                                    <td><strong>TRX-005</strong></td>
+                                    <td>Doni</td>
+                                    <td>25 Nov 2025</td>
+                                    <td>-</td>
+                                    <td><span class="badge-status st-batal">Dibatalkan</span></td>
+                                    <td><span class="badge-bayar bayar-batal">Cancel</span></td>
+                                    <td>Rp 0</td>
+                                    <td>
+                                        <div class="btn-action-group">
+                                            <a href="{{ route('admin.transaksi.show', 5) }}" class="btn-detail show"><i class='bx bx-show'></i></a>
+                                            {{-- Edit MATI --}}
+                                            <a href="#" class="btn-detail edit disabled"><i class='bx bx-edit'></i></a>
+                                            <a href="#" class="btn-detail delete" onclick="return confirm('Hapus data batal?')"><i class='bx bx-trash'></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+
                             </tbody>
                         </table>
                     </div>

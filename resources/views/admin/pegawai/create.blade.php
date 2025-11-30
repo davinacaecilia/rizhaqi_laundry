@@ -6,39 +6,34 @@
 
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
-    <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
-
-    <title>Tambah Pegawai Baru - Rizhaqi Laundry Admin</title>
+    
+    <title>Tambah Pegawai - Rizhaqi Laundry Admin</title>
     
     <style>
+        /* CSS FORM (Kita tambah ini aja, ga ganggu CSS tabel) */
         .form-card {
             background: var(--primary-white);
-            padding: 24px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: var(--shadow-light);
             border: 1px solid var(--border-light);
-            max-width: 800px;
+            max-width: 600px; /* Lebih kecil dari form transaksi biar pas */
             margin: 24px auto;
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 20px; position: relative; }
 
         .form-group label {
             display: block;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="password"], /* Ditambah */
-        .form-group input[type="email"], /* Ditambah */
-        .form-group select {
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px;
             border: 1px solid var(--border-light);
             border-radius: 8px;
             font-family: var(--roboto);
@@ -46,53 +41,59 @@
             background: var(--surface-white);
             color: var(--text-primary);
             outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s ease;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus, .form-group select:focus {
             border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
         }
 
+        /* Tombol Mata (Show Password) */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 38px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+
+        /* Buttons */
         .form-actions {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 24px;
+            margin-top: 30px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
         }
 
-        .form-actions .btn-submit,
-        .form-actions .btn-cancel {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-actions .btn-submit {
+        .btn-submit {
             background-color: var(--accent-blue);
-            color: var(--primary-white);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 8px;
         }
-
-        .form-actions .btn-submit:hover {
-            background-color: var(--accent-blue-hover);
+        
+        .btn-cancel {
+            background-color: #e0e0e0;
+            color: #424242;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px;
         }
-
-        .form-actions .btn-cancel {
-            background-color: var(--text-tertiary);
-            color: var(--primary-white);
-        }
-
-        .form-actions .btn-cancel:hover {
-            background-color: #7a8086;
-        }
+        
+        .btn-submit:hover { background-color: var(--accent-blue-hover); }
+        .btn-cancel:hover { background-color: #d6d6d6; }
     </style>
 </head>
 <body>
@@ -101,6 +102,7 @@
 
     <section id="content">
         @include('partial.navbar')
+
         <main>
             <div class="head-title">
                 <div class="left">
@@ -108,62 +110,96 @@
                     <ul class="breadcrumb">
                         <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a href="{{ route('admin.pegawai.index') }}">Manajemen Pegawai</a></li>
+                        <li><a href="{{ route('admin.pegawai.index') }}">Data Pegawai</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="{{ route('admin.pegawai.create') }}">Tambah Pegawai</a></li>
+                        <li><a class="active" href="#">Tambah</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form action="{{ route('admin.pegawai.store') }}" method="POST">
-                    @csrf 
-                    
+                <form id="formPegawai" action="{{ route('admin.pegawai.store') }}" method="POST">
+                    @csrf
+
                     <div class="form-group">
-                        <label for="name">Nama Lengkap Pegawai</label>
-                        <input type="text" id="name" name="name" placeholder="Masukkan nama lengkap" required>
+                        <label for="nama">Nama Lengkap</label>
+                        <input type="text" id="nama" name="nama" placeholder="Contoh: Siti Aminah" required autocomplete="off">
                     </div>
 
                     <div class="form-group">
-                        <label for="username">Username (untuk login)</label>
-                        <input type="text" id="username" name="username" placeholder="Contoh: pegawai_rizhaqy" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email (opsional)</label>
-                        <input type="email" id="email" name="email" placeholder="Contoh: pegawai@email.com">
+                        <label for="email">Email (Username Login)</label>
+                        <input type="email" id="email" name="email" placeholder="Contoh: siti@rizhaqi.com" required autocomplete="off">
                     </div>
 
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Masukkan password baru" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="role">Jabatan (Role)</label>
+                        <label for="role">Jabatan / Role</label>
                         <select id="role" name="role" required>
                             <option value="">-- Pilih Jabatan --</option>
-                            <option value="admin">Admin (Owner)</option>
-                            <option value="kasir">Kasir (Pegawai)</option>
+                            <option value="pegawai">Pegawai (Karyawan)</option>
+                            <option value="owner">Owner (Pemilik)</option>
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="password">Password Default</label>
+                        <input type="password" id="password" name="password" placeholder="Masukkan password..." required>
+                        <i class='bx bx-hide toggle-password' onclick="togglePassword()"></i>
+                    </div>
+
+                    <input type="hidden" name="is_active" value="1">
+
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.pegawai.index') }}'">
+                        <a href="{{ route('admin.pegawai.index') }}" class="btn-cancel">
                             <i class='bx bx-x'></i> Batal
-                        </button>
-                        <button type="submit" class="btn-submit">
-                            <i class='bx bx-save'></i> Simpan Pegawai
+                        </a>
+                        <button type="button" class="btn-submit" onclick="prosesSimpan()">
+                            <i class='bx bx-save'></i> Simpan Data
                         </button>
                     </div>
                 </form>
             </div>
-
         </main>
-        </section>
+    </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+
+    <script>
+        // Fitur Show/Hide Password
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('bx-hide');
+                icon.classList.add('bx-show');
+            } else {
+                input.type = "password";
+                icon.classList.remove('bx-show');
+                icon.classList.add('bx-hide');
+            }
+        }
+
+        // Simulasi Simpan (Biar ga putih layar)
+        function prosesSimpan() {
+            const form = document.getElementById('formPegawai');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const btnSubmit = document.querySelector('.btn-submit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Menyimpan...";
+
+            setTimeout(() => {
+                alert("Sukses! Pegawai baru berhasil ditambahkan.");
+                window.location.href = "{{ route('admin.pegawai.index') }}";
+            }, 1000);
+        }
+    </script>
 
 </body>
 </html>

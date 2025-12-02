@@ -1063,5 +1063,52 @@ td.address {
     /* Anda bisa menambahkan margin-left di sini jika ingin jaraknya lebih jauh dari input */
     /* Misalnya: margin-left: 10px; */
 }
+/* ======================================================= */
+/* FIX BREADCRUMB (VERSI SUPER KUAT / FORCE CLICK) */
+/* ======================================================= */
+
+/* 1. Paksa Container Breadcrumb agar aktif */
+#content main .head-title .left .breadcrumb {
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 10; /* Pastikan dia di atas elemen lain */
+}
+
+/* 2. Paksa Item List (li) agar aktif */
+#content main .head-title .left .breadcrumb li {
+    pointer-events: auto !important;
+}
+
+/* 3. LINK INDUK (Dashboard, Manajemen Transaksi, dll) - WAJIB BISA DIKLIK */
+#content main .head-title .left .breadcrumb li a {
+    pointer-events: auto !important; /* Paksa aktif */
+    cursor: pointer !important;      /* Paksa kursor jari */
+    color: #888 !important;          /* Warna abu gelap biar kelihatan */
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    display: inline-block;           /* Biar area kliknya solid */
+}
+
+/* Efek saat mouse diarahkan ke Link Induk */
+#content main .head-title .left .breadcrumb li a:hover {
+    color: var(--accent-blue) !important;
+    text-decoration: underline !important;
+}
+
+/* 4. LINK HALAMAN AKTIF (Status Order) - MATIKAN KLIK */
+#content main .head-title .left .breadcrumb li a.active {
+    pointer-events: none !important; /* Matikan klik */
+    cursor: default !important;      /* Kursor panah biasa */
+    color: var(--accent-blue) !important; /* Warna Biru */
+    font-weight: 700 !important;     /* Tebal */
+    text-decoration: none !important;
+}
+
+/* 5. IKON PANAH (>) - HANYA HIASAN */
+#content main .head-title .left .breadcrumb li .bx {
+    pointer-events: none !important;
+    color: #ccc !important;
+    margin: 0 5px;
+}
 
 }

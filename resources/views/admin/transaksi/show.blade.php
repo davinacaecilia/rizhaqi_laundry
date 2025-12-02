@@ -72,6 +72,50 @@
         .btn-back { background: #e0e0e0; color: #424242; }
         .btn-print { background: var(--accent-blue); color: white; }
         .btn-print:hover { background: var(--accent-blue-hover); }
+
+        /* =========================================
+           SETTINGAN PRINT KHUSUS INVOICE
+           ========================================= */
+        @media print {
+            /* 1. Sembunyikan Elemen Dashboard */
+            #sidebar, nav, .head-title, .action-buttons { 
+                display: none !important; 
+            }
+
+            /* 2. Reset Layout Utama */
+            body, section, main, #content {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                left: 0 !important;
+                overflow: visible !important;
+                position: relative !important;
+            }
+
+            /* 3. Atur Tampilan Invoice Card agar Full Page */
+            .detail-card {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            /* 4. Paksa Cetak Warna Background (untuk badge status) */
+            .badge, .address-box, .rincian-table th, div[style*="background"] {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* 5. Sedikit penyesuaian font agar hitam pekat */
+            h1, h2, h3, h4, p, span, td {
+                color: #000 !important;
+            }
+            .invoice-title h2 {
+                color: var(--accent-blue) !important; /* Kecuali judul toko */
+            }
+        }
     </style>
 </head>
 <body>
@@ -82,6 +126,7 @@
         @include('partial.navbar')
 
         <main>
+            <!-- Judul Halaman Dashboard (Akan hilang saat diprint) -->
             <div class="head-title">
                 <div class="left">
                     <h1>Detail Transaksi</h1>
@@ -118,8 +163,6 @@
                         </div>
                     </div>
                     <div class="info-group" style="text-align: right;">
-                        <h4>Status Order</h4>
-                        <span class="badge bg-green">Siap Diambil</span>
                         
                         <h4 style="margin-top: 20px;">Status Pembayaran</h4>
                         <span class="badge bg-green">LUNAS</span>

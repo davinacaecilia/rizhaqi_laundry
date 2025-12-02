@@ -1,0 +1,29 @@
+
+	.pagination-container {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		padding: 12px;
+		background-color: transparent; /* tanpa latar belakang */
+		z-index: 999;
+		gap: 8px;
+	}
+	.pagination-container button {
+		padding: 6px 12px;
+		border: none;
+		background-color: #444;
+		color: white;
+		cursor: pointer;
+		border-radius: 4px;
+	}
+	.pagination-container button.active {
+		background-color: #2563eb;
+	}
+	.pagination-container button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+

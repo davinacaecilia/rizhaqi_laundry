@@ -203,20 +203,36 @@
     <div id="pagination" class="pagination-container"></div>
 
     <script>
-        // Dummy delete
-        function hapusData(id) {
-            if (confirm(`Yakin ingin menghapus data alat ${id}?`)) {
-                alert(`Data alat ${id} berhasil dihapus (dummy).`);
-            }
+    // Dummy delete
+    function hapusData(id) {
+        if (confirm(`Yakin ingin menghapus data alat ${id}?`)) {
+            alert(`Data alat ${id} berhasil dihapus (dummy).`);
         }
+    }
 
-        // Search bar animation
-        document.getElementById('tableSearchIcon').addEventListener('click', function() {
-            const input = document.getElementById('tableSearchInput');
-            input.classList.toggle('show');
-            if (input.classList.contains('show')) input.focus();
+    // Search bar animation
+    document.getElementById('tableSearchIcon').addEventListener('click', function() {
+        const input = document.getElementById('tableSearchInput');
+        input.classList.toggle('show');
+        if (input.classList.contains('show')) input.focus();
+    });
+
+    // SEARCH FUNCTION
+    const tableSearchInput = document.getElementById('tableSearchInput');
+    tableSearchInput.addEventListener('input', () => {
+        const filter = tableSearchInput.value.toLowerCase();
+        const rows = document.querySelectorAll('.table-container tbody tr');
+
+        rows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            if (rowText.includes(filter)) {
+                row.style.display = ''; // tampilkan
+            } else {
+                row.style.display = 'none'; // sembunyikan
+            }
         });
-    </script>
+    });
+</script>
 
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 </body>

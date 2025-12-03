@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
 
-    <title>Data Pelanggan - Rizhaqi Laundry Admin</title>
+    <title>Data Pelanggan - Rizhaqi Laundry pegawai</title>
     <style>
         .table-container table {
             width: 100%;
@@ -103,7 +103,7 @@
     </style>
 </head>
 <body>
-    @include('partial.sidebar')
+    @include('layout.sidebar')
 
     <section id="content">
         @include('partial.navbar')
@@ -114,9 +114,9 @@
                 <div class="left">
                     <h1>Data Pelanggan</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url('pegawai/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="{{ url('admin/pelanggan') }}">Data Pelanggan</a></li>
+                        <li><a class="active" href="{{ url('pegawai/pelanggan') }}">Data Pelanggan</a></li>
                     </ul>
                 </div>
             </div>
@@ -139,7 +139,6 @@
                                     <th>Nama</th>
                                     <th>Alamat</th>
                                     <th>No Telepon</th>
-                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -148,43 +147,8 @@
                                     <td>Agus Salim</td>
                                     <td>Jl. Kenanga No. 3</td>
                                     <td>082233445566</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ route('admin.pelanggan.edit', ['pelanggan' => 1]) }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <form action="{{ route('admin.pelanggan.destroy', ['pelanggan' => 1]) }}" method="POST" style="display:inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus pelanggan ini?')">
-                                                    <i class='bx bx-trash'></i> Delete
-                                                </button>
-                                            </form>
-                                        </div>
                                     </td>
                                 </tr>
-
-                                <tr>
-                                    <td>PL001</td>
-                                    <td>putri</td>
-                                    <td>Jl. Kenanga No. 3</td>
-                                    <td>082233445566</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ route('admin.pelanggan.edit', ['pelanggan' => 1]) }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <form action="{{ route('admin.pelanggan.destroy', ['pelanggan' => 1]) }}" method="POST" style="display:inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus pelanggan ini?')">
-                                                    <i class='bx bx-trash'></i> Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-
                             </tbody>
                         </table>
                     </div>
@@ -197,30 +161,30 @@
     <div id="pagination" class="pagination-container"></div>
 
     <script>
-// Toggle search input
-const searchBtn = document.getElementById('tableSearchBtn');
-const searchInput = document.getElementById('tableSearchInput');
+    // Toggle search input
+    const searchBtn = document.getElementById('tableSearchBtn');
+    const searchInput = document.getElementById('tableSearchInput');
 
-searchBtn.addEventListener('click', () => {
-    searchInput.classList.toggle('show');
-    if (searchInput.classList.contains('show')) searchInput.focus();
-});
-
-// Live search table
-searchInput.addEventListener('input', () => {
-    const filter = searchInput.value.toLowerCase();
-    const rows = document.querySelectorAll('.table-container tbody tr');
-
-    rows.forEach(row => {
-        const rowText = row.innerText.toLowerCase();
-        row.style.display = rowText.includes(filter) ? '' : 'none';
+    searchBtn.addEventListener('click', () => {
+        searchInput.classList.toggle('show');
+        if (searchInput.classList.contains('show')) searchInput.focus();
     });
-});
-</script>
 
+    // Live search table
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        const rows = document.querySelectorAll('.table-container tbody tr');
 
-   <script src="{{ asset('admin/script/script.js') }}"></script>
+        rows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            row.style.display = rowText.includes(filter) ? '' : 'none';
+        });
+    });
+    </script>
+
+    <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+
 </body>
 </html>

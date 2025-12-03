@@ -47,14 +47,6 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::get('/cucian', [PegawaiCucianController::class, 'index'])
         ->name('cucian.index');
 
-    // Halaman form proses cucian
-    Route::get('/cucian/create', [PegawaiCucianController::class, 'create'])
-        ->name('cucian.create');
-
-    Route::get('/cucian/store', [PegawaiCucianController::class, 'store'])
-        ->name('cucian.store');
-
-
 });
 
 

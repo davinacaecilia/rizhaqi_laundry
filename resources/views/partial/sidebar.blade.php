@@ -119,11 +119,11 @@
                         <i class='bx bx-plus-circle'></i> <span class="text">Tambah Alat</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('admin/alat/stok') ? 'active' : '' }}">
+                <!-- <li class="{{ Request::is('admin/alat/stok') ? 'active' : '' }}">
                     <a href="{{ route('admin.alat.stok') }}">
                         <i class='bx bx-package'></i> <span class="text">Stok Alat</span>
                     </a>
-                </li>
+                </li> -->
             </ul>
         </li>
 
@@ -167,20 +167,3 @@
         </li>
     </ul>
 </section>
-```
-
-### Langkah Terakhir (Wajib)
-
-Setelah di-save, jalankan perintah ini di terminal VS Code untuk menyelesaikan konflik dan mengirim kode ke GitHub:
-
-1.  **Add file sidebar:**
-    ```powershell
-    git add resources/views/partial/sidebar.blade.php
-    ```
-2.  **Commit:**
-    ```powershell
-    git commit -m "Fix conflict sidebar menu"
-    ```
-3.  **Push:**
-    ```powershell
-    git push origin admin-panel-igun

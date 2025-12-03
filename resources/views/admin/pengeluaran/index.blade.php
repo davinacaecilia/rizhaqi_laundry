@@ -11,20 +11,13 @@
     <title>Data Pengeluaran - Rizhaqi Laundry</title>
     
     <style>
-        /* --- GAYA TABEL KONSISTEN --- */
+        /* --- CSS SAMA SEPERTI SEBELUMNYA --- */
         .table-container table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-light); }
         .table-container thead tr { background-color: var(--surface-white); border-bottom: 1px solid var(--border-light); }
-        
-        .table-container th, .table-container td { 
-            padding: 15px; 
-            border: 1px solid var(--border-light); 
-            text-align: left; font-size: 14px; color: var(--text-primary); 
-        }
-        
+        .table-container th, .table-container td { padding: 15px; border: 1px solid var(--border-light); text-align: left; font-size: 14px; color: var(--text-primary); }
         .table-container th { font-weight: 600; color: var(--text-secondary); background-color: var(--surface-white); }
         .table-container tbody tr:hover { background-color: rgba(26, 115, 232, 0.04); }
 
-        /* BUTTONS */
         .btn-detail { padding: 6px 12px; font-size: 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; transition: 0.2s; border: none; cursor: pointer; font-weight: 500; }
         .btn-edit { background-color: var(--accent-blue); color: white; }
         .btn-delete { background-color: var(--accent-red); color: white; }
@@ -33,39 +26,43 @@
         .head-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         
         /* HEADER FILTER AREA */
+        /* Flexbox Space-Between: Judul di Kiri, Grup Filter di Kanan */
         .table-data .order .head { 
             display: flex; 
             align-items: center; 
-            gap: 15px; 
+            justify-content: space-between; /* KUNCI: Dorong konten ke ujung-ujung */
             margin-bottom: 20px; 
-            flex-wrap: wrap; /* Agar responsif di HP */
+            flex-wrap: wrap; 
+            gap: 15px;
         }
 
-        /* --- STYLING KHUSUS TOTAL DI KANAN --- */
-        .total-badge-wrapper {
-            margin-left: auto; /* INI KUNCINYA: Mendorong elemen ke paling kanan */
+        /* Container untuk grup elemen kanan (Search, Date, Total) */
+        .head-controls {
             display: flex;
             align-items: center;
             gap: 10px;
-            background-color: #FFEBEE; /* Latar merah muda lembut */
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid #FFCDD2;
         }
 
-        .total-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #555;
-            text-transform: uppercase;
+        /* Total Badge */
+        .total-badge-wrapper { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            background-color: #FFEBEE; 
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            border: 1px solid #FFCDD2; 
+            white-space: nowrap; /* Biar gak turun baris */
         }
+        .total-label { font-size: 13px; font-weight: 600; color: #555; text-transform: uppercase; }
+        .total-amount { font-family: monospace; font-size: 18px; font-weight: 700; color: #C62828; }
 
-        .total-amount {
-            font-family: monospace;
-            font-size: 18px;
-            font-weight: 700;
-            color: #C62828; /* Merah tebal */
-        }
+        /* SEARCH BAR ANIMASI */
+        .table-search-wrapper { position: relative; display: flex; align-items: center; }
+        .table-search-input { width: 0; padding: 0; border: none; margin-left: 0; background: transparent; transition: width 0.3s ease, padding 0.3s ease; opacity: 0; pointer-events: none; height: 40px; border-radius: 20px; }
+        .table-search-input.show { width: 200px; padding: 6px 12px; border: 1px solid var(--border-light); margin-right: 10px; opacity: 1; pointer-events: auto; background: var(--surface-white); }
+        .table-search-input:focus { border-color: var(--accent-blue); outline: none; }
+        .bx-search { cursor: pointer; font-size: 20px; color: #888; padding: 5px;}
     </style>
 </head>
 <body>
@@ -93,15 +90,27 @@
 
             <div class="table-data">
                 <div class="order">
+                    <!-- HEADER / FILTER AREA -->
                     <div class="head">
+                        <!-- KIRI: Judul -->
                         <h3>Riwayat</h3>
                         
-                        <input type="date" style="padding: 8px; border-radius: 8px; border: 1px solid #ddd;" value="{{ date('Y-m-d') }}">
-                        <button class="btn-detail" style="background: #eee; color: #333;">Filter</button>
+                        <!-- KANAN: Grup Kontrol (Search, Date, Total) -->
+                        <div class="head-controls">
+                            <!-- 1. SEARCH BAR (Paling Kiri di grup kanan) -->
+                            <div class="table-search-wrapper">
+                                <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari keterangan...">
+                                <i class='bx bx-search' id="tableSearchIcon"></i>
+                            </div>
 
-                        <div class="total-badge-wrapper">
-                            <span class="total-label">Total Hari Ini:</span>
-                            <span class="total-amount">Rp 395.000</span>
+                            <!-- 2. DATE FILTER -->
+                            <input type="date" id="dateFilter" style="padding: 6px 12px; border-radius: 20px; border: 1px solid #ddd; font-family: inherit; color: #555; outline: none; cursor: pointer;">
+                            
+                            <!-- 3. TOTAL BADGE (Paling Kanan Mentok) -->
+                            <div class="total-badge-wrapper">
+                                <span class="total-label">Total:</span>
+                                <span class="total-amount">Rp 395.000</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -110,7 +119,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Tanggal</th>
+                                    <th>Tanggal</th> 
                                     <th>Keterangan Pengeluaran</th>
                                     <th>Dicatat Oleh</th>
                                     <th>Jumlah (Rp)</th>
@@ -118,10 +127,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- DUMMY 1 --}}
+                                {{-- DUMMY 1: Tanggal Hari Ini --}}
                                 <tr>
                                     <td><strong>OUT-001</strong></td>
-                                    <td>29 Nov 2025</td>
+                                    <td>{{ date('d M Y') }}</td> 
                                     <td>Beli Deterjen Cair (5 Liter) & Pewangi</td>
                                     <td>Budi Santoso</td>
                                     <td style="color: #C62828; font-weight: bold;">Rp 150.000</td>
@@ -133,10 +142,10 @@
                                     </td>
                                 </tr>
 
-                                {{-- DUMMY 2 --}}
+                                {{-- DUMMY 2: Tanggal Kemarin --}}
                                 <tr>
                                     <td><strong>OUT-002</strong></td>
-                                    <td>29 Nov 2025</td>
+                                    <td>20 Nov 2025</td>
                                     <td>Isi Ulang Token Listrik</td>
                                     <td>Kak Elvira</td>
                                     <td style="color: #C62828; font-weight: bold;">Rp 200.000</td>
@@ -151,7 +160,7 @@
                                 {{-- DUMMY 3 --}}
                                 <tr>
                                     <td><strong>OUT-003</strong></td>
-                                    <td>29 Nov 2025</td>
+                                    <td>15 Oct 2025</td>
                                     <td>Beli Makan Siang Pegawai (3 Org)</td>
                                     <td>Ani Wijaya</td>
                                     <td style="color: #C62828; font-weight: bold;">Rp 45.000</td>
@@ -162,8 +171,6 @@
                                         </div>
                                     </td>
                                 </tr>
-                                
-                                {{-- Baris Total di bawah tabel DIHAPUS karena sudah pindah ke atas kanan --}}
                             </tbody>
                         </table>
                     </div>
@@ -172,7 +179,10 @@
         </main>
     </section>
 
+    <div id="pagination" class="pagination-container"></div>
+
     <script src="{{ asset('admin/script/script.js') }}"></script>
+    <script src="{{ asset('admin/script/pagination.js') }}"></script> 
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 </body>
 </html>

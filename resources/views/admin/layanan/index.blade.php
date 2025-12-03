@@ -138,8 +138,9 @@
                     <div class="head">
                         <h3>Data Layanan</h3>
                         <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari layanan...">
-                        <i class='bx bx-search' id="tableSearchIcon"></i>
-                        <i class='bx bx-filter'></i>
+    <button id="tableSearchBtn" style="background:none; border:none; cursor:pointer; font-size:22px; display:flex; align-items:center;">
+        <i class='bx bx-search'></i>
+    </button>
                     </div>
                     <div class="table-container">
                         <table>
@@ -221,14 +222,27 @@
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
     <script>
-        // Buat animasi search bar
-        const searchIcon = document.getElementById('tableSearchIcon');
-        const searchInput = document.getElementById('tableSearchInput');
+    const searchBtn = document.getElementById('tableSearchBtn');
+const searchInput = document.getElementById('tableSearchInput');
 
-        searchIcon.addEventListener('click', () => {
-            searchInput.classList.toggle('show');
-            searchInput.focus();
-        });
-    </script>
+// Toggle input
+searchBtn.addEventListener('click', () => {
+    searchInput.classList.toggle('show');
+    if (searchInput.classList.contains('show')) searchInput.focus();
+});
+
+// Live search table
+searchInput.addEventListener('input', () => {
+    const filter = searchInput.value.toLowerCase();
+    const rows = document.querySelectorAll('.table-container tbody tr');
+
+    rows.forEach(row => {
+        const rowText = row.innerText.toLowerCase();
+        row.style.display = rowText.includes(filter) ? '' : 'none';
+    });
+});
+
+</script>
+
 </body>
 </html>

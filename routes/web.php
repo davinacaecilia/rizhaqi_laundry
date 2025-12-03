@@ -10,6 +10,50 @@ use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\AlatController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PengeluaranController;
+use App\Http\Controllers\Pegawai\PegawaiDashboardController;
+use App\Http\Controllers\Pegawai\PegawaiTransaksiController;
+use App\Http\Controllers\Pegawai\PegawaiPelangganController;
+use App\Http\Controllers\Pegawai\PegawaiCucianController;
+
+Route::prefix('pegawai')->name('pegawai.')->group(function () {
+
+    // Dashboard Pegawai
+    Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Transaksi Pegawai
+    Route::get('/transaksi', [PegawaiTransaksiController::class, 'index'])
+        ->name('transaksi.index');
+
+    // Tambah order
+    Route::get('/transaksi/create', [PegawaiTransaksiController::class, 'create'])
+        ->name('transaksi.create');
+
+    // List status
+    Route::get('/transaksi/status', [PegawaiTransaksiController::class, 'status'])
+        ->name('transaksi.status');
+
+    // Detail transaksi
+    Route::get('/transaksi/{id}', [PegawaiTransaksiController::class, 'show'])
+        ->name('transaksi.show');
+
+    // Pelanggan Pegawai
+    Route::get('/pelanggan', [PegawaiPelangganController::class, 'index'])
+        ->name('pelanggan.index');
+
+    // Halaman list cucian
+    Route::get('/cucian', [PegawaiCucianController::class, 'index'])
+        ->name('cucian.index');
+
+    // Halaman form proses cucian
+    Route::get('/cucian/create', [PegawaiCucianController::class, 'create'])
+        ->name('cucian.create');
+
+    Route::get('/cucian/store', [PegawaiCucianController::class, 'store'])
+        ->name('cucian.store');
+
+
+});
 
 Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');
@@ -35,5 +79,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 
     Route::resource('pengeluaran', PengeluaranController::class);
-
 });

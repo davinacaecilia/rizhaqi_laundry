@@ -13,10 +13,10 @@
         </li>
 
         <li class="{{ Request::is('admin/transaksi*') ? 'active' : '' }} has-dropdown">
-            <a href="#" class="dropdown-toggle"> 
+            <a href="#" class="dropdown-toggle">
                 <i class='bx bxs-credit-card'></i>
                 <span class="text">Manajemen Transaksi</span>
-                <i class='bx bx-chevron-down toggle-icon'></i> 
+                <i class='bx bx-chevron-down toggle-icon'></i>
             </a>
             <ul class="submenu">
                 {{-- Data Transaksi (Index) --}}
@@ -119,11 +119,6 @@
                         <i class='bx bx-plus-circle'></i> <span class="text">Tambah Alat</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('admin/alat/stok') ? 'active' : '' }}">
-                    <a href="{{ route('admin.alat.stok') }}">
-                        <i class='bx bx-package'></i> <span class="text">Stok Alat</span>
-                    </a>
-                </li>
             </ul>
         </li>
 
@@ -156,7 +151,7 @@
 
     <ul class="side-menu">
         <li>
-            <a href="{{ route('logout') }}" class="logout" 
+            <a href="{{ route('logout') }}" class="logout"
             onclick="event.preventDefault(); if(confirm('Yakin ingin keluar?')) { document.getElementById('logout-form').submit(); }">
                 <i class='bx bxs-log-out-circle'></i>
                 <span class="text">Logout</span>
@@ -167,20 +162,3 @@
         </li>
     </ul>
 </section>
-```
-
-### Langkah Terakhir (Wajib)
-
-Setelah di-save, jalankan perintah ini di terminal VS Code untuk menyelesaikan konflik dan mengirim kode ke GitHub:
-
-1.  **Add file sidebar:**
-    ```powershell
-    git add resources/views/partial/sidebar.blade.php
-    ```
-2.  **Commit:**
-    ```powershell
-    git commit -m "Fix conflict sidebar menu"
-    ```
-3.  **Push:**
-    ```powershell
-    git push origin admin-panel-igun

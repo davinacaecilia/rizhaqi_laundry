@@ -8,88 +8,35 @@
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
-    <title>Manajemen Transaksi - Rizhaqi Laundry Admin</title>
+    <title>Manajemen Transaksi - Rizhaqi Laundry pegawai</title>
 
     <style>
-        /* CSS BAWAAN TEMPLATE (TIDAK DIUBAH) */
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--shadow-light);
-        }
+        /* CSS BAWAAN TEMPLATE */
+        .table-container table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-light); }
+        .table-container thead tr { background-color: var(--surface-white); border-bottom: 1px solid var(--border-light); }
 
-        .table-container thead tr {
-            background-color: var(--surface-white);
-            border-bottom: 1px solid var(--border-light);
-        }
+        .table-container th, .table-container td { padding: 15px; border: 1px solid var(--border-light); text-align: left; font-size: 14px; color: var(--text-primary); }
+        .table-container th { font-weight: 600; color: var(--text-secondary); font-family: var(--google-sans); background-color: var(--surface-white); }
+        .table-container tbody tr:hover { background-color: rgba(26, 115, 232, 0.04); }
 
-        /* BORDER 1PX SOLID (GRID KOTAK) */
-        .table-container th,
-        .table-container td {
-            padding: 15px;
-            border: 1px solid var(--border-light);
-            text-align: left;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
+        .table-container .btn-action-group { display: flex; gap: 5px; flex-wrap: wrap; }
+        .table-container .btn-action-group .btn-detail { padding: 6px 12px; font-size: 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; transition: all 0.2s ease; font-weight: 500; border: none; cursor: pointer; }
 
-        .table-container th {
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-family: var(--google-sans);
-            background-color: var(--surface-white);
-        }
-
-        .table-container tbody tr:hover {
-            background-color: rgba(26, 115, 232, 0.04);
-        }
-
-        .table-container .btn-action-group {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-
-        .table-container .btn-action-group .btn-detail {
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-        }
-
+        /* WARNA TOMBOL */
         .btn-detail.show { background-color: var(--accent-green); color: white; }
         .btn-detail.edit { background-color: var(--accent-blue); color: white; }
         .btn-detail.delete { background-color: var(--accent-red); color: white; }
-
-        /* Disabled Button */
-        .btn-detail.disabled {
-            background-color: #e0e0e0 !important;
-            color: #999 !important;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
+        .btn-detail.disabled { background-color: #e0e0e0 !important; color: #999 !important; cursor: not-allowed; pointer-events: none; }
         .btn-detail:hover { opacity: 0.9; }
 
-        /* BADGES STATUS ORDER */
+        /* BADGES STATUS ORDER (Tetap disimpan barangkali butuh di detail) */
         .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .st-siap { background: #E8F5E9; color: #2E7D32; }      /* Hijau */
-        .st-dicuci { background: #E3F2FD; color: #1565C0; }    /* Biru */
-        .st-diterima { background: #E0E0E0; color: #424242; }  /* Abu */
-        .st-selesai { background: #1B5E20; color: #fff; }      /* Hijau Tua */
-        .st-batal { background: #FFEBEE; color: #C62828; }     /* Merah */
-        /* Tambahan Baru: PACKING */
-        .st-packing { background: #E0F2F1; color: #00695C; }   /* Teal */
+        .st-siap { background: #E8F5E9; color: #2E7D32; }
+        .st-dicuci { background: #E3F2FD; color: #1565C0; }
+        .st-diterima { background: #E0E0E0; color: #424242; }
+        .st-selesai { background: #1B5E20; color: #fff; }
+        .st-batal { background: #FFEBEE; color: #C62828; }
+        .st-packing { background: #E0F2F1; color: #00695C; }
 
         /* STATUS PEMBAYARAN TEXT */
         .badge-bayar { font-weight: 700; font-size: 12px; }
@@ -98,14 +45,35 @@
         .bayar-belum { color: #C62828; }
         .bayar-batal { color: #C62828; text-decoration: line-through; }
 
-        /* SEARCH BAR */
-        .table-data .order .head { position: relative; }
+        /* --- MODIFIKASI HEADER UNTUK FILTER --- */
+        .table-data .order .head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap; /* Supaya rapi di HP */
+        }
+        .table-data .order .head h3 { margin-right: auto; } /* Judul di kiri mentok */
+
+        /* Style Input Filter */
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            background: #fff;
+            color: var(--text-primary);
+        }
+
+        /* Search Bar Animasi */
+        .table-search-wrapper { position: relative; display: flex; align-items: center; }
         .table-search-input {
             width: 0; padding: 0; border: none; transition: width 0.3s ease;
-            background: var(--surface-white); border-radius: 20px; margin-left: auto; outline: none; height: 40px;
+            background: var(--surface-white); border-radius: 20px; outline: none; height: 40px;
         }
         .table-search-input.show { width: 200px; padding: 8px 12px; border: 1px solid var(--border-light); }
-        .table-data .order .head .bx-search { margin-left: 10px; cursor: pointer; }
+        .bx-search { cursor: pointer; font-size: 20px; padding: 5px; }
+
     </style>
 </head>
 <body>
@@ -119,25 +87,35 @@
                 <div class="left">
                     <h1>Manajemen Transaksi</h1>
                     <ul class="breadcrumb">
-                        <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url('pegawai/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="{{ route('admin.transaksi.index') }}">Data Transaksi</a></li>
+                        <li><a href="{{ route('pegawai.transaksi.index') }}">Manajemen Transaksi</a></li>
+                        <li><i class='bx bx-chevron-right' ></i></li>
+                        <li><a class="active" href="{{ route('pegawai.transaksi.index') }}">Data Transaksi</a></li>
                     </ul>
                 </div>
-
-                <!-- Tombol Tambah Order -->
-                <a href="{{ route('admin.transaksi.create') }}" class="btn-download">
-                    <i class='bx bx-plus'></i> Tambah Order
-                </a>
             </div>
 
             <div class="table-data">
                 <div class="order">
                     <div class="head">
                         <h3>Data Transaksi</h3>
-                        <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Invoice...">
-                        <i class='bx bx-search' id="tableSearchIcon"></i>
-                        <i class='bx bx-filter'></i>
+
+                        <div class="table-search-wrapper">
+                            <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama Pelanggan...">
+                            <i class='bx bx-search' id="tableSearchIcon"></i>
+                        </div>
+
+                        <input type="date" id="dateFilter" class="filter-input" title="Filter Tanggal Masuk">
+
+
+                        <select id="statusFilter" class="filter-input">
+                            <option value="">Semua Status</option>
+                            <option value="LUNAS">Lunas</option>
+                            <option value="BELUM BAYAR">Belum Bayar</option>
+                            <option value="DP">DP (Uang Muka)</option>
+                            <option value="CANCEL">Dibatalkan</option>
+                        </select>
                     </div>
 
                     <div class="table-container">
@@ -145,16 +123,16 @@
                             <thead>
                                 <tr style="background-color: #f2f2f2;">
                                     <th>Kode Invoice</th>
-                                    <th>Nama Pelanggan</th>
-                                    <th>Tanggal Masuk</th>
+                                    <th>Nama Pelanggan</th> <!-- Index 1 -->
+                                    <th>Tanggal Masuk</th>  <!-- Index 2 -->
                                     <th>Estimasi Selesai</th>
-                                    <th>Status Pembayaran</th>
+                                    <th>Status Pembayaran</th> <!-- Index 4 (Karena Status Order dihapus) -->
                                     <th>Total Biaya</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- DATA 1: Budi (Siap & Lunas) --}}
+                                {{-- DATA 1: Budi (Lunas) --}}
                                 <tr>
                                     <td><strong>TRX-001</strong></td>
                                     <td>Budi Santoso</td>
@@ -164,12 +142,12 @@
                                     <td>Rp 45.000</td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <a href="{{ route('pegawai.transaksi.show', 1) }}" class="btn-detail show" title="Lihat Invoice"><i class='bx bx-show'></i></a>
+                                            <a href="{{ route('pegawai.transaksi.show', 1) }}" class="btn-detail show"><i class='bx bx-show'></i></a>
                                         </div>
                                     </td>
                                 </tr>
 
-                                {{-- DATA 2: Ani (Dicuci & DP) --}}
+                                {{-- DATA 2: Ani (DP) --}}
                                 <tr>
                                     <td><strong>TRX-002</strong></td>
                                     <td>Ani Wijaya</td>
@@ -184,7 +162,7 @@
                                     </td>
                                 </tr>
 
-                                {{-- DATA 3: Citra (Baru & Belum Bayar) --}}
+                                {{-- DATA 3: Citra (Belum Bayar) --}}
                                 <tr>
                                     <td><strong>TRX-003</strong></td>
                                     <td>Citra Lestari</td>
@@ -199,7 +177,7 @@
                                     </td>
                                 </tr>
 
-                                {{-- DATA BARU: Mbak Rini (PACKING & LUNAS) --}}
+                                {{-- DATA 6: Mbak Rini (Lunas) --}}
                                 <tr>
                                     <td><strong>TRX-006</strong></td>
                                     <td>Mbak Rini</td>
@@ -214,7 +192,7 @@
                                     </td>
                                 </tr>
 
-                                {{-- DATA 4: Rina (SUDAH DIAMBIL - Final) --}}
+                                {{-- DATA 4: Rina (Lunas) --}}
                                 <tr>
                                     <td><strong>TRX-004</strong></td>
                                     <td>Rina Nose</td>
@@ -229,7 +207,7 @@
                                     </td>
                                 </tr>
 
-                                {{-- DATA 5: Doni (DIBATALKAN) --}}
+                                {{-- DATA 5: Doni (Cancel) --}}
                                 <tr>
                                     <td><strong>TRX-005</strong></td>
                                     <td>Doni</td>

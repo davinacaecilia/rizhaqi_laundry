@@ -63,12 +63,6 @@
                         <i class='bx bx-list-ul'></i> <span class="text">Data Cucian</span>
                     </a>
                 </li>
-
-                <li class="{{ Request::is('pegawai/cucian/create') ? 'active' : '' }}">
-                    <a href="{{ route('pegawai.cucian.create') }}">
-                        <i class='bx bx-plus-circle'></i> <span class="text">Proses Cucian</span>
-                    </a>
-                </li>
             </ul>
         </li>
     </ul>

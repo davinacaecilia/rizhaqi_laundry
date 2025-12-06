@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Admin - Rizhaqi Laundry</title>
     <link rel="stylesheet" href="{{ asset('admin/css/login.css') }}" />
-    
+
     <style>
         /* CSS Tambahan untuk Notifikasi Laravel */
         .alert {
@@ -19,11 +20,13 @@
             margin-left: auto;
             margin-right: auto;
         }
+
         .alert-success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .alert-error {
             background-color: #f8d7da;
             color: #721c24;
@@ -32,7 +35,7 @@
     </style>
 </head>
 
-<body>
+<body>>
 
     <div class="wrapper">
 
@@ -121,4 +124,5 @@
     </script>
 
 </body>
+
 </html>

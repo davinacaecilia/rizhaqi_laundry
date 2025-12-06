@@ -39,8 +39,8 @@
         </div>
 
         <div class="content" id="home">
-          <h1>Selamat Datang di </h1>
-          <h2>  Rizhaqi Laundry</h2>
+          <h1 style="font-size: 50px">Selamat Datang di </h1>
+          <h2 style="font-size: 100px">RIZHAQI LAUNDRY</h2><br>
           <p>Layanan laundry cepat, bersih, dan terpercaya.</p>
 
           <div class="home-buttons">
@@ -56,17 +56,17 @@
 
         <div class="card-list">
           <div class="card fade-element">
-            <i class="fa-solid fa-wind icon"></i>
+            <i class="fa-solid fa-wind icon" style="font-size: 30px; margin-bottom: 10px;"></i>
             <h3>Bersih & Wangi</h3>
             <p>Pakaian dicuci menggunakan deterjen premium dan pewangi tahan lama.</p>
           </div>
           <div class="card fade-element">
-            <i class="fas fa-bolt icon"></i>
+            <i class="fas fa-bolt icon" style="font-size: 30px; margin-bottom: 10px;"></i>
             <h3>Cepat & Tepat</h3>
             <p>Layanan express untuk Anda yang butuh hasil kilat dengan kualitas terbaik.</p>
           </div>
           <div class="card fade-element">
-            <i class="fas fa-tags icon"></i>
+            <i class="fas fa-tags icon" style="font-size: 30px; margin-bottom: 10px;"></i>
             <h3>Harga Terjangkau</h3>
             <p>Harga ramah di kantong tanpa mengorbankan hasil maksimal.</p>
           </div>
@@ -75,8 +75,7 @@
 
       <!-- daftar harga-->
       <section id="harga-section" class="harga-section fade-element" style="padding-top: 5rem;">
-        <h2 class="section-title2">Daftar Harga Rizhaqi Laundry</h2>
-        <p class="section-subtitle">Layanan laundry cepat, bersih, dan terpercaya.</p>
+        <h2 class="section-title2">Daftar Harga Rizhaqi Laundry</h2><br>
 
         <div class="card-list">
 

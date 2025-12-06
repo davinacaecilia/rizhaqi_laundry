@@ -146,7 +146,6 @@ body {
 
 .hero .content h1,
 .hero .content h2 {
-  font-size: clamp(3rem, 6vw, 5rem);
   font-weight: 1000;
   letter-spacing: 1px;
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
@@ -155,9 +154,9 @@ body {
 }
 
 .hero .content p {
-  font-size: clamp(1.2rem, 2.5vw, 2rem);
-  font-weight: 400;
-  max-width: 800px; /* Lebih lebar */
+  font-size: 25px;
+  text-align: center;
+  max-width: 100%; /* Lebih lebar */
   margin:  10px;
   line-height: 1.4;
   color: #e0e0e0;
@@ -247,7 +246,6 @@ body {
   color: var(--dark); /* Judul utama seharusnya gelap di latar belakang terang */
   margin-bottom: 0.5rem;
   letter-spacing: 0.5px;
-  padding-top: 4rem;
   text-align: center;
   font-weight: 700;
 }
@@ -257,8 +255,7 @@ body {
 }
 
 .section-home {
-    font-size: clamp(2.4rem, 4vw, 3rem); /* lebih besar */
-    margin-top: 2rem;        /* jarak atas diperkecil */
+    font-size: clamp(2.4rem, 4vw, 3rem); /* lebih besar */        /* jarak atas diperkecil */
     margin-bottom: 0.5rem;   /* rapat ke subtitle */
     color: var(--primary);
     font-weight: 800;
@@ -268,7 +265,7 @@ body {
   text-align: center;
   color: #777; /* Warna yang lebih soft */
   margin-bottom: 4rem; /* Jarak yang lebih besar */
-  font-size: 1.8rem;
+  font-size: 25px;
   margin-bottom: 3rem; /* agar card lebih dekat */
 }
 
@@ -528,8 +525,8 @@ footer {
 }
 .why-section {
     width: 100%;
-    min-height: 100vh;      
-    padding: 80px 20px 60px;  
+    min-height: 90vh;      
+    padding: 20px;  
     background: #ffffff;
     display: flex;
     flex-direction: column;

@@ -146,7 +146,7 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/pelanggan') }}'">
+                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.pelanggan.index') }}'">
                             <i class='bx bx-x'></i> Batal
                         </button>
                         <button type="submit" class="btn-submit">
@@ -155,9 +155,7 @@
                     </div>
                 </form>
             </div>
-
         </main>
-        <!-- MAIN -->
     </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>

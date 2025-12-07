@@ -112,28 +112,32 @@
             </div>
 
             <div class="form-card">
-                <!-- Form dummy (frontend only, tidak konek DB) -->
-                <form>
+                <form action="{{ route('admin.pelanggan.update', $pelanggan) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
                     <div class="form-group">
                         <label for="nama_pelanggan">Nama Pelanggan</label>
-                        <input type="text" id="nama_pelanggan" name="nama_pelanggan" placeholder="Masukkan nama pelanggan" value="Davin Ahmad" required>
+                        <input type="text" id="nama_pelanggan" name="nama_pelanggan" placeholder="Masukkan nama pelanggan" value="{{ old('nama_pelanggan', $pelanggan->nama) }}" required>
+                        @error('nama_pelanggan') <small style="color:red">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="alamat">Alamat</label>
-                        <textarea id="alamat" name="alamat" placeholder="Masukkan alamat pelanggan" rows="4">Jl. Melati No. 12, Bandung</textarea>
+                        <textarea id="alamat" name="alamat" placeholder="Masukkan alamat pelanggan" rows="4">{{ old('alamat', $pelanggan->alamat) }}</textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="no_telepon">Nomor Telepon</label>
-                        <input type="text" id="no_telepon" name="no_telepon" placeholder="Masukkan nomor telepon" value="081234567890">
+                        <input type="text" id="no_telepon" name="no_telepon" placeholder="Masukkan nomor telepon" value="{{ old('no_telepon', $pelanggan->telepon) }}">
+                        @error('no_telepon') <small style="color:red">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/pelanggan') }}'">
+                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.pelanggan.index') }}'">
                             <i class='bx bx-x'></i> Batal
                         </button>
-                        <button type="button" class="btn-submit" onclick="simpanData()">
+                        <button type="submit" class="btn-submit">
                             <i class='bx bx-save'></i> Simpan Perubahan
                         </button>
                     </div>
@@ -141,13 +145,6 @@
             </div>
         </main>
     </section>
-
-    <script>
-        function simpanData() {
-            alert('Data layanan berhasil diperbarui (dummy).');
-            window.location.href = '{{ url('admin/layanan') }}';
-        }
-    </script>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>

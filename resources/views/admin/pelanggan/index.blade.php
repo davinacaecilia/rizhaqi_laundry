@@ -143,48 +143,32 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @forelse($pelanggan as $item)
                                 <tr>
-                                    <td>PL001</td>
-                                    <td>Agus Salim</td>
-                                    <td>Jl. Kenanga No. 3</td>
-                                    <td>082233445566</td>
+                                    <td>PL{{ str_pad($item->id_pelanggan, 3, '0', STR_PAD_LEFT) }}</td>
+                                    <td>{{ $item->nama }}</td>
+                                    <td>{{ $item->alamat }}</td>
+                                    <td>{{ $item->telepon }}</td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <a href="{{ route('admin.pelanggan.edit', ['pelanggan' => 1]) }}" class="btn-detail edit">
+                                            <a href="{{ route('admin.pelanggan.edit', $item) }}" class="btn-detail edit">
                                                 <i class='bx bx-edit'></i> Edit
                                             </a>
-                                            <form action="{{ route('admin.pelanggan.destroy', ['pelanggan' => 1]) }}" method="POST" style="display:inline-block;">
+                                            <form action="{{ route('admin.pelanggan.destroy', $item) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus pelanggan ini?')">
+                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus pelanggan {{ $item->nama }}?')">
                                                     <i class='bx bx-trash'></i> Delete
                                                 </button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
-
+                                @empty
                                 <tr>
-                                    <td>PL001</td>
-                                    <td>putri</td>
-                                    <td>Jl. Kenanga No. 3</td>
-                                    <td>082233445566</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ route('admin.pelanggan.edit', ['pelanggan' => 1]) }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <form action="{{ route('admin.pelanggan.destroy', ['pelanggan' => 1]) }}" method="POST" style="display:inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus pelanggan ini?')">
-                                                    <i class='bx bx-trash'></i> Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+                                    <td colspan="5" style="text-align:center;">Belum ada data pelanggan.</td>
                                 </tr>
-
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -194,28 +178,30 @@
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container"></div>
+    <div id="pagination" class="pagination-container">
+        {{ $pelanggan->links('pagination::bootstrap-5') }}
+    </div>
 
     <script>
-// Toggle search input
-const searchBtn = document.getElementById('tableSearchBtn');
-const searchInput = document.getElementById('tableSearchInput');
+        // Toggle search input
+        const searchBtn = document.getElementById('tableSearchBtn');
+        const searchInput = document.getElementById('tableSearchInput');
 
-searchBtn.addEventListener('click', () => {
-    searchInput.classList.toggle('show');
-    if (searchInput.classList.contains('show')) searchInput.focus();
-});
+        searchBtn.addEventListener('click', () => {
+            searchInput.classList.toggle('show');
+            if (searchInput.classList.contains('show')) searchInput.focus();
+        });
 
-// Live search table
-searchInput.addEventListener('input', () => {
-    const filter = searchInput.value.toLowerCase();
-    const rows = document.querySelectorAll('.table-container tbody tr');
+        // Live search table
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('.table-container tbody tr');
 
-    rows.forEach(row => {
-        const rowText = row.innerText.toLowerCase();
-        row.style.display = rowText.includes(filter) ? '' : 'none';
-    });
-});
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                row.style.display = rowText.includes(filter) ? '' : 'none';
+            });
+        });
 </script>
 
 

@@ -217,14 +217,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 emptyOverlay = document.createElement('div');
                 emptyOverlay.id = 'emptyStateOverlay';
                 emptyOverlay.style.cssText = `
-                    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                    z-index: 10; text-align: center; width: 100%; padding: 40px 20px; pointer-events: none;
+                    display: flex;
+                    text-align: center; width: 100%; padding: 40px 20px; pointer-events: none;
                 `;
                 emptyOverlay.innerHTML = `
-                    <div style="display: inline-block; padding: 20px; pointer-events: auto;">
+                    <div style="padding: 20px; pointer-events: auto;">
                         <i class='bx bx-search-alt' style="font-size: 64px; color: #cbd5e1; margin-bottom: 16px; display: block;"></i>
                         <h4 style="font-size: 18px; font-weight: 600; color: #475569; margin: 0 0 8px 0;">Ups! Data tidak ditemukan</h4>
-                        <p style="font-size: 14px; color: #94a3b8; margin: 0; max-width: 400px;">Coba ubah kata kunci pencarian atau atur ulang filter.</p>
+                        <p style="font-size: 14px; color: #94a3b8; margin: 0; max-width: 100%;">Coba ubah kata kunci pencarian atau atur ulang filter.</p>
                     </div>
                 `;
                 tableContainer.style.position = 'relative';

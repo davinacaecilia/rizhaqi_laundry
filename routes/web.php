@@ -17,9 +17,37 @@ use App\Http\Controllers\Pegawai\PegawaiTransaksiController;
 use App\Http\Controllers\Pegawai\PegawaiPelangganController;
 use App\Http\Controllers\Pegawai\PegawaiCucianController;
 
-Route::prefix('pegawai')->name('pegawai.')->group(function () {
 
-    // Dashboard Pegawai
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/', [UserController::class, 'home'])->name('home');
+Route::get('/harga', [UserController::class, 'harga'])->name('harga');
+Route::get('/status', [UserController::class, 'status'])->name('status');
+Route::post('/status', [UserController::class, 'checkStatus'])->name('status.check');
+
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/transaksi/status', [TransaksiController::class, 'status'])->name('transaksi.status');
+    Route::resource('transaksi', TransaksiController::class);
+
+    Route::resource('pegawai', PegawaiController::class);
+
+    Route::resource('pelanggan', PelangganController::class);
+
+    Route::resource('layanan', LayananController::class);
+
+    Route::get('/alat/stok', [AlatController::class, 'stok'])->name('alat.stok');
+    Route::resource('alat', AlatController::class);
+
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+    Route::resource('pengeluaran', PengeluaranController::class);
+});
+
+Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'role:pegawai'])->group(function () {
     Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])
         ->name('dashboard');
 
@@ -46,46 +74,4 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     // Halaman list cucian
     Route::get('/cucian', [PegawaiCucianController::class, 'index'])
         ->name('cucian.index');
-
-    // Halaman form proses cucian
-    Route::get('/cucian/create', [PegawaiCucianController::class, 'create'])
-        ->name('cucian.create');
-
-    Route::get('/cucian/store', [PegawaiCucianController::class, 'store'])
-        ->name('cucian.store');
-
-
-});
-
-
-Route::get('/', [UserController::class, 'home'])->name('home');
-Route::get('/harga', [UserController::class, 'harga'])->name('harga');
-Route::get('/status', [UserController::class, 'status'])->name('status');
-Route::post('/status', [UserController::class, 'checkStatus'])->name('status.check');
-
-
-Route::get('/login', [LoginController::class, 'show'])->name('login');
-
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    Route::get('/transaksi/status', [TransaksiController::class, 'status'])->name('transaksi.status');
-    Route::resource('transaksi', TransaksiController::class);
-
-    Route::resource('pegawai', PegawaiController::class);
-
-    Route::resource('pelanggan', PelangganController::class);
-
-    Route::resource('layanan', LayananController::class);
-
-    Route::get('/alat/stok', [AlatController::class, 'stok'])->name('alat.stok');
-    Route::resource('alat', AlatController::class);
-
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-
-    Route::resource('pengeluaran', PengeluaranController::class);
 });

@@ -131,99 +131,6 @@
             color: #6e6e6e;
         }
 
-    /* MODAL BACKDROP */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(2px);
-            transition: all 0.3s ease;
-        }
-
-        /* MODAL BOX */
-        .modal-content {
-            background-color: var(--surface-white);
-            margin: 10% auto;
-            padding: 25px 30px;
-            border-radius: 12px;
-            width: 320px;
-            max-width: 90%;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            position: relative;
-            animation: slideDown 0.3s ease;
-        }
-
-        /* MODAL ANIMATION */
-        @keyframes slideDown {
-            0% { transform: translateY(-20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        /* CLOSE BUTTON */
-        .close {
-            position: absolute;
-            top: 12px;
-            right: 15px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #555;
-            transition: color 0.2s;
-        }
-
-        .close:hover {
-            color: var(--accent-blue);
-        }
-
-        /* MODAL HEADING */
-        .modal-content h3 {
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        /* DROPDOWN SELECT */
-        #statusSelect {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-light);
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        #statusSelect:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-        }
-
-        /* SAVE BUTTON */
-        .modal-content .btn-detail.edit {
-            width: 100%;
-            padding: 10px 0;
-            margin-top: 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            background-color: var(--accent-blue);
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .modal-content .btn-detail.edit:hover {
-            background-color: var(--accent-blue-hover);
-        }
     </style>
 </head>
 <body>
@@ -276,8 +183,8 @@
                                 <td>2025-01-02</td>
                                 <td>
                                     <div class="btn-action-group">
-                                        <button class="btn-detail edit" onclick="openStatusModal('C001', 'Proses')">
-                                            <i class='bx bx-edit'></i> Edit Status
+                                        <button type="button" class="btn-detail edit" onclick="markAsDone('C001', this)">
+                                            <i class='bx bx-check'></i> Selesai
                                         </button>
                                     </div>
                                 </td>
@@ -291,8 +198,8 @@
                                 <td>2025-01-01</td>
                                 <td>
                                     <div class="btn-action-group">
-                                        <button class="btn-detail edit" onclick="openStatusModal('C002', 'Selesai')">
-                                            <i class='bx bx-edit'></i> Edit Status
+                                        <button class="btn-detail edit" onclick="markAsDone('C002', this)">
+                                            <i class='bx bx-check'></i> Selesai
                                         </button>
                                     </div>
                                 </td>
@@ -306,8 +213,8 @@
                                 <td>2025-01-03</td>
                                 <td>
                                     <div class="btn-action-group">
-                                        <button class="btn-detail edit" onclick="openStatusModal('C003', 'Menunggu')">
-                                            <i class='bx bx-edit'></i> Edit Status
+                                        <button class="btn-detail edit" onclick="markAsDone('C003', this)">
+                                            <i class='bx bx-check'></i> Selesai
                                         </button>
                                     </div>
                                 </td>
@@ -321,105 +228,6 @@
     </section>
 
     <div id="pagination" class="pagination-container"></div>
-
-    <div id="statusModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeStatusModal()">&times;</span>
-            <h3>Ganti Status Cucian <span id="modalCucianId"></span></h3>
-            <label for="statusSelect">Status:</label>
-            <select id="statusSelect">
-                <option value="Proses">Proses</option>
-                <option value="Selesai">Selesai</option>
-                <option value="Menunggu">Menunggu</option>
-            </select>
-            <button id="saveStatusBtn" class="btn-detail edit" onclick="saveStatus()">
-                <i class='bx bx-check'></i> Simpan
-            </button>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const statusSpan = row.children[3].querySelector('.status-badge');
-                const statusText = statusSpan ? statusSpan.innerText.trim() : '';
-                const editBtn = row.querySelector('.btn-detail.edit');
-
-                // Hanya disable tombol jika status Selesai
-                if (statusText === 'Selesai') {
-                    editBtn.disabled = true;
-                    editBtn.style.backgroundColor = '#ccc';
-                    editBtn.style.cursor = 'not-allowed';
-                } else {
-                    editBtn.disabled = false;
-                    editBtn.style.backgroundColor = 'var(--accent-blue)';
-                    editBtn.style.cursor = 'pointer';
-                }
-            });
-        });
-
-        let currentRowId = null;
-
-        function openStatusModal(id, currentStatus) {
-            currentRowId = id;
-            const select = document.getElementById('statusSelect');
-            const saveBtn = document.getElementById('saveStatusBtn');
-
-            document.getElementById('modalCucianId').innerText = id;
-            select.value = currentStatus;
-
-            // Disable dropdown & tombol jika Selesai
-            if (currentStatus === 'Selesai') {
-                select.disabled = true;
-                saveBtn.disabled = true;
-                saveBtn.style.backgroundColor = '#ccc';
-                saveBtn.style.cursor = 'not-allowed';
-            } else {
-                select.disabled = false;
-                saveBtn.disabled = false;
-                saveBtn.style.backgroundColor = 'var(--accent-blue)';
-                saveBtn.style.cursor = 'pointer';
-            }
-
-            document.getElementById('statusModal').style.display = 'block';
-        }
-
-        function closeStatusModal() {
-            document.getElementById('statusModal').style.display = 'none';
-        }
-
-        function saveStatus() {
-            const newStatus = document.getElementById('statusSelect').value;
-
-            alert(`Status cucian ${currentRowId} diubah menjadi ${newStatus} (dummy).`);
-
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                if (row.children[0].innerText === currentRowId) {
-                    row.children[3].innerHTML = `<span class="status-badge status-${newStatus.toLowerCase()}">${newStatus}</span>`;
-
-                    // Disable tombol jika status baru Selesai
-                    const editBtn = row.querySelector('.btn-detail.edit');
-                    if (newStatus === 'Selesai') {
-                        editBtn.disabled = true;
-                        editBtn.style.backgroundColor = '#ccc';
-                        editBtn.style.cursor = 'not-allowed';
-                    }
-                }
-            });
-
-            closeStatusModal();
-        }
-
-        // Tutup modal jika klik di luar
-        window.onclick = function(event) {
-            const modal = document.getElementById('statusModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-</script>
 
     <script>
     // Toggle search input
@@ -441,8 +249,49 @@
             row.style.display = rowText.includes(filter) ? '' : 'none';
         });
     });
-    </script>
+
+    function markAsDone(id, btn) {
+
+        // ambil row tempat tombol ditekan
+        let row = btn.closest("tr");
+        let statusBadge = row.querySelector(".status-badge");
+
+        // popup konfirmasi
+        if (confirm(`Yakin ingin tandai cucian ${id} sebagai selesai ?`)) {
+
+            // ubah status badge
+            statusBadge.classList.remove("status-proses", "status-menunggu");
+            statusBadge.classList.add("status-selesai");
+            statusBadge.innerText = "Selesai";
+
+            // disable tombol
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+
+            alert(`Cucian ${id} berhasil ditandai selesai!`);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        document.querySelectorAll(".table-container tbody tr").forEach(row => {
+            let statusBadge = row.querySelector(".status-badge");
+            let btn = row.querySelector(".btn-detail.edit");
+
+            if (statusBadge && btn) {
+                if (statusBadge.innerText.trim().toLowerCase() === "selesai") {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.5";
+                    btn.style.cursor = "not-allowed";
+                }
+            }
+        });
+
+    });
+</script>
 
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+
 </body>
 </html>

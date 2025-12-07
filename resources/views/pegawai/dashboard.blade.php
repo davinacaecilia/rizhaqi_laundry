@@ -16,7 +16,6 @@
 <body>
 
 <style>
-    /* ===== Container utama chart + card kanan ===== */
     .charts-container {
         display: flex;
         gap: 20px;
@@ -297,8 +296,7 @@
         // ===== Render chart =====
         const museumCtx = document.getElementById('museumChart').getContext('2d');
         new Chart(museumCtx, museumConfig);
-
-    });
+     });
 </script>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>

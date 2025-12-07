@@ -11,80 +11,23 @@
     <title>Status Order - Rizhaqi Laundry pegawai</title>
 
     <style>
-        /* CSS TABEL FULL GRID (KOTAK-KOTAK) - SAMA DENGAN INDEX */
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse; /* KUNCI: Agar garis nyambung */
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: var(--shadow-light);
-        }
+        /* CSS TABEL GRID */
+        .table-container table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-light); }
+        .table-container thead tr { background-color: var(--surface-white); border-bottom: 1px solid var(--border-light); }
+        .table-container th, .table-container td { padding: 15px; border: 1px solid var(--border-light); text-align: left; font-size: 14px; color: var(--text-primary); }
+        .table-container th { font-weight: 600; color: var(--text-secondary); font-family: var(--google-sans); background-color: var(--surface-white); }
+        .table-container tbody tr:hover { background-color: rgba(26, 115, 232, 0.04); }
 
-        .table-container thead tr {
-            background-color: var(--surface-white);
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        /* SEL KOTAK-KOTAK (Border di semua sisi) */
-        .table-container th,
-        .table-container td {
-            padding: 15px;
-            border: 1px solid var(--border-light); /* Garis Keliling */
-            text-align: left;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .table-container th {
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-family: var(--google-sans);
-            background-color: var(--surface-white);
-        }
-
-        .table-container tbody tr:hover {
-            background-color: rgba(26, 115, 232, 0.04);
-        }
-
-        /* TOMBOL AKSI KHUSUS STATUS */
-        .table-container .btn-action-group {
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-
-        .btn-status {
-            padding: 8px 16px;
-            border-radius: 6px;
-            color: white;
-            font-weight: 500;
-            font-size: 13px;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            transition: 0.2s;
-        }
+        /* TOMBOL AKSI */
+        .btn-status { padding: 8px 16px; border-radius: 6px; color: white; font-weight: 500; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
         .btn-status:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-status.disabled { background-color: #e0e0e0 !important; color: #999 !important; cursor: not-allowed; pointer-events: none; transform: none; box-shadow: none; }
 
-        /* Tombol Disabled (Mati) */
-        .btn-status.disabled {
-            background-color: #e0e0e0 !important;
-            color: #999 !important;
-            cursor: not-allowed;
-            pointer-events: none;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* Warna Tombol Status */
+        /* WARNA TOMBOL */
         .btn-blue { background-color: var(--accent-blue); }
         .btn-orange { background-color: #FF9800; }
         .btn-purple { background-color: #9C27B0; }
-        .btn-teal { background-color: #009688; } /* Warna Packing */
+        .btn-teal { background-color: #009688; }
         .btn-green { background-color: var(--accent-green); }
         .btn-dark { background-color: #455A64; }
         .btn-red { background-color: var(--accent-red); }
@@ -97,18 +40,69 @@
         .st-disetrika { background: #F3E5F5; color: #7B1FA2; }
         .st-packing { background: #E0F2F1; color: #00695C; }
         .st-siap { background: #E8F5E9; color: #2E7D32; }
-        .st-selesai { background: #1B5E20; color: #fff; }      /* Hijau Tua (Selesai) */
-        .st-batal { background: #FFEBEE; color: #C62828; }     /* Merah (Batal) */
+        .st-selesai { background: #1B5E20; color: #fff; }
 
+        /* --- UI FILTER BARU (PILLS & DATE) --- */
+        .table-data .order .head { display: flex; flex-direction: column; gap: 15px; align-items: flex-start; }
+        .filter-row { display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap; }
+        .filter-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-right: auto; }
+        .filter-date { padding: 8px 12px; border: 1px solid var(--border-light); border-radius: 20px; outline: none; font-size: 13px; color: var(--text-secondary); }
 
-        /* SEARCH BAR */
-        .table-data .order .head { position: relative; }
-        .table-search-input {
-            width: 0; padding: 0; border: none; transition: width 0.3s ease;
-            background: var(--surface-white); border-radius: 20px; margin-left: auto; outline: none; height: 40px;
+        .status-pills-container { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-pill { padding: 6px 14px; border: 1px solid var(--border-light); border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: var(--text-secondary); transition: all 0.2s; user-select: none; }
+        .filter-pill:hover { background: #f5f5f5; border-color: #ccc; }
+        .filter-pill.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+
+        /* --- SEARCH BAR --- */
+        .table-search-wrapper { position: relative; display: flex; align-items: center; margin-left: auto; }
+        .table-search-input { width: 0; padding: 0; border: none; margin-left: 0; background: transparent; transition: width 0.3s ease, padding 0.3s ease; opacity: 0; pointer-events: none; height: 40px; border-radius: 20px; }
+        .table-search-input.show { width: 200px; padding: 6px 12px; border: 1px solid var(--border-light); margin-right: 10px; opacity: 1; pointer-events: auto; background: var(--surface-white); }
+        .table-search-input:focus { border-color: var(--accent-blue); outline: none; }
+        .bx-search-toggle { cursor: pointer; font-size: 20px; color: #888; padding: 5px; }
+
+        /* --- [NEW] STATUS SUMMARY CARDS (KECIL) --- */
+        .status-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Responsif */
+            gap: 12px;
+            margin-bottom: 24px;
+            list-style: none;
+            padding: 0;
         }
-        .table-search-input.show { width: 200px; padding: 8px 12px; border: 1px solid var(--border-light); }
-        .table-data .order .head .bx-search { margin-left: 10px; cursor: pointer; }
+
+        .status-summary li {
+            background: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .status-summary li:hover { transform: translateY(-2px); box-shadow: var(--shadow-light); }
+
+        .status-summary li .bx {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            font-size: 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .status-summary li .info h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1; }
+        .status-summary li .info p { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+
+        /* Warna Icon per Status */
+        .bg-diterima { background: #EEEEEE; color: #616161; }
+        .bg-dicuci { background: #E3F2FD; color: #1976D2; }
+        .bg-kering { background: #FFF3E0; color: #F57C00; }
+        .bg-setrika { background: #F3E5F5; color: #7B1FA2; }
+        .bg-packing { background: #E0F2F1; color: #00796B; }
+        .bg-siap { background: #E8F5E9; color: #388E3C; }
+        .bg-selesai { background: #263238; color: #fff; }
+
     </style>
 </head>
 <body>
@@ -131,13 +125,87 @@
                 </div>
             </div>
 
+            <!-- [BARU] CARD RINGKASAN STATUS KECIL -->
+            <ul class="status-summary">
+                <li>
+                    <i class='bx bx-receipt bg-diterima'></i>
+                    <div class="info">
+                        <h3>5</h3>
+                        <p>Diterima</p>
+                    </div>
+                </li>
+                <li>
+                    <i class='bx bx-water bg-dicuci'></i>
+                    <div class="info">
+                        <h3>8</h3>
+                        <p>Dicuci</p>
+                    </div>
+                </li>
+                <li>
+                    <i class='bx bx-wind bg-kering'></i>
+                    <div class="info">
+                        <h3>4</h3>
+                        <p>Dikeringkan</p>
+                    </div>
+                </li>
+                <li>
+                    <i class='bx bxs-t-shirt bg-setrika'></i>
+                    <div class="info">
+                        <h3>6</h3>
+                        <p>Disetrika</p>
+                    </div>
+                </li>
+                <li>
+                    <i class='bx bx-package bg-packing'></i>
+                    <div class="info">
+                        <h3>3</h3>
+                        <p>Packing</p>
+                    </div>
+                </li>
+                <li>
+                    <i class='bx bx-check-circle bg-siap'></i>
+                    <div class="info">
+                        <h3>12</h3>
+                        <p>Siap Ambil</p>
+                    </div>
+                </li>
+                <li>
+                    <i class='bx bx-check-double bg-selesai'></i>
+                    <div class="info">
+                        <h3>45</h3>
+                        <p>Selesai</p>
+                    </div>
+                </li>
+            </ul>
+
             <div class="table-data">
                 <div class="order">
+
                     <div class="head">
-                        <h3>Update Status Cucian (Real-time)</h3>
-                        <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Kode Invoice...">
-                        <i class='bx bx-search' id="tableSearchIcon"></i>
-                        <i class='bx bx-filter'></i>
+                        <!-- Baris 1: Judul & Search -->
+                        <div class="filter-row">
+                            <h3 class="filter-title">Update Status (Real-time)</h3>
+
+                            <!-- Search Bar -->
+                            <div class="table-search-wrapper">
+                                <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama...">
+                                <i class='bx bx-search bx-search-toggle' id="tableSearchIcon"></i>
+                            </div>
+                        </div>
+
+                        <!-- Baris 2: Filter Tanggal & Status Pills -->
+                        <div class="filter-row">
+                            <input type="date" id="dateFilter" class="filter-date" title="Filter Tanggal Masuk">
+
+                            <div class="status-pills-container">
+                                <span class="filter-pill" data-status="diterima">Diterima</span>
+                                <span class="filter-pill" data-status="dicuci">Dicuci</span>
+                                <span class="filter-pill" data-status="dikeringkan">Dikeringkan</span>
+                                <span class="filter-pill" data-status="disetrika">Disetrika</span>
+                                <span class="filter-pill" data-status="packing">Packing</span>
+                                <span class="filter-pill" data-status="siap">Siap</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="table-container">
@@ -146,106 +214,99 @@
                                 <tr style="background-color: #f2f2f2;">
                                     <th>Kode Invoice</th>
                                     <th>Nama Pelanggan</th>
+                                    <th>Tanggal Masuk</th>
                                     <th>Status Sekarang</th>
                                     <th>Aksi Selanjutnya</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- SKENARIO 1: DITERIMA -> MULAI CUCI --}}
+                                {{-- SKENARIO 1: DITERIMA --}}
                                 <tr>
                                     <td><strong>D0226</strong></td>
                                     <td>Ibu Ratna</td>
+                                    <td>25 Nov 2025</td>
                                     <td><span class="status-badge st-diterima">Diterima</span></td>
                                     <td>
-                                        <button type="button" class="btn-status btn-blue" onclick="return confirm('Mulai cuci pesanan ini?')">
+                                        <button type="button" class="btn-status btn-blue" onclick="return confirm('Mulai cuci?')">
                                             <i class='bx bx-water'></i> Mulai Cuci
                                         </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 2: DICUCI -> KERINGKAN --}}
+                                {{-- SKENARIO 2: DICUCI --}}
                                 <tr>
                                     <td><strong>D0225</strong></td>
                                     <td>Kak Dinda</td>
+                                    <td>25 Nov 2025</td>
                                     <td><span class="status-badge st-dicuci">Dicuci</span></td>
                                     <td>
-                                        <button type="button" class="btn-status btn-orange" onclick="return confirm('Selesai cuci? Lanjut keringkan?')">
+                                        <button type="button" class="btn-status btn-orange" onclick="return confirm('Lanjut keringkan?')">
                                             <i class='bx bx-wind'></i> Ke Pengeringan
                                         </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 3: DIKERINGKAN -> SETRIKA --}}
+                                {{-- SKENARIO 3: DIKERINGKAN --}}
                                 <tr>
                                     <td><strong>D0224</strong></td>
                                     <td>Bu Siti</td>
+                                    <td>24 Nov 2025</td>
                                     <td><span class="status-badge st-dikeringkan">Dikeringkan</span></td>
                                     <td>
-                                        <button type="button" class="btn-status btn-purple" onclick="return confirm('Sudah kering? Lanjut setrika?')">
-                                            <!-- Icon Baju (Pengganti Icon Setrika) -->
+                                        <button type="button" class="btn-status btn-purple" onclick="return confirm('Lanjut setrika?')">
                                             <i class='bx bxs-t-shirt'></i> Mulai Setrika
                                         </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 4: DISETRIKA -> PACKING (NEW STATUS) --}}
+                                {{-- SKENARIO 4: DISETRIKA --}}
                                 <tr>
                                     <td><strong>D0223</strong></td>
                                     <td>Pak Rahmat</td>
+                                    <td>24 Nov 2025</td>
                                     <td><span class="status-badge st-disetrika">Disetrika</span></td>
                                     <td>
-                                        <button type="button" class="btn-status btn-teal" onclick="return confirm('Selesai setrika? Lanjut packing?')">
+                                        <button type="button" class="btn-status btn-teal" onclick="return confirm('Lanjut packing?')">
                                             <i class='bx bx-box'></i> Mulai Packing
                                         </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 5: PACKING -> SIAP (NEW STATUS) --}}
+                                {{-- SKENARIO 5: PACKING --}}
                                 <tr>
                                     <td><strong>D0222</strong></td>
                                     <td>Mbak Rini</td>
+                                    <td>24 Nov 2025</td>
                                     <td><span class="status-badge st-packing">Packing</span></td>
                                     <td>
-                                        <button type="button" class="btn-status btn-green" onclick="return confirm('Selesai packing? Tandai siap diambil?')">
+                                        <button type="button" class="btn-status btn-green" onclick="return confirm('Tandai siap?')">
                                             <i class='bx bx-check-circle'></i> Tandai Siap
                                         </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 6: SIAP -> DIAMBIL --}}
+                                {{-- SKENARIO 6: SIAP --}}
                                 <tr>
                                     <td><strong>D0221</strong></td>
                                     <td>Mas Tono</td>
+                                    <td>23 Nov 2025</td>
                                     <td><span class="status-badge st-siap">Siap Diambil</span></td>
                                     <td>
-                                        <button type="button" class="btn-status btn-dark" onclick="return confirm('Barang sudah diambil pelanggan?')">
+                                        <button type="button" class="btn-status btn-dark" onclick="return confirm('Konfirmasi ambil?')">
                                             <i class='bx bx-package'></i> Konfirmasi Ambil
                                         </button>
                                     </td>
                                 </tr>
 
-                                {{-- SKENARIO 7: SUDAH DIAMBIL (FINAL) -> TOMBOL MATI --}}
+                                {{-- SKENARIO 7: SELESAI --}}
                                 <tr>
                                     <td><strong>D0220</strong></td>
                                     <td>Pak Yusuf</td>
+                                    <td>22 Nov 2025</td>
                                     <td><span class="status-badge st-selesai">Sudah Diambil</span></td>
                                     <td>
-                                        {{-- Tombol Mati (Disabled) --}}
-                                        <button type="button" class="btn-status disabled" title="Transaksi Selesai">
+                                        <button type="button" class="btn-status disabled">
                                             <i class='bx bx-check-double'></i> Selesai
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                {{-- SKENARIO 8: DIBATALKAN (FINAL) -> TOMBOL MATI --}}
-                                <tr>
-                                    <td><strong>D0219</strong></td>
-                                    <td>Ibu Susi</td>
-                                    <td><span class="status-badge st-batal">Dibatalkan</span></td>
-                                    <td>
-                                        {{-- Tombol Mati (Disabled) --}}
-                                        <button type="button" class="btn-status disabled" title="Transaksi Dibatalkan">
-                                            <i class='bx bx-x-circle'></i> Batal
                                         </button>
                                     </td>
                                 </tr>
@@ -261,8 +322,6 @@
     <div id="pagination" class="pagination-container"></div>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
-    <script src="{{ asset('admin/script/pagination.js') }}"></script>
-    <script src="{{ asset('admin/script/chart.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
 </body>

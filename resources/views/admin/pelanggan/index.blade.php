@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
-
     <title>Data Pelanggan - Rizhaqi Laundry Admin</title>
+
     <style>
         .table-container table {
             width: 100%;
@@ -44,7 +44,6 @@
         .btn-action-group {
             display: flex;
             gap: 5px;
-            flex-wrap: wrap;
         }
 
         .btn-detail {
@@ -100,6 +99,38 @@
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
         }
+
+        .info-box {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .info-box i {
+            font-size: 60px;
+            color: #bdbdbd;
+        }
+
+        .info-box h3 {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .info-box p {
+            margin-top: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        #noData, #emptyDatabase {
+            min-height: 150px; 
+            margin-top: 20px;
+            position: relative;
+        }
+        .table-container {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +139,6 @@
     <section id="content">
         @include('partial.navbar')
 
-    <!-- Main content -->
         <main>
             <div class="head-title">
                 <div class="left">
@@ -125,7 +155,9 @@
                 <div class="order">
                     <div class="head">
                         <h3>Data Pelanggan</h3>
+
                         <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari nama pelanggan...">
+
                         <button id="tableSearchBtn" style="background:none; border:none; cursor:pointer; font-size:22px; display:flex; align-items:center;">
                             <i class='bx bx-search'></i>
                         </button>
@@ -142,8 +174,9 @@
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
+
                             <tbody>
-                                @forelse($pelanggan as $item)
+                                @foreach($pelanggan as $item)
                                 <tr>
                                     <td>PL{{ str_pad($item->id_pelanggan, 3, '0', STR_PAD_LEFT) }}</td>
                                     <td>{{ $item->nama }}</td>
@@ -154,6 +187,7 @@
                                             <a href="{{ route('admin.pelanggan.edit', $item) }}" class="btn-detail edit">
                                                 <i class='bx bx-edit'></i> Edit
                                             </a>
+
                                             <form action="{{ route('admin.pelanggan.destroy', $item) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
@@ -164,13 +198,18 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="5" style="text-align:center;">Belum ada data pelanggan.</td>
-                                </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
+
+                        {{-- Box jika database kosong --}}
+                        @if($pelanggan->count() === 0)
+                        <div id="emptyDatabase" class="info-box">
+                            <i class='bx bx-folder-open'></i>
+                            <h3>Belum ada data pelanggan.</h3>
+                            <p>Tambahkan data pelanggan terlebih dahulu.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -178,35 +217,25 @@
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container">
-        {{ $pelanggan->links('pagination::bootstrap-5') }}
-    </div>
+    <div id="pagination" class="pagination-container"></div>
 
     <script>
-        // Toggle search input
         const searchBtn = document.getElementById('tableSearchBtn');
         const searchInput = document.getElementById('tableSearchInput');
+        const noData = document.getElementById('noData');
+        const emptyDatabase = document.getElementById('emptyDatabase');
+        const tableElement = document.querySelector('.table-container table');
 
         searchBtn.addEventListener('click', () => {
             searchInput.classList.toggle('show');
             if (searchInput.classList.contains('show')) searchInput.focus();
         });
 
-        // Live search table
-        searchInput.addEventListener('input', () => {
-            const filter = searchInput.value.toLowerCase();
-            const rows = document.querySelectorAll('.table-container tbody tr');
+    </script>
 
-            rows.forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                row.style.display = rowText.includes(filter) ? '' : 'none';
-            });
-        });
-</script>
-
-
-   <script src="{{ asset('admin/script/script.js') }}"></script>
+    <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+
 </body>
 </html>

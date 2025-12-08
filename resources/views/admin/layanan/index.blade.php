@@ -128,7 +128,7 @@
                     <ul class="breadcrumb">
                         <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="{{ url('admin/layanan') }}">Data Layanan</a></li>
+                        <li><a class="active" href="{{ route('admin.layanan.index') }}">Data Layanan</a></li>
                     </ul>
                 </div>
             </div>
@@ -138,9 +138,9 @@
                     <div class="head">
                         <h3>Data Layanan</h3>
                         <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari layanan...">
-    <button id="tableSearchBtn" style="background:none; border:none; cursor:pointer; font-size:22px; display:flex; align-items:center;">
-        <i class='bx bx-search'></i>
-    </button>
+                        <button id="tableSearchBtn" style="background:none; border:none; cursor:pointer; font-size:22px; display:flex; align-items:center;">
+                            <i class='bx bx-search'></i>
+                        </button>
                     </div>
                     <div class="table-container">
                         <table>
@@ -155,57 +155,35 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($layanan as $item)
                                 <tr>
-                                    <td>LYN-001</td>
-                                    <td>Regular</td>
-                                    <td>Cuci Kering Lipat</td>
-                                    <td>Kg</td>
-                                    <td>Rp 7.000</td>
+                                    <td>LYN-{{ str_pad($item->id_layanan, 3, '0', STR_PAD_LEFT) }}</td>
+                                    <td>{{ $item->kategori }}</td>
+                                    <td>{{ $item->nama_layanan }}</td>
+                                    <td>{{ $item->satuan }}</td>
+                                    <td>
+                                        @if($item->is_flexible)
+                                            Rp {{ number_format($item->harga_min, 0, ',', '.') }} - {{ number_format($item->harga_max, 0, ',', '.') }}
+                                        @else
+                                            Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <a href="{{ url('admin/layanan/1/edit') }}" class="btn-detail edit">
+                                            <a href="{{ route('admin.layanan.edit', $item->id_layanan) }}" class="btn-detail edit">
                                                 <i class='bx bx-edit'></i> Edit
                                             </a>
-                                            <button type="submit" class="btn-detail delete" onclick="return confirm('Are you sure you want to delete this artwork?')">
+                                            <form action="{{ route('admin.layanan.destroy', $item->id_layanan) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Hapus layanan ini?')">
                                                     <i class='bx bx-trash'></i> Delete
                                                 </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>LYN-002</td>
-                                    <td>Paket</td>
-                                    <td>Cuci + Setrika Express</td>
-                                    <td>Kg</td>
-                                    <td>Rp 10.000</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ url('admin/layanan/1/edit') }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <button type="submit" class="btn-detail delete" onclick="return confirm('Are you sure you want to delete this artwork?')">
-                                                    <i class='bx bx-trash'></i> Delete
-                                                </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>LYN-003</td>
-                                    <td>Karpet</td>
-                                    <td>Cuci Karpet Tebal</td>
-                                    <td>m²</td>
-                                    <td>Rp 25.000</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ url('admin/layanan/1/edit') }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <button type="submit" class="btn-detail delete" onclick="return confirm('Are you sure you want to delete this artwork?')">
-                                                    <i class='bx bx-trash'></i> Delete
-                                                </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

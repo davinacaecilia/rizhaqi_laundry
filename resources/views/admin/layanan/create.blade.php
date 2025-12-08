@@ -4,114 +4,112 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
-    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
     <title>Tambah Layanan - Rizhaqi Laundry Admin</title>
     <style>
-        .form-card {
-            background: var(--primary-white);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border-light);
-            max-width: 800px;
-            margin: 24px auto;
+        .form-card { 
+            background: var(--primary-white); 
+            padding: 24px; 
+            border-radius: 12px; 
+            box-shadow: var(--shadow-light); 
+            border: 1px solid var(--border-light); 
+            max-width: 800px; 
+            margin: 24px auto; 
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 16px; 
+        }
+        .form-group label { 
+            display: block; 
+            font-size: 14px; 
+            font-weight: 500; 
+            color: var(--text-secondary); 
+            margin-bottom: 8px; 
         }
 
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group input[type="date"],
-        .form-group input[type="file"],
-        .form-group textarea,
+        .form-group input[type="text"], 
+        .form-group input[type="number"], 
+        .form-group textarea, 
         .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            font-family: var(--roboto);
-            font-size: 14px;
-            background: var(--surface-white);
-            color: var(--text-primary);
-            outline: none;
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1px solid var(--border-light); 
+            border-radius: 8px; 
+            font-family: var(--roboto); 
+            font-size: 14px; 
+            background: var(--surface-white); 
+            color: var(--text-primary); 
+            outline: none; 
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
+            border-color: var(--accent-blue); 
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1); 
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
+        .form-actions { 
+            display: flex; 
+            justify-content: flex-end; 
+            gap: 10px; 
+            margin-top: 24px; 
         }
 
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 24px;
-        }
-
-        .form-actions .btn-submit,
-        .form-actions .btn-cancel {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
+        .btn-submit, .btn-cancel { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 500; 
             font-size: 14px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            transition: all 0.2s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
         }
 
-        .form-actions .btn-submit {
-            background-color: var(--accent-blue);
-            color: var(--primary-white);
+        .btn-submit { 
+            background-color: var(--accent-blue); 
+            color: var(--primary-white); 
         }
 
-        .form-actions .btn-submit:hover {
-            background-color: var(--accent-blue-hover);
+        .btn-submit:hover { 
+            background-color: var(--accent-blue-hover); 
         }
 
-        .form-actions .btn-cancel {
-            background-color: var(--text-tertiary);
-            color: var(--primary-white);
+        .btn-submit:disabled { 
+            background-color: #ccc; 
+            cursor: not-allowed; 
         }
 
-        .form-actions .btn-cancel:hover {
-            background-color: #7a8086;
+        .btn-cancel { 
+            background-color: var(--text-tertiary); 
+            color: var(--primary-white); 
+        }
+
+        .btn-cancel:hover { 
+            background-color: #7a8086; 
+        }
+
+        .error-msg { 
+            color: #dc2626; 
+            font-size: 12px; 
+            margin-top: 5px; 
+            display: none; 
         }
     </style>
 </head>
 <body>
 
-     @include('partial.sidebar')
+    @include('partial.sidebar')
 
     <section id="content">
         @include('partial.navbar')
 
-        <!-- MAIN -->
         <main>
             <div class="head-title">
                 <div class="left">
@@ -119,135 +117,210 @@
                     <ul class="breadcrumb">
                         <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a href="layanan.html">Data Layanan</a></li>
+                        <li><a href="{{ route('admin.layanan.index') }}">Data Layanan</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="{{ url('admin/layanan/create') }}">Tambah Layanan</a></li>
+                        <li><a class="active" href="#">Tambah Layanan</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form>
+                <form action="{{ route('admin.layanan.store') }}" method="POST" id="formLayanan">
+                    @csrf
+                    
                     <div class="form-group">
-                    <label for="kategori_select">Kategori</label>
-
-                    <div style="display: flex; gap: 20px; margin-bottom: 10px;">
-                        <label style="display:flex; align-items:center; gap:6px;">
-                            <input type="radio" name="kategori_mode" value="existing">
-                            Pilih kategori yang sudah ada
-                        </label>
-
-                        <label style="display:flex; align-items:center; gap:6px;">
-                            <input type="radio" name="kategori_mode" value="new">
-                            Buat kategori baru
-                        </label>
-                    </div>
-
-                    <!-- Input dinamis -->
-                    <div id="kategori_container">
-                        <input
-                            type="text"
-                            disabled
-                            placeholder="Pilih salah satu opsi di atas"
-                            style="background:#f1f1f1; cursor:not-allowed;"
-                        >
-                    </div>
-                </div>
-
-                    <div class="form-group">
-                        <label for="nama_layanan">Nama Layanan</label>
-                        <input type="text" id="nama_layanan" name="nama_layanan" placeholder="Masukkan nama layanan">
+                        <label>Kategori <span style="color:red">*</span></label>
+                        <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+                            <label style="display:flex; align-items:center; gap:6px;">
+                                <input type="radio" name="kategori_mode" value="existing" checked> Pilih yang ada
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px;">
+                                <input type="radio" name="kategori_mode" value="new"> Buat baru
+                            </label>
+                        </div>
+                        <div id="kategori_container"></div>
+                        @error('kategori_final') <small style="color:red">{{ $message }}</small> @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="satuan">Satuan</label>
-                        <select id="satuan" name="satuan">
-                            <option value="">Pilih satuan</option>
+                        <label>Nama Layanan <span style="color:red">*</span></label>
+                        <input type="text" name="nama_layanan" placeholder="Masukkan nama layanan" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Satuan <span style="color:red">*</span></label>
+                        <select name="satuan" required>
+                            <option value="">Pilih Satuan</option>
                             <option value="kg">kg</option>
                             <option value="pcs">pcs</option>
                             <option value="m2">m²</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="harga_satuan">Harga Satuan</label>
-                        <input type="text" id="harga_satuan" name="harga_satuan" placeholder="Contoh: 15.000">
+                    <div class="form-group" style="background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid var(--border-light);">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin:0;">
+                            <input type="checkbox" name="is_flexible" id="check-flexible" value="1">
+                            <strong>Aktifkan Harga Rentang (Min - Max)</strong>
+                        </label>
                     </div>
 
-                    <div class="form-group">
-                        <label for="deskripsi">Deskripsi</label>
-                        <textarea id="deskripsi" name="deskripsi" placeholder="Tambahkan deskripsi layanan"></textarea>
+                    <div class="form-group" id="group-harga-tetap">
+                        <label>Harga Satuan / Dasar <span style="color:red">*</span></label>
+                        <input type="number" name="harga_satuan" id="input-harga-tetap" placeholder="Contoh: 15000" required>
+                    </div>
+
+                    <div id="group-harga-flexible" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label>Harga Minimum <span style="color:red">*</span></label>
+                                <input type="number" name="harga_min" id="input-min" placeholder="Contoh: 20000">
+                            </div>
+                            <div class="form-group">
+                                <label>Harga Maksimum <span style="color:red">*</span></label>
+                                <input type="number" name="harga_max" id="input-max" placeholder="Contoh: 35000">
+                            </div>
+                        </div>
+                        <div id="error-range" class="error-msg">
+                            Harga Minimum tidak boleh lebih besar dari Harga Maksimum!
+                        </div>
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/layanan') }}'">
-                            <i class='bx bx-x'></i> Batal
-                        </button>
-                        <button type="submit" class="btn-submit">
-                            <i class='bx bx-save'></i> Simpan Data
-                        </button>
+                        <a href="{{ route('admin.layanan.index') }}" class="btn-cancel">Batal</a>
+                        <button type="submit" class="btn-submit" id="btn-simpan">Simpan Data</button>
                     </div>
                 </form>
             </div>
         </main>
-        <!-- MAIN -->
     </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
     <script>
-    const radios = document.querySelectorAll('input[name="kategori_mode"]');
-    const container = document.getElementById('kategori_container');
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById('formLayanan');
 
-    function updateKategoriInput() {
-        const selected = document.querySelector('input[name="kategori_mode"]:checked');
+            // --- 1. LOGIC KATEGORI ---
+            const radios = document.querySelectorAll('input[name="kategori_mode"]');
+            const katContainer = document.getElementById('kategori_container');
+            
+            // Tambahkan 'required' langsung di HTML string-nya
+            const existingOptions = `
+                <select name="kategori" class="form-control" style="width:100%; padding:10px;" required>
+                    <option value="">-- Pilih Kategori --</option>
+                    @foreach($kategori_list as $kat)
+                        <option value="{{ $kat }}">{{ $kat }}</option>
+                    @endforeach
+                </select>`;
+            
+            function updateKategori() {
+                const selected = document.querySelector('input[name="kategori_mode"]:checked');
+                if (selected && selected.value === "existing") {
+                    katContainer.innerHTML = existingOptions;
+                } else {
+                    // Input baru juga harus required
+                    katContainer.innerHTML = `<input type="text" name="kategori_baru" placeholder="Masukkan nama kategori baru" style="width:100%; padding:10px;" required>`;
+                }
+            }
+            radios.forEach(r => r.addEventListener('change', updateKategori));
+            updateKategori(); // Init saat load
 
-        // Jika belum ada radio yang dipilih → tetap disabled
-        if (!selected) {
-            container.innerHTML = `
-                <input
-                    type="text"
-                    disabled
-                    placeholder="Pilih salah satu opsi di atas"
-                    style="background:#f1f1f1; cursor:not-allowed;"
-                >
-            `;
-            return;
-        }
 
-        // Kalau pilih kategori lama
-        if (selected.value === "existing") {
-            container.innerHTML = `
-                <select id="kategori_select" name="kategori">
-                    <option value="">Pilih kategori</option>
-                    <option value="regular">Regular</option>
-                    <option value="paket">Paket</option>
-                    <option value="satuan">Satuan</option>
-                    <option value="karpet">Karpet</option>
-                    <option value="add_on">Add On</option>
-                </select>
-            `;
-        }
+            // --- 2. LOGIC HARGA (VISIBILITY & VALIDASI) ---
+            const checkFlex = document.getElementById('check-flexible');
+            const groupTetap = document.getElementById('group-harga-tetap');
+            const inputTetap = document.getElementById('input-harga-tetap');
+            
+            const groupFlex = document.getElementById('group-harga-flexible');
+            const inputMin = document.getElementById('input-min');
+            const inputMax = document.getElementById('input-max');
+            const errorMsg = document.getElementById('error-range');
+            const btnSimpan = document.getElementById('btn-simpan');
 
-        // Kalau pilih kategori baru
-        else if (selected.value === "new") {
-            container.innerHTML = `
-                <input
-                    type="text"
-                    id="kategori_baru"
-                    name="kategori_baru"
-                    placeholder="Masukkan kategori baru"
-                >
-            `;
-        }
-    }
+            function validateRange() {
+                const minVal = parseFloat(inputMin.value) || 0;
+                const maxVal = parseFloat(inputMax.value) || 0;
 
-    radios.forEach(r => r.addEventListener('change', updateKategoriInput));
+                // Validasi logika angka (Min < Max)
+                // Hanya jalan kalau keduanya ada isinya
+                if (inputMin.value && inputMax.value) {
+                    if (minVal >= maxVal) {
+                        errorMsg.style.display = 'block';
+                        inputMin.style.borderColor = '#dc2626'; // Merah
+                        inputMax.style.borderColor = '#dc2626';
+                        btnSimpan.disabled = true; // Matikan tombol
+                    } else {
+                        errorMsg.style.display = 'none';
+                        inputMin.style.borderColor = 'var(--border-light)';
+                        inputMax.style.borderColor = 'var(--border-light)';
+                        btnSimpan.disabled = false; // Hidupkan tombol
+                    }
+                } else {
+                    // Reset jika salah satu dihapus
+                    btnSimpan.disabled = false;
+                    errorMsg.style.display = 'none';
+                }
+            }
 
-    // Kondisi awal → disable
-    updateKategoriInput();
-</script>
+            checkFlex.addEventListener('change', function() {
+                if (this.checked) {
+                    // MODE RENTANG AKTIF
+                    groupTetap.style.display = 'none';
+                    groupFlex.style.display = 'block';
+                    
+                    // Reset Input Tetap & Hapus Required
+                    inputTetap.value = '';
+                    inputTetap.removeAttribute('required');
+                    
+                    // Set Required untuk Min/Max
+                    inputMin.setAttribute('required', true);
+                    inputMax.setAttribute('required', true);
+                } else {
+                    // MODE HARGA TETAP AKTIF
+                    groupTetap.style.display = 'block';
+                    groupFlex.style.display = 'none';
+                    
+                    // Reset Input Min/Max & Hapus Required
+                    inputMin.value = '';
+                    inputMax.value = '';
+                    inputMin.removeAttribute('required');
+                    inputMax.removeAttribute('required');
+                    
+                    // Set Required untuk Tetap
+                    inputTetap.setAttribute('required', true);
+                    
+                    // Bersihkan error jika ada
+                    errorMsg.style.display = 'none';
+                    btnSimpan.disabled = false;
+                }
+            });
+
+            // Listeners Input
+            inputMin.addEventListener('input', validateRange);
+            inputMax.addEventListener('input', validateRange);
+
+            // --- 3. FINAL VALIDATION ON SUBMIT ---
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+
+                // Cek lagi logika harga rentang
+                if (checkFlex.checked) {
+                    const min = parseFloat(inputMin.value);
+                    const max = parseFloat(inputMax.value);
+                    
+                    if (min >= max) {
+                        alert('Harga Minimum harus lebih kecil dari Harga Maksimum!');
+                        isValid = false;
+                    }
+                }
+
+                if (!isValid) {
+                    e.preventDefault(); // Batalkan kirim data
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

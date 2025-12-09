@@ -33,6 +33,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     Route::get('/transaksi/status', [TransaksiController::class, 'status'])->name('transaksi.status');
     Route::resource('transaksi', TransaksiController::class);
 
+    Route::post('pegawai/{pegawai}/status', [PegawaiController::class, 'toggleStatus'])->name('pegawai.status.toggle');
     Route::resource('pegawai', PegawaiController::class);
 
     Route::resource('pelanggan', PelangganController::class);

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -104,12 +105,13 @@
         }
     </style>
 </head>
+
 <body>
 
     @include('partial.sidebar')
 
     <section id="content">
-       	@include('partial.navbar')
+        @include('partial.navbar')
 
         <!-- MAIN -->
         <main>
@@ -118,15 +120,17 @@
                     <h1>Tambah Alat</h1>
                     <ul class="breadcrumb">
                         <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
                         <li><a href="{{ url('admin/alat') }}">Data Alat</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
                         <li><a class="active" href="{{ url('admin/alat/create') }}">Tambah Alat</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
+                <form action="{{ url('admin/alat') }}" method="POST">
+                    @csrf
                     <div class="form-group">
                         <label for="nama_alat">Nama Alat</label>
                         <input type="text" id="nama_alat" name="nama_alat" placeholder="Masukkan nama alat" required>
@@ -134,16 +138,17 @@
 
                     <div class="form-group">
                         <label for="jumlah">Jumlah Alat</label>
-                        <input type="text" id="jumlah" name="jumlah" placeholder="contoh: 4" required>
+                        <input type="number" id="jumlah" name="jumlah" placeholder="contoh: 4" required>
                     </div>
 
                     <div class="form-group">
                         <label for="tanggal_maintenance">Tanggal Maintenance Terakhir</label>
-                        <input type="date" id="tanggal_maintenance" required>
+                        <input type="date" id="tanggal_maintenance" name="tanggal_maintenance" required>
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/alat') }}'">
+                        <button type="button" class="btn-cancel"
+                            onclick="window.location.href='{{ url('admin/alat') }}'">
                             <i class='bx bx-x'></i> Cancel
                         </button>
                         <button type="submit" class="btn-submit">
@@ -161,4 +166,5 @@
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 </body>
+
 </html>

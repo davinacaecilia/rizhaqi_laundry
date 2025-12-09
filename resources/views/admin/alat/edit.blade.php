@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -59,7 +60,8 @@
             margin-top: 24px;
         }
 
-        .btn-submit, .btn-cancel {
+        .btn-submit,
+        .btn-cancel {
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
@@ -90,6 +92,7 @@
         }
     </style>
 </head>
+
 <body>
 
     @include('partial.sidebar')
@@ -112,25 +115,32 @@
             </div>
 
             <div class="form-card">
+                <form action="{{ url('admin/alat/' . $alat->id_alat) }}" method="POST">
+                    @csrf
+                    @method('PUT')
                     <div class="form-group">
                         <label for="nama_alat">Nama Alat</label>
-                        <input type="text" id="nama_alat" value="Mesin Cuci LG Turbo 10kg">
+                        <input type="text" id="nama_alat" name="nama_alat"
+                            value="{{ old('nama_alat', $alat->nama_alat) }}" placeholder="Masukkan nama alat" required>
                     </div>
 
                     <div class="form-group">
                         <label for="jumlah">Jumlah Alat</label>
-                        <input type="text" id="jumlah" value="4">
+                        <input type="number" id="jumlah" name="jumlah" value="{{ old('jumlah', $alat->jumlah) }}"
+                            placeholder="contoh: 4" required>
                     </div>
 
                     <div class="form-group">
                         <label for="tanggal_maintenance">Tanggal Maintenance Terakhir</label>
-                        <input type="date" id="tanggal_maintenance" value="2025-10-20">
+                        <input type="date" id="tanggal_maintenance" name="tanggal_maintenance"
+                            value="{{ old('tgl_maintenance_terakhir', $alat->tgl_maintenance_terakhir) }}">
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ url('admin/alat') }}'">
+                        <button type="button" class="btn-cancel"
+                            onclick="window.location.href='{{ url('admin/alat') }}'">
                             <i class='bx bx-x'></i> Batal
                         </button>
-                        <button type="button" class="btn-submit" onclick="simpanData()">
+                        <button type="submit" class="btn-submit">
                             <i class='bx bx-save'></i> Simpan Perubahan
                         </button>
                     </div>
@@ -139,14 +149,8 @@
         </main>
     </section>
 
-    <script>
-        function simpanData() {
-            alert('Data layanan berhasil diperbarui (dummy).');
-            window.location.href = '{{ url('admin/alat') }}';
-        }
-    </script>
-
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 </body>
+
 </html>

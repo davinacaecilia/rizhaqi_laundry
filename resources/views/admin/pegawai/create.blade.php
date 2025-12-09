@@ -152,7 +152,7 @@
                         <a href="{{ route('admin.pegawai.index') }}" class="btn-cancel">
                             <i class='bx bx-x'></i> Batal
                         </a>
-                        <button type="button" class="btn-submit" onclick="prosesSimpan()">
+                        <button type="submit" class="btn-submit">
                             <i class='bx bx-save'></i> Simpan Data
                         </button>
                     </div>
@@ -179,25 +179,6 @@
                 icon.classList.remove('bx-show');
                 icon.classList.add('bx-hide');
             }
-        }
-
-        // Simulasi Simpan (Biar ga putih layar)
-        function prosesSimpan() {
-            const form = document.getElementById('formPegawai');
-            
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            const btnSubmit = document.querySelector('.btn-submit');
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Menyimpan...";
-
-            setTimeout(() => {
-                alert("Sukses! Pegawai baru berhasil ditambahkan.");
-                window.location.href = "{{ route('admin.pegawai.index') }}";
-            }, 1000);
         }
     </script>
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -106,6 +107,7 @@
         }
     </style>
 </head>
+
 <body>
     @include('partial.sidebar')
 
@@ -144,54 +146,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>AL001</td>
-                                    <td>Mesin Cuci LG Turbo 10kg</td>
-                                    <td>4</td>
-                                    <td>2025-10-20</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ url('admin/alat/1/edit') }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <button class="btn-detail delete" onclick="hapusData('AL001')">
-                                                <i class='bx bx-trash'></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>AL002</td>
-                                    <td>Setrika Uap Philips</td>
-                                    <td>6</td>
-                                    <td>2025-09-15</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ url('admin/alat/edit/2') }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <button class="btn-detail delete" onclick="hapusData('AL002')">
-                                                <i class='bx bx-trash'></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>AL003</td>
-                                    <td>Pengering Otomatis Panasonic</td>
-                                    <td>3</td>
-                                    <td>2025-08-05</td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ url('admin/alat/edit/3') }}" class="btn-detail edit">
-                                                <i class='bx bx-edit'></i> Edit
-                                            </a>
-                                            <button class="btn-detail delete" onclick="hapusData('AL003')">
-                                                <i class='bx bx-trash'></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @foreach ($alat as $item)
+                                    <tr>
+                                        <td>AL{{ str_pad($item->id_alat, 3, '0', STR_PAD_LEFT) }}</td>
+                                        <td>{{ $item->nama_alat }}</td>
+                                        <td>{{ $item->jumlah }}</td>
+                                        <td>{{ $item->tgl_maintenance_terakhir ? \Carbon\Carbon::parse($item->tgl_maintenance_terakhir)->format('d-m-Y') : '-' }}
+                                        </td>
+                                        <td>
+                                            <div class="btn-action-group">
+                                                <a href="{{ url('admin/alat/' . $item->id_alat . '/edit') }}"
+                                                    class="btn-detail edit">
+                                                    <i class='bx bx-edit'></i> Edit
+                                                </a>
+                                                <form action="{{ url('admin/alat/' . $item->id_alat) }}" method="POST"
+                                                    style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn-detail delete"
+                                                        onclick="return confirm('Yakin ingin menghapus data alat {{ $item->nama_alat }}?')">
+                                                        <i class='bx bx-trash'></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -203,37 +183,38 @@
     <div id="pagination" class="pagination-container"></div>
 
     <script>
-    // Dummy delete
-    function hapusData(id) {
-        if (confirm(`Yakin ingin menghapus data alat ${id}?`)) {
-            alert(`Data alat ${id} berhasil dihapus (dummy).`);
-        }
-    }
-
-    // Search bar animation
-    document.getElementById('tableSearchIcon').addEventListener('click', function() {
-        const input = document.getElementById('tableSearchInput');
-        input.classList.toggle('show');
-        if (input.classList.contains('show')) input.focus();
-    });
-
-    // SEARCH FUNCTION
-    const tableSearchInput = document.getElementById('tableSearchInput');
-    tableSearchInput.addEventListener('input', () => {
-        const filter = tableSearchInput.value.toLowerCase();
-        const rows = document.querySelectorAll('.table-container tbody tr');
-
-        rows.forEach(row => {
-            const rowText = row.innerText.toLowerCase();
-            if (rowText.includes(filter)) {
-                row.style.display = ''; // tampilkan
-            } else {
-                row.style.display = 'none'; // sembunyikan
+        // Dummy delete
+        function hapusData(id) {
+            if (confirm(`Yakin ingin menghapus data alat ${id}?`)) {
+                alert(`Data alat ${id} berhasil dihapus (dummy).`);
             }
+        }
+
+        // Search bar animation
+        document.getElementById('tableSearchIcon').addEventListener('click', function () {
+            const input = document.getElementById('tableSearchInput');
+            input.classList.toggle('show');
+            if (input.classList.contains('show')) input.focus();
         });
-    });
-</script>
+
+        // SEARCH FUNCTION
+        const tableSearchInput = document.getElementById('tableSearchInput');
+        tableSearchInput.addEventListener('input', () => {
+            const filter = tableSearchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('.table-container tbody tr');
+
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                if (rowText.includes(filter)) {
+                    row.style.display = ''; // tampilkan
+                } else {
+                    row.style.display = 'none'; // sembunyikan
+                }
+            });
+        });
+    </script>
 
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 </body>
+
 </html>

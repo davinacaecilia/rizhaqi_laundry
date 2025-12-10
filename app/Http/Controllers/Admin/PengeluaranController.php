@@ -4,16 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Pengeluaran;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class PengeluaranController extends Controller
 {
     public function index()
     {
-        // Nanti di sini ambil data real dari database
-        // $pengeluaran = Pengeluaran::all();
-        
-        // Arahkan ke view yang sudah kita buat tadi
-        return view('admin.pengeluaran.index');
+        // Ambil data pengeluaran dan nama user yang mencatatnya
+        $pengeluaran = Pengeluaran::with('user')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        $total_pengeluaran = $pengeluaran->sum('jumlah');
+
+        return view('admin.pengeluaran.index', compact('pengeluaran', 'total_pengeluaran'));
     }
 
     // Menampilkan halaman form tambah pengeluaran (create)
@@ -26,37 +32,59 @@ class PengeluaranController extends Controller
     // Menyimpan data pengeluaran baru (store)
     public function store(Request $request)
     {
-        // 1. Validasi data input (sesuai kolom database)
-        // $request->validate([
-        //     'tanggal' => 'required|date',
-        //     'keterangan' => 'required|string',
-        //     'jumlah' => 'required|numeric',
-        //     'id_user' => 'required|exists:users,id_user',
-        // ]);
+        // validasi data
+        $request->validate([
+            'tanggal' => 'required|date',
+            'keterangan' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:1',
+        ]);
 
-        // 2. Simpan ke Database (Logic Backend nanti)
-        // Pengeluaran::create($request->all());
+        // simpan
+        Pengeluaran::create([
+            'id_user' => Auth::id(), // ID pegawai yang sedang login
+            'tanggal' => $request->tanggal,
+            'keterangan' => $request->keterangan,
+            'jumlah' => $request->jumlah,
+        ]);
 
-        // 3. Redirect kembali ke halaman index dengan pesan sukses
         return redirect()->route('admin.pengeluaran.index')
             ->with('success', 'Pengeluaran berhasil dicatat!');
     }
 
     public function edit($id)
     {
-        return view('admin.pengeluaran.edit');
+        $data = Pengeluaran::findOrFail($id);
+
+        return view('admin.pengeluaran.edit', compact('data'));
     }
 
     // Menyimpan perubahan data (Update)
     public function update(Request $request, $id)
     {
-        // Logic update database
+        // validasi
+        $request->validate([
+            'tanggal' => 'required|date',
+            'keterangan' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:1',
+        ]);
+
+        // update data
+        $data = Pengeluaran::findOrFail($id);
+        $data->update([
+            'tanggal' => $request->tanggal,
+            'keterangan' => $request->keterangan,
+            'jumlah' => $request->jumlah,
+            // id_user tidak diubah karena itu adalah pencatat awal
+        ]);
+
         return redirect()->route('admin.pengeluaran.index')
             ->with('success', 'Data pengeluaran berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
+        Pengeluaran::destroy($id);
+
         return redirect()->route('admin.pengeluaran.index')
             ->with('success', 'Data pengeluaran berhasil dihapus!');
     }

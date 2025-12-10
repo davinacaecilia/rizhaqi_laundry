@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
     <title>Manajemen Pegawai - Rizhaqi Laundry Admin</title>
-    
+
     <style>
         /* CSS TABEL (VERSI AWAL / KOTAK-KOTAK) */
         .table-container table {
@@ -80,6 +81,7 @@
             color: var(--primary-white);
             border: 1px solid var(--accent-blue);
         }
+
         .table-container .btn-action-group .btn-detail.btn-edit:hover {
             background-color: var(--accent-blue-hover);
             border-color: var(--accent-blue-hover);
@@ -91,41 +93,89 @@
             color: var(--primary-white);
             border: 1px solid var(--accent-red);
         }
+
         .table-container .btn-action-group .btn-detail.btn-delete:hover {
             background-color: #c52c20;
             border-color: #c52c20;
         }
-        
+
         /* Warna Tombol Status (Power) */
         .table-container .btn-action-group .btn-detail.btn-status-toggle {
             background-color: #F9A825;
             color: var(--primary-white);
             border: 1px solid #F9A825;
         }
+
         .table-container .btn-action-group .btn-detail.btn-status-toggle:hover {
             background-color: #F57F17;
             border-color: #F57F17;
         }
 
         /* CSS SEARCH */
-        .table-data .order .head { position: relative; }
-        .table-search-input {
-            width: 0; padding: 0; border: none; transition: width 0.3s ease;
-            background: var(--surface-white); border-radius: 20px; margin-left: auto; outline: none; height: 40px; 
+        .table-data .order .head {
+            position: relative;
         }
-        .table-search-input.show { width: 200px; padding: 8px 12px; border: 1px solid var(--border-light); }
-        .table-data .order .head .bx-search { margin-left: 10px; cursor: pointer; }
+
+        .table-search-input {
+            width: 0;
+            padding: 0;
+            border: none;
+            transition: width 0.3s ease;
+            background: var(--surface-white);
+            border-radius: 20px;
+            margin-left: auto;
+            outline: none;
+            height: 40px;
+        }
+
+        .table-search-input.show {
+            width: 200px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        .table-data .order .head .bx-search {
+            margin-left: 10px;
+            cursor: pointer;
+        }
 
         /* BADGES */
-        .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .st-active { background: #E8F5E9; color: #2E7D32; }      /* Hijau */
-        .st-inactive { background: #FFEBEE; color: #C62828; }    /* Merah */
-        
-        .badge-role { font-weight: 700; font-size: 12px; text-transform: uppercase; }
-        .role-owner { color: #F9A825; }
-        .role-pegawai { color: #1565C0; }
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .st-active {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        /* Hijau */
+        .st-inactive {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        /* Merah */
+
+        .badge-role {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .role-owner {
+            color: #F9A825;
+        }
+
+        .role-pegawai {
+            color: #1565C0;
+        }
     </style>
 </head>
+
 <body>
 
     @include('partial.sidebar')
@@ -138,11 +188,11 @@
                     <h1>Manajemen Pegawai</h1>
                     <ul class="breadcrumb">
                         <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-                        <li><i class='bx bx-chevron-right' ></i></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
                         <li><a class="active" href="{{ route('admin.pegawai.index') }}">Data Pegawai</a></li>
                     </ul>
                 </div>
-                
+
                 <a href="{{ route('admin.pegawai.create') }}" class="btn-download">
                     <i class='bx bx-user-plus'></i> Tambah Pegawai
                 </a>
@@ -152,10 +202,11 @@
                 <div class="order">
                     <div class="head">
                         <h3>Daftar Pengguna (User)</h3>
-                        <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama/Email...">
+                        <input type="text" id="tableSearchInput" class="table-search-input"
+                            placeholder="Cari Nama/Email...">
                         <i class='bx bx-search' id="tableSearchIcon"></i>
                     </div>
-                    
+
                     <div class="table-container">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
@@ -169,66 +220,76 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- DUMMY 1: OWNER --}}
-                                <tr>
-                                    <td>1</td>
-                                    <td>
-                                        <strong>Kak Elvira</strong><br>
-                                        <span style="font-size: 12px; color: #888;">Pemilik</span>
-                                    </td>
-                                    <td>elvira@rizhaqi.com</td>
-                                    <td>
-                                        <span class="badge-role role-owner">OWNER</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-status st-active">Aktif</span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <button class="btn-detail edit" disabled style="background:#ccc; cursor:not-allowed;"><i class='bx bx-lock'></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                
-                                {{-- DUMMY 2: Pegawai Aktif --}}
-                                <tr>
-                                    <td>2</td>
-                                    <td>Budi Santoso</td>
-                                    <td>budi@rizhaqi.com</td>
-                                    <td>
-                                        <span class="badge-role role-pegawai">Pegawai</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-status st-active">Aktif</span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ route('admin.pegawai.edit', 2) }}" class="btn-detail btn-edit" title="Edit Data"><i class='bx bx-edit'></i></a>
-                                            <button class="btn-detail btn-status-toggle" onclick="return confirm('Nonaktifkan akun pegawai ini?')" title="Nonaktifkan Akun"><i class='bx bx-power-off'></i></button>
-                                            <button class="btn-detail btn-delete" onclick="return confirm('Hapus permanen pegawai ini?')" title="Hapus"><i class='bx bx-trash'></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @foreach ($pegawai as $user)
+                                    {{-- Lewati User dengan role 'user' (pelanggan) jika masih ada di list --}}
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <strong>{{ $user->nama }}</strong><br>
+                                            @if($user->role == 'owner')
+                                                <span style="font-size: 12px; color: #888;">Pemilik</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $user->email }}</td>
+                                        <td>
+                                            <span
+                                                class="badge-role @if($user->role == 'owner') role-owner @else role-pegawai @endif">
+                                                {{ strtoupper($user->role) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge-status @if($user->is_active) st-active @else st-inactive @endif">
+                                                {{ $user->is_active ? 'Aktif' : 'Non-Aktif' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-action-group">
 
-                                {{-- DUMMY 3: Pegawai Non-Aktif --}}
-                                <tr>
-                                    <td>3</td>
-                                    <td>Siti Aminah</td>
-                                    <td>siti@rizhaqi.com</td>
-                                    <td>
-                                        <span class="badge-role role-pegawai">Pegawai</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-status st-inactive">Non-Aktif</span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-action-group">
-                                            <a href="{{ route('admin.pegawai.edit', 3) }}" class="btn-detail btn-edit" title="Edit Data"><i class='bx bx-edit'></i></a>
-                                            <button class="btn-detail btn-status-toggle" style="background-color: #2E7D32; border-color:#2E7D32;" onclick="return confirm('Aktifkan kembali akun ini?')" title="Aktifkan Akun"><i class='bx bx-check'></i></button>
-                                            <button class="btn-detail btn-delete" onclick="return confirm('Hapus permanen pegawai ini?')" title="Hapus"><i class='bx bx-trash'></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                                {{-- KONDISI BARU: KUNCI HANYA JIKA ROLE ADALAH OWNER --}}
+                                                @if ($user->role == 'owner')
+                                                    <button class="btn-detail edit" disabled
+                                                        style="background:#ccc; cursor:not-allowed;"
+                                                        title="Akun Owner tidak dapat dimanipulasi dari sini">
+                                                        <i class='bx bx-lock'></i>
+                                                    </button>
+                                                @else
+                                                    {{-- TOMBOL EDIT --}}
+                                                    <a href="{{ route('admin.pegawai.edit', $user->id_user) }}"
+                                                        class="btn-detail btn-edit" title="Edit Data">
+                                                        <i class='bx bx-edit'></i>
+                                                    </a>
+                                                    
+                                                    {{-- TOMBOL STATUS --}}
+                                                    <form action="{{ route('admin.pegawai.status.toggle', $user->id_user) }}"
+                                                        method="POST" style="display:inline;"
+                                                        onsubmit="return confirm('{{ $user->is_active ? 'Yakin nonaktifkan akun ' . $user->nama . '?' : 'Yakin aktifkan kembali akun ' . $user->nama . '?' }}')">
+                                                        @csrf
+                                                        <button type="submit" class="btn-detail btn-status-toggle"
+                                                            style="@if(!$user->is_active) background-color: #2E7D32; border-color:#2E7D32; @endif"
+                                                            title="{{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
+                                                            <i
+                                                                class='bx @if($user->is_active) bx-power-off @else bx-check @endif'></i>
+                                                        </button>
+                                                    </form>
+
+                                                    {{-- TOMBOL HAPUS --}}
+                                                    <form action="{{ route('admin.pegawai.destroy', $user->id_user) }}"
+                                                        method="POST" style="display:inline;"
+                                                        onsubmit="return confirm('Hapus permanen pegawai {{ $user->nama }}?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn-detail btn-delete" title="Hapus">
+                                                            <i class='bx bx-trash'></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -245,4 +306,5 @@
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
 </body>
+
 </html>

@@ -34,12 +34,5 @@ class AdminSeeder extends Seeder
             'password' => Hash::make('pegawai123'),
             'role' => 'pegawai', // ROLE: pegawai
         ]);
-
-        User::create([
-            'nama' => 'User',
-            'email' => 'user@gmail.com',
-            'password' => Hash::make('user123'),
-            'role' => 'user', // ROLE: user
-        ]);
     }
 }

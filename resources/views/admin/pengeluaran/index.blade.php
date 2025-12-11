@@ -227,7 +227,6 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Tanggal</th>
                                     <th>Keterangan Pengeluaran</th>
                                     <th>Dicatat Oleh</th>
@@ -238,7 +237,6 @@
                             <tbody>
                                 @foreach ($pengeluaran as $out)
                                     <tr>
-                                        <td><strong>OUT-{{ str_pad($out->id_pengeluaran, 3, '0', STR_PAD_LEFT) }}</strong>
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($out->tanggal)->format('d M Y') }}</td>
                                         <td>{{ $out->keterangan }}</td>

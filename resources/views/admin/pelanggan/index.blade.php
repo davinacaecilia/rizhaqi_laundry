@@ -167,7 +167,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>ID Pelanggan</th>
+                                    <th>No</th>
                                     <th>Nama</th>
                                     <th>Alamat</th>
                                     <th>No Telepon</th>

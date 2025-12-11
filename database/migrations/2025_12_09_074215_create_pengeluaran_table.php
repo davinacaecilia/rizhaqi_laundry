@@ -10,14 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
+
         Schema::create('pengeluaran', function (Blueprint $table) {
-            $table->id('id_pengeluaran');
-
-            $table->unsignedInteger('id_user'); // Sesuaikan dengan tipe data id_user di tabel users (INT)
-
+            // 1. Primary Key (UUID)
+            $table->uuid('id_pengeluaran')->primary();
+            $table->uuid('id_user'); 
             $table->string('keterangan', 255);
             $table->integer('jumlah');
-            $table->date('tanggal');
+            $table->date('tanggal');      
+            $table->timestamps();
 
             $table->foreign('id_user')
                 ->references('id_user')->on('users')

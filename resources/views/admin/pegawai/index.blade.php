@@ -254,12 +254,6 @@
                                                         <i class='bx bx-lock'></i>
                                                     </button>
                                                 @else
-                                                    {{-- TOMBOL EDIT --}}
-                                                    <a href="{{ route('admin.pegawai.edit', $user->id_user) }}"
-                                                        class="btn-detail btn-edit" title="Edit Data">
-                                                        <i class='bx bx-edit'></i>
-                                                    </a>
-                                                    
                                                     {{-- TOMBOL STATUS --}}
                                                     <form action="{{ route('admin.pegawai.status.toggle', $user->id_user) }}"
                                                         method="POST" style="display:inline;"

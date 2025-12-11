@@ -143,7 +143,7 @@
 
                     <div class="form-group">
                         <label for="tanggal_maintenance">Tanggal Maintenance Terakhir</label>
-                        <input type="date" id="tanggal_maintenance" name="tanggal_maintenance" required>
+                        <input type="date" id="tanggal_maintenance" name="tanggal_maintenance">
                     </div>
 
                     <div class="form-actions">

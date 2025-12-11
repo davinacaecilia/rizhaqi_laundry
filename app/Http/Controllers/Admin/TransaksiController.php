@@ -16,24 +16,47 @@ use Carbon\Carbon;
 
 class TransaksiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transaksi = Transaksi::with('pelanggan')
-            ->orderBy('tgl_masuk', 'desc')
-            ->paginate(10);
+        // --- LOGIC FILTER (SEARCH + STATUS + TANGGAL) ---
+        $query = Transaksi::with('pelanggan');
+
+        // 1. Search (Invoice / Nama Pelanggan)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('kode_invoice', 'like', "%$search%")
+                  ->orWhereHas('pelanggan', function($p) use ($search) {
+                      $p->where('nama', 'like', "%$search%");
+                  });
+            });
+        }
+
+        // 2. Filter Status Bayar
+        if ($request->filled('status_bayar')) {
+            $query->where('status_bayar', $request->status_bayar);
+        }
+
+        // 3. Filter Tanggal Masuk
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tgl_masuk', $request->tanggal);
+        }
+
+        // Order & Paginate
+        $transaksi = $query->orderBy('tgl_masuk', 'desc')->paginate(10);
+
+        // Append query string (biar filter ga ilang pas ganti halaman)
+        $transaksi->appends($request->all());
 
         return view('admin.transaksi.index', compact('transaksi'));
     }
 
     public function create()
     {
-        // 1. Ambil Pelanggan
         $pelanggan = Pelanggan::orderBy('nama', 'asc')->get();
-        
-        // 2. Ambil Semua Layanan (Penting buat JS)
         $layanan = Layanan::all();
 
-        // 3. AMBIL KATEGORI & URUTKAN (KANAN -> KIRI)
+        // Sorting Kategori
         $kategori = Layanan::select('kategori')
             ->where('kategori', '!=', 'ADD ON')
             ->distinct()
@@ -111,6 +134,7 @@ class TransaksiController extends Controller
             $grandTotal = $subtotalLayanan;
             $listDetailToSave = [];
 
+            // Helper Addon
             $addDetail = function($keywordName, $qtyForm, $inputCheck) use (&$grandTotal, &$listDetailToSave, $request) {
                 if ($request->has($inputCheck)) {
                     $layananAddon = Layanan::where('nama_layanan', 'LIKE', "%$keywordName%")->first();
@@ -208,6 +232,118 @@ class TransaksiController extends Controller
         }
     }
 
+    public function update(Request $request, string $id) 
+    { 
+        $request->validate([
+            'nama_pelanggan' => 'required|string',
+            'no_hp'          => 'required',
+            'layanan_id'     => 'required',
+            'berat'          => 'required|numeric|min:1',
+            'harga_satuan'   => 'required|numeric|min:0',
+            'tgl_selesai'    => 'required|date',
+            'status_bayar'   => 'required|in:belum,lunas,dp',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $transaksi = Transaksi::findOrFail($id);
+
+            // 1. Update Data Pelanggan
+            $transaksi->pelanggan->update([
+                'nama'    => $request->nama_pelanggan,
+                'telepon' => $request->no_hp,
+                'alamat'  => $request->alamat
+            ]);
+
+            // 2. Hitung Ulang Total (Copy Logic from Store)
+            $layananDb = Layanan::find($request->layanan_id);
+            $hargaFinal = ($layananDb->is_flexible == 1) ? $request->harga_satuan : $layananDb->harga_satuan;
+            
+            $subtotalLayanan = $hargaFinal * $request->berat;
+            $grandTotal = $subtotalLayanan;
+            $listDetailToSave = [];
+
+            // Helper Addon
+            $addDetail = function($keywordName, $qtyForm, $inputCheck) use (&$grandTotal, &$listDetailToSave, $request) {
+                if ($request->has($inputCheck)) {
+                    $layananAddon = Layanan::where('nama_layanan', 'LIKE', "%$keywordName%")->first();
+                    if ($layananAddon) {
+                        $qty = $request->input($qtyForm, 0);
+                        $subtotal = $layananAddon->harga_satuan * $qty;
+                        $grandTotal += $subtotal;
+                        $listDetailToSave[] = [
+                            'id_layanan' => $layananAddon->id_layanan,
+                            'jumlah'     => $qty,
+                            'harga'      => $layananAddon->harga_satuan
+                        ];
+                    }
+                }
+            };
+
+            $addDetail('Ekspress', 'qty_ekspress', 'addon_ekspress');
+            $addDetail('Hanger', 'qty_hanger', 'addon_hanger');
+            $addDetail('Plastik', 'qty_plastik', 'addon_plastik');
+            $addDetail('Hanger + Plastik', 'qty_hanger_plastik', 'addon_hanger_plastik');
+
+            // 3. Update Transaksi
+            $jumlahBayar = ($request->status_bayar == 'lunas') ? $grandTotal : (($request->status_bayar == 'dp') ? $request->jumlah_dp : 0);
+
+            $transaksi->update([
+                'tgl_selesai'  => $request->tgl_selesai,
+                'berat'        => $request->berat,
+                'total_biaya'  => $grandTotal,
+                'jumlah_bayar' => $jumlahBayar,
+                'status_bayar' => $request->status_bayar,
+                'catatan'      => $request->catatan,
+            ]);
+
+            // 4. Update Detail (Hapus lama, buat baru)
+            $transaksi->detailTransaksi()->delete();
+            
+            DetailTransaksi::create([
+                'id_transaksi'         => $transaksi->id_transaksi,
+                'id_layanan'           => $request->layanan_id,
+                'jumlah'               => $request->berat,
+                'harga_saat_transaksi' => $hargaFinal,
+            ]);
+
+            foreach ($listDetailToSave as $detail) {
+                DetailTransaksi::create([
+                    'id_transaksi'         => $transaksi->id_transaksi,
+                    'id_layanan'           => $detail['id_layanan'],
+                    'jumlah'               => $detail['jumlah'],
+                    'harga_saat_transaksi' => $detail['harga'],
+                ]);
+            }
+
+            // 5. Update Inventaris
+            if ($request->has('toggleDetail')) {
+                $transaksi->inventaris()->delete(); 
+                $bajuOps = ['qty_baju', 'qty_kaos', 'qty_celana_panjang', 'qty_celana_pendek', 'qty_jilbab', 'qty_jaket', 'qty_kaos_kaki', 'qty_sarung', 'qty_lainnya'];
+                foreach ($bajuOps as $field) {
+                    $qty = $request->input($field);
+                    if ($qty > 0) {
+                        $namaBarang = ucwords(str_replace(['qty_', '_'], ['', ' '], $field));
+                        TransaksiInventaris::create([
+                            'id_transaksi' => $transaksi->id_transaksi,
+                            'nama_barang'  => $namaBarang,
+                            'jumlah'       => $qty
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('admin.transaksi.index')
+                             ->with('success', 'Data Transaksi Berhasil Diupdate!');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Gagal Update: ' . $e->getMessage())->withInput();
+        }
+    }
+
     public function status()
     {
         $transaksi = Transaksi::with('pelanggan')->orderBy('id_transaksi', 'desc')->get();
@@ -218,7 +354,7 @@ class TransaksiController extends Controller
             'dikeringkan' => Transaksi::where('status_pesanan', 'dikeringkan')->count(),
             'disetrika' => Transaksi::where('status_pesanan', 'disetrika')->count(),
             'packing' => Transaksi::where('status_pesanan', 'packing')->count(),
-            'siap' => Transaksi::where('status_pesanan', 'siap diambil')->count(),
+            'siap' => Transaksi::where('status_pesanan', 'siap')->orWhere('status_pesanan', 'siap diambil')->count(),
             'selesai' => Transaksi::where('status_pesanan', 'selesai')->count(),
         ];
 
@@ -228,7 +364,18 @@ class TransaksiController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $transaksi = Transaksi::findOrFail($id);
-        $transaksi->update(['status_pesanan' => $request->status]);
+        $statusBaru = $request->status;
+
+        $dataUpdate = ['status_pesanan' => $statusBaru];
+
+        // --- LOGIKA AUTO LUNAS ---
+        if ($statusBaru == 'selesai') {
+            $dataUpdate['status_bayar'] = 'lunas';
+            $dataUpdate['jumlah_bayar'] = $transaksi->total_biaya;
+        }
+
+        $transaksi->update($dataUpdate);
+
         return back()->with('success', 'Status berhasil diupdate!');
     }
 
@@ -274,7 +421,6 @@ class TransaksiController extends Controller
         $pelanggan = Pelanggan::orderBy('nama', 'asc')->get();
         $layanan = Layanan::all(); 
 
-        // Sorting Kategori (Sama persis kayak Create)
         $kategori = Layanan::select('kategori')
             ->where('kategori', '!=', 'ADD ON')
             ->distinct()
@@ -292,13 +438,6 @@ class TransaksiController extends Controller
             });
         
         return view('admin.transaksi.edit', compact('transaksi', 'pelanggan', 'layanan', 'kategori'));
-    }
-    
-    public function update(Request $request, string $id) 
-    { 
-        // Logic update header transaksi kalau perlu
-        // Biasanya untuk edit transaksi laundry cukup kompleks (harus hapus detail lama, insert baru)
-        // Kalau mau simple, update data pelanggan/status aja dulu.
     }
 
     public function destroy($id)

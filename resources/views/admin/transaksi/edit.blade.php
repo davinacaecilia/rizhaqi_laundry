@@ -40,6 +40,7 @@
             </div>
 
             <div class="form-card">
+                {{-- PERBAIKAN: Form Action mengarah ke route update yang benar --}}
                 <form id="formTransaksi" action="{{ route('admin.transaksi.update', $transaksi->id_transaksi) }}" method="POST">
                     @csrf
                     @method('PUT')
@@ -79,10 +80,10 @@
                     @endphp
 
                     <div class="form-group">
-                        <label for="kategori_filter">Kategori Layanan</label>
-                        <select id="kategori_filter" class="form-control" onchange="updateLayananDropdown()">
+                        <label for="kategori_id">Kategori Layanan</label>
+                        {{-- PERBAIKAN: ID DIUBAH JADI kategori_id AGAR SESUAI DENGAN JS --}}
+                        <select id="kategori_id" class="form-control" onchange="updateLayananDropdown()">
                             <option value="">-- Pilih Kategori --</option>
-                            {{-- LOOPING DARI SORTED KATEGORI (Sama kayak Create) --}}
                             @foreach($kategori as $kat)
                                 <option value="{{ $kat->kategori }}" {{ $kategoriLama == $kat->kategori ? 'selected' : '' }}>
                                     {{ $kat->kategori }}
@@ -96,7 +97,7 @@
                         <select id="layanan_id" name="layanan_id" required disabled onchange="setHargaOtomatis()">
                             <option value="" data-harga="0">-- Pilih Kategori Terlebih Dahulu --</option>
                             
-                            {{-- PENTING: Render SEMUA layanan biar JS bisa baca (Sama kayak Create) --}}
+                            {{-- Render SEMUA layanan (disembunyikan JS nanti) --}}
                             @foreach($layanan as $item)
                                 <option value="{{ $item->id_layanan }}" 
                                         data-kategori="{{ $item->kategori }}"
@@ -266,11 +267,12 @@
                 // 1. Data Penting dari Controller (Inject PHP ke JS)
                 const oldLayananId = "{{ $layananLamaId }}";
                 const oldHarga = "{{ $hargaLama }}";
-                const oldKategori = document.getElementById('kategori_filter').value;
+                // PERBAIKAN: Ambil ID 'kategori_id' yang sudah benar
+                const kategoriEl = document.getElementById('kategori_id');
 
                 // 2. Trigger Update Dropdown berdasarkan Kategori yang terpilih
                 // Kita panggil fungsi global dari form-transaksi.js
-                if (typeof updateLayananDropdown === "function") {
+                if (kategoriEl && typeof updateLayananDropdown === "function") {
                     updateLayananDropdown(); 
                 }
 
@@ -280,6 +282,9 @@
 
                 if(selectLayanan && oldLayananId) {
                     selectLayanan.value = oldLayananId;
+                    
+                    // PERBAIKAN: Paksa enable biar bisa diklik
+                    selectLayanan.disabled = false;
                     
                     // Cek apakah berhasil terpilih?
                     if(selectLayanan.value == "") {
@@ -298,6 +303,8 @@
                                 if(selectedOpt && selectedOpt.getAttribute('data-tipe') === 'range') {
                                     inputHarga.readOnly = false;
                                     inputHarga.style.backgroundColor = "#ffffff";
+                                    inputHarga.classList.remove('locked-input');
+                                    inputHarga.classList.add('unlocked-input');
                                 }
                             }
                             // 6. Hitung total akhir

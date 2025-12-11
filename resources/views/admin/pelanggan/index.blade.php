@@ -178,17 +178,17 @@
                             <tbody>
                                 @foreach($pelanggan as $item)
                                 <tr>
-                                    <td>PL{{ str_pad($item->id_pelanggan, 3, '0', STR_PAD_LEFT) }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item->nama }}</td>
                                     <td>{{ $item->alamat }}</td>
                                     <td>{{ $item->telepon }}</td>
                                     <td>
                                         <div class="btn-action-group">
-                                            <a href="{{ route('admin.pelanggan.edit', $item) }}" class="btn-detail edit">
+                                            <a href="{{ route('admin.pelanggan.edit', $item->id_pelanggan) }}" class="btn-detail edit">
                                                 <i class='bx bx-edit'></i> Edit
                                             </a>
 
-                                            <form action="{{ route('admin.pelanggan.destroy', $item) }}" method="POST" style="display:inline-block;">
+                                            <form action="{{ route('admin.pelanggan.destroy', $item->id_pelanggan) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus pelanggan {{ $item->nama }}?')">

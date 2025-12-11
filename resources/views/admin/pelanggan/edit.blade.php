@@ -4,14 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet' />
-    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
     <title>Edit Pelanggan - Rizhaqi Laundry Admin</title>
     <style>
+        /* CSS HILANGKAN PANAH NUMBER */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
         .form-card {
             background: var(--primary-white);
             padding: 24px;
@@ -22,9 +25,7 @@
             margin: 24px auto;
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
 
         .form-group label {
             display: block;
@@ -53,6 +54,9 @@
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
         }
 
+        .invalid-feedback { color: #dc3545; font-size: 12px; margin-top: 5px; }
+        .is-invalid { border-color: #dc3545 !important; }
+
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -71,23 +75,14 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none; /* Biar link batal gak ada garis bawah */
         }
 
-        .btn-submit {
-            background-color: var(--accent-blue);
-            color: var(--primary-white);
-        }
-        .btn-submit:hover {
-            background-color: var(--accent-blue-hover);
-        }
+        .btn-submit { background-color: var(--accent-blue); color: var(--primary-white); }
+        .btn-submit:hover { background-color: var(--accent-blue-hover); }
 
-        .btn-cancel {
-            background-color: var(--text-tertiary);
-            color: var(--primary-white);
-        }
-        .btn-cancel:hover {
-            background-color: #7a8086;
-        }
+        .btn-cancel { background-color: var(--text-tertiary); color: var(--primary-white); }
+        .btn-cancel:hover { background-color: #7a8086; }
     </style>
 </head>
 <body>
@@ -104,39 +99,48 @@
                     <ul class="breadcrumb">
                         <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a href="admin/pelanggan">Manajemen Pelanggan</a></li>
+                        <li><a href="{{ route('admin.pelanggan.index') }}">Manajemen Pelanggan</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="{{ url('admin/pelanggan/1/edit') }}">Edit Pelanggan</a></li>
+                        <li><a class="active" href="#">Edit Pelanggan</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form action="{{ route('admin.pelanggan.update', $pelanggan) }}" method="POST">
+                <form action="{{ route('admin.pelanggan.update', $pelanggan->id_pelanggan) }}" method="POST">
                     @csrf
                     @method('PUT')
 
                     <div class="form-group">
-                        <label for="nama_pelanggan">Nama Pelanggan</label>
-                        <input type="text" id="nama_pelanggan" name="nama_pelanggan" placeholder="Masukkan nama pelanggan" value="{{ old('nama_pelanggan', $pelanggan->nama) }}" required>
-                        @error('nama_pelanggan') <small style="color:red">{{ $message }}</small> @enderror
+                        <label for="nama">Nama Pelanggan</label>
+                        <input type="text" id="nama" name="nama" 
+                               class="@error('nama') is-invalid @enderror"
+                               placeholder="Masukkan nama pelanggan" 
+                               value="{{ old('nama', $pelanggan->nama) }}" required>
+                        @error('nama') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telepon">Nomor Telepon / WhatsApp</label>
+                        <input type="number" id="telepon" name="telepon" 
+                               class="@error('telepon') is-invalid @enderror"
+                               placeholder="Masukkan nomor telepon" 
+                               value="{{ old('telepon', $pelanggan->telepon) }}" required>
+                        @error('telepon') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="alamat">Alamat</label>
-                        <textarea id="alamat" name="alamat" placeholder="Masukkan alamat pelanggan" rows="4">{{ old('alamat', $pelanggan->alamat) }}</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="no_telepon">Nomor Telepon</label>
-                        <input type="text" id="no_telepon" name="no_telepon" placeholder="Masukkan nomor telepon" value="{{ old('no_telepon', $pelanggan->telepon) }}">
-                        @error('no_telepon') <small style="color:red">{{ $message }}</small> @enderror
+                        <textarea id="alamat" name="alamat" 
+                                  class="@error('alamat') is-invalid @enderror"
+                                  placeholder="Masukkan alamat pelanggan" rows="4">{{ old('alamat', $pelanggan->alamat) }}</textarea>
+                        @error('alamat') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.pelanggan.index') }}'">
+                        <a href="{{ route('admin.pelanggan.index') }}" class="btn-cancel">
                             <i class='bx bx-x'></i> Batal
-                        </button>
+                        </a>
                         <button type="submit" class="btn-submit">
                             <i class='bx bx-save'></i> Simpan Perubahan
                         </button>

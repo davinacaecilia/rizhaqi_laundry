@@ -130,49 +130,49 @@
                 <li>
                     <i class='bx bx-receipt bg-diterima'></i>
                     <div class="info">
-                        <h3>5</h3>
+                        <h3>{{ $counts['diterima'] }}</h3>
                         <p>Diterima</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-water bg-dicuci'></i>
                     <div class="info">
-                        <h3>8</h3>
+                        <h3>{{ $counts['dicuci'] }}</h3>
                         <p>Dicuci</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-wind bg-kering'></i>
                     <div class="info">
-                        <h3>4</h3>
+                        <h3>{{ $counts['dikeringkan'] }}</h3>
                         <p>Dikeringkan</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bxs-t-shirt bg-setrika'></i>
                     <div class="info">
-                        <h3>6</h3>
+                        <h3>{{ $counts['disetrika'] }}</h3>
                         <p>Disetrika</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-package bg-packing'></i>
                     <div class="info">
-                        <h3>3</h3>
+                        <h3>{{ $counts['packing'] }}</h3>
                         <p>Packing</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-check-circle bg-siap'></i>
                     <div class="info">
-                        <h3>12</h3>
+                        <h3>{{ $counts['siap'] }}</h3>
                         <p>Siap Ambil</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-check-double bg-selesai'></i>
                     <div class="info">
-                        <h3>45</h3>
+                        <h3>{{ $counts['selesai'] }}</h3>
                         <p>Selesai</p>
                     </div>
                 </li>
@@ -221,95 +221,105 @@
                             </thead>
                             <tbody>
                                 {{-- SKENARIO 1: DITERIMA --}}
-                                <tr>
-                                    <td><strong>D0226</strong></td>
-                                    <td>Ibu Ratna</td>
-                                    <td>25 Nov 2025</td> 
-                                    <td><span class="status-badge st-diterima">Diterima</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status btn-blue" onclick="return confirm('Mulai cuci?')">
-                                            <i class='bx bx-water'></i> Mulai Cuci
-                                        </button>
-                                    </td>
-                                </tr>
+                                @foreach ($transaksi as $item)
+                                    @php
+                                        // --- LOGIKA UTAMA (Tentukan Warna & Tombol Selanjutnya) ---
+                                        $badgeClass = '';
+                                        $btnClass = '';
+                                        $btnText = '';
+                                        $btnIcon = '';
+                                        $nextStatus = '';
+                                        $isDisabled = false;
 
-                                {{-- SKENARIO 2: DICUCI --}}
-                                <tr>
-                                    <td><strong>D0225</strong></td>
-                                    <td>Kak Dinda</td>
-                                    <td>25 Nov 2025</td> 
-                                    <td><span class="status-badge st-dicuci">Dicuci</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status btn-orange" onclick="return confirm('Lanjut keringkan?')">
-                                            <i class='bx bx-wind'></i> Ke Pengeringan
-                                        </button>
-                                    </td>
-                                </tr>
+                                        switch($item->status_pesanan) {
+                                            case 'diterima':
+                                                $badgeClass = 'st-diterima';
+                                                $btnClass = 'btn-blue';
+                                                $btnText = 'Mulai Cuci';
+                                                $btnIcon = 'bx-water';
+                                                $nextStatus = 'dicuci';
+                                                break;
+                                            case 'dicuci':
+                                                $badgeClass = 'st-dicuci';
+                                                $btnClass = 'btn-orange';
+                                                $btnText = 'Ke Pengeringan';
+                                                $btnIcon = 'bx-wind';
+                                                $nextStatus = 'dikeringkan';
+                                                break;
+                                            case 'dikeringkan':
+                                                $badgeClass = 'st-dikeringkan';
+                                                $btnClass = 'btn-purple';
+                                                $btnText = 'Mulai Setrika';
+                                                $btnIcon = 'bxs-t-shirt';
+                                                $nextStatus = 'disetrika';
+                                                break;
+                                            case 'disetrika':
+                                                $badgeClass = 'st-disetrika';
+                                                $btnClass = 'btn-teal';
+                                                $btnText = 'Mulai Packing';
+                                                $btnIcon = 'bx-box';
+                                                $nextStatus = 'packing';
+                                                break;
+                                            case 'packing':
+                                                $badgeClass = 'st-packing';
+                                                $btnClass = 'btn-green';
+                                                $btnText = 'Tandai Siap';
+                                                $btnIcon = 'bx-check-circle';
+                                                $nextStatus = 'siap';
+                                                break;
+                                            case 'siap':
+                                                $badgeClass = 'st-siap';
+                                                $btnClass = 'btn-dark';
+                                                $btnText = 'Konfirmasi Ambil';
+                                                $btnIcon = 'bx-package';
+                                                $nextStatus = 'selesai';
+                                                break;
+                                            case 'selesai':
+                                                $badgeClass = 'st-selesai';
+                                                $btnClass = 'disabled'; // Tombol mati
+                                                $btnText = 'Selesai';
+                                                $btnIcon = 'bx-check-double';
+                                                $isDisabled = true;
+                                                break;
+                                            default:
+                                                $badgeClass = 'st-diterima';
+                                        }
+                                    @endphp
 
-                                {{-- SKENARIO 3: DIKERINGKAN --}}
-                                <tr>
-                                    <td><strong>D0224</strong></td>
-                                    <td>Bu Siti</td>
-                                    <td>24 Nov 2025</td>
-                                    <td><span class="status-badge st-dikeringkan">Dikeringkan</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status btn-purple" onclick="return confirm('Lanjut setrika?')">
-                                            <i class='bx bxs-t-shirt'></i> Mulai Setrika
-                                        </button>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td><strong>{{ $item->kode_invoice }}</strong></td>
+                                        <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
+                                        <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td> 
+                                        <td>
+                                            <span class="status-badge {{ $badgeClass }}">
+                                                {{ ucfirst($item->status_pesanan) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if(!$isDisabled)
+                                                <form action="{{ route('admin.transaksi.status', $item->id_transaksi) }}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="status" value="{{ $nextStatus }}">
+                                                    
+                                                    <button type="submit" class="btn-status {{ $btnClass }}" onclick="return confirm('Yakin update status ke {{ $nextStatus }}?')">
+                                                        <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
+                                                    </button>
+                                                </form>
+                                            @else
+                                                {{-- Kalau Selesai, tampilkan tombol mati --}}
+                                                <button type="button" class="btn-status disabled">
+                                                    <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
+                                                </button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                
+                                @endforeach
+            
+                       
 
-                                {{-- SKENARIO 4: DISETRIKA --}}
-                                <tr>
-                                    <td><strong>D0223</strong></td>
-                                    <td>Pak Rahmat</td>
-                                    <td>24 Nov 2025</td> 
-                                    <td><span class="status-badge st-disetrika">Disetrika</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status btn-teal" onclick="return confirm('Lanjut packing?')">
-                                            <i class='bx bx-box'></i> Mulai Packing
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                {{-- SKENARIO 5: PACKING --}}
-                                <tr>
-                                    <td><strong>D0222</strong></td>
-                                    <td>Mbak Rini</td>
-                                    <td>24 Nov 2025</td> 
-                                    <td><span class="status-badge st-packing">Packing</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status btn-green" onclick="return confirm('Tandai siap?')">
-                                            <i class='bx bx-check-circle'></i> Tandai Siap
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                {{-- SKENARIO 6: SIAP --}}
-                                <tr>
-                                    <td><strong>D0221</strong></td>
-                                    <td>Mas Tono</td>
-                                    <td>23 Nov 2025</td> 
-                                    <td><span class="status-badge st-siap">Siap Diambil</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status btn-dark" onclick="return confirm('Konfirmasi ambil?')">
-                                            <i class='bx bx-package'></i> Konfirmasi Ambil
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                {{-- SKENARIO 7: SELESAI --}}
-                                <tr>
-                                    <td><strong>D0220</strong></td>
-                                    <td>Pak Yusuf</td>
-                                    <td>22 Nov 2025</td> 
-                                    <td><span class="status-badge st-selesai">Sudah Diambil</span></td>
-                                    <td>
-                                        <button type="button" class="btn-status disabled">
-                                            <i class='bx bx-check-double'></i> Selesai
-                                        </button>
-                                    </td>
-                                </tr>
+                          
                             </tbody>
                         </table>
                     </div>
@@ -323,6 +333,7 @@
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
+    <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
 
 </body>
 </html>

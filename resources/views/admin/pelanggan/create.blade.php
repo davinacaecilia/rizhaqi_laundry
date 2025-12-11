@@ -4,14 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Boxicons -->
     <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet" />
-    <!-- My CSS -->
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
     <title>Tambah Pelanggan - Rizhaqi Laundry Admin</title>
     <style>
+        /* HILANGKAN PANAH INPUT NUMBER (Buat No HP) */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
         .form-card {
             background: var(--primary-white);
             padding: 24px;
@@ -34,12 +37,8 @@
             margin-bottom: 8px;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group input[type="date"],
-        .form-group input[type="file"],
-        .form-group textarea,
-        .form-group select {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border-light);
@@ -53,8 +52,7 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-group textarea:focus {
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
         }
@@ -62,6 +60,17 @@
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
+        }
+        
+        /* Style untuk pesan error validasi */
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .is-invalid {
+            border-color: #dc3545 !important;
         }
 
         .form-actions {
@@ -97,6 +106,7 @@
         .form-actions .btn-cancel {
             background-color: var(--text-tertiary);
             color: var(--primary-white);
+            text-decoration: none;
         }
 
         .form-actions .btn-cancel:hover {
@@ -111,7 +121,6 @@
     <section id="content">
         @include('partial.navbar')
 
-        <!-- MAIN -->
         <main>
             <div class="head-title">
                 <div class="left">
@@ -119,36 +128,53 @@
                     <ul class="breadcrumb">
                         <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a href="#">Data Pelanggan</a></li>
+                        <li><a href="{{ route('admin.pelanggan.index') }}">Data Pelanggan</a></li>
                         <li><i class='bx bx-chevron-right'></i></li>
-                        <li><a class="active" href="{{ url('admin/pelanggan/create') }}">Tambah Pelanggan</a></li>
+                        <li><a class="active" href="#">Tambah</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="form-card">
-                <form action="{{ route('admin.pelanggan.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.pelanggan.store') }}" method="POST">
                     @csrf
 
                     <div class="form-group">
-                        <label for="nama_pelanggan">Nama Pelanggan</label>
-                        <input type="text" id="nama_pelanggan" name="nama_pelanggan" placeholder="Masukkan nama pelanggan" required>
+                        <label for="nama">Nama Pelanggan</label>
+                        <input type="text" id="nama" name="nama" 
+                               class="@error('nama') is-invalid @enderror"
+                               placeholder="Masukkan nama pelanggan" 
+                               value="{{ old('nama') }}" required>
+                        @error('nama')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="alamat">Alamat</label>
-                        <input type="text" id="alamat" name="alamat" placeholder="Masukkan alamat pelanggan">
+                        <label for="telepon">Nomor WhatsApp / Telepon</label>
+                        <input type="number" id="telepon" name="telepon" 
+                               class="@error('telepon') is-invalid @enderror"
+                               placeholder="Contoh: 08123456789" 
+                               value="{{ old('telepon') }}" required>
+                        @error('telepon')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label for="no_telepon">Nomor Telepon</label>
-                        <input type="text" id="no_telepon" name="no_telepon" placeholder="Masukkan nomor telepon">
+                        <label for="alamat">Alamat (Opsional)</label>
+                        <textarea id="alamat" name="alamat" 
+                                  class="@error('alamat') is-invalid @enderror"
+                                  placeholder="Masukkan alamat lengkap pelanggan">{{ old('alamat') }}</textarea>
+                        @error('alamat')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn-cancel" onclick="window.location.href='{{ route('admin.pelanggan.index') }}'">
+                        <a href="{{ route('admin.pelanggan.index') }}" class="btn-cancel">
                             <i class='bx bx-x'></i> Batal
-                        </button>
+                        </a>
                         <button type="submit" class="btn-submit">
                             <i class='bx bx-save'></i> Simpan Data
                         </button>

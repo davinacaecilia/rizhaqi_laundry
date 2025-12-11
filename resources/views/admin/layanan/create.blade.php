@@ -10,6 +10,7 @@
 
     <title>Tambah Layanan - Rizhaqi Laundry Admin</title>
     <style>
+        /* CSS ASLI DARI KAMU (TIDAK DIUBAH) */
         .form-card { 
             background: var(--primary-white); 
             padding: 24px; 
@@ -52,6 +53,11 @@
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1); 
         }
 
+        /* HILANGKAN PANAH INPUT NUMBER */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
         .form-actions { 
             display: flex; 
             justify-content: flex-end; 
@@ -65,11 +71,12 @@
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: 500; 
-            font-size: 14px;
+            font-size: 14px; 
             transition: all 0.2s ease; 
             display: inline-flex; 
             align-items: center; 
             gap: 8px; 
+            text-decoration: none;
         }
 
         .btn-submit { 
@@ -101,6 +108,12 @@
             margin-top: 5px; 
             display: none; 
         }
+        
+        .invalid-feedback { 
+            color: #dc2626; 
+            font-size: 12px; 
+            margin-top: 5px; 
+        }
     </style>
 </head>
 <body>
@@ -130,29 +143,44 @@
                     
                     <div class="form-group">
                         <label>Kategori <span style="color:red">*</span></label>
+                        
                         <div style="display: flex; gap: 20px; margin-bottom: 10px;">
-                            <label style="display:flex; align-items:center; gap:6px;">
-                                <input type="radio" name="kategori_mode" value="existing" checked> Pilih yang ada
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px;">
+                                <input type="radio" name="kategori_mode" value="existing" checked> Pilih dari daftar
                             </label>
-                            <label style="display:flex; align-items:center; gap:6px;">
-                                <input type="radio" name="kategori_mode" value="new"> Buat baru
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:13px;">
+                                <input type="radio" name="kategori_mode" value="new"> Buat kategori baru
                             </label>
                         </div>
-                        <div id="kategori_container"></div>
-                        @error('kategori_final') <small style="color:red">{{ $message }}</small> @enderror
+
+                        <div id="container-kat-existing">
+                            <select name="kategori_existing" id="input-kat-existing">
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach($kategori_list as $kat)
+                                    <option value="{{ $kat }}">{{ $kat }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div id="container-kat-new" style="display: none;">
+                            <input type="text" name="kategori_baru" id="input-kat-new" placeholder="Ketik nama kategori baru (Contoh: Cuci Sepatu)">
+                        </div>
+                        
+                        @error('kategori_final') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="form-group">
                         <label>Nama Layanan <span style="color:red">*</span></label>
                         <input type="text" name="nama_layanan" placeholder="Masukkan nama layanan" required>
+                        @error('nama_layanan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="form-group">
                         <label>Satuan <span style="color:red">*</span></label>
                         <select name="satuan" required>
                             <option value="">Pilih Satuan</option>
-                            <option value="kg">kg</option>
-                            <option value="pcs">pcs</option>
+                            <option value="kg">Kg</option>
+                            <option value="pcs">Pcs</option>
                             <option value="m2">m²</option>
                         </select>
                     </div>
@@ -165,18 +193,18 @@
                     </div>
 
                     <div class="form-group" id="group-harga-tetap">
-                        <label>Harga Satuan / Dasar <span style="color:red">*</span></label>
-                        <input type="number" name="harga_satuan" id="input-harga-tetap" placeholder="Contoh: 15000" required>
+                        <label>Harga Satuan (Rp) <span style="color:red">*</span></label>
+                        <input type="number" name="harga_tetap" id="input-harga-tetap" placeholder="Contoh: 15000">
                     </div>
 
                     <div id="group-harga-flexible" style="display: none;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div class="form-group">
-                                <label>Harga Minimum <span style="color:red">*</span></label>
+                                <label>Harga Minimum (Rp) <span style="color:red">*</span></label>
                                 <input type="number" name="harga_min" id="input-min" placeholder="Contoh: 20000">
                             </div>
                             <div class="form-group">
-                                <label>Harga Maksimum <span style="color:red">*</span></label>
+                                <label>Harga Maksimum (Rp) <span style="color:red">*</span></label>
                                 <input type="number" name="harga_max" id="input-max" placeholder="Contoh: 35000">
                             </div>
                         </div>
@@ -199,128 +227,96 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const form = document.getElementById('formLayanan');
+            // ELEMENT SELECTORS
+            const radiosKat = document.querySelectorAll('input[name="kategori_mode"]');
+            const boxExisting = document.getElementById('container-kat-existing');
+            const boxNew = document.getElementById('container-kat-new');
+            const inputExisting = document.getElementById('input-kat-existing');
+            const inputNew = document.getElementById('input-kat-new');
 
-            // --- 1. LOGIC KATEGORI ---
-            const radios = document.querySelectorAll('input[name="kategori_mode"]');
-            const katContainer = document.getElementById('kategori_container');
-            
-            // Tambahkan 'required' langsung di HTML string-nya
-            const existingOptions = `
-                <select name="kategori" class="form-control" style="width:100%; padding:10px;" required>
-                    <option value="">-- Pilih Kategori --</option>
-                    @foreach($kategori_list as $kat)
-                        <option value="{{ $kat }}">{{ $kat }}</option>
-                    @endforeach
-                </select>`;
-            
-            function updateKategori() {
-                const selected = document.querySelector('input[name="kategori_mode"]:checked');
-                if (selected && selected.value === "existing") {
-                    katContainer.innerHTML = existingOptions;
-                } else {
-                    // Input baru juga harus required
-                    katContainer.innerHTML = `<input type="text" name="kategori_baru" placeholder="Masukkan nama kategori baru" style="width:100%; padding:10px;" required>`;
-                }
-            }
-            radios.forEach(r => r.addEventListener('change', updateKategori));
-            updateKategori(); // Init saat load
-
-
-            // --- 2. LOGIC HARGA (VISIBILITY & VALIDASI) ---
             const checkFlex = document.getElementById('check-flexible');
             const groupTetap = document.getElementById('group-harga-tetap');
             const inputTetap = document.getElementById('input-harga-tetap');
-            
             const groupFlex = document.getElementById('group-harga-flexible');
             const inputMin = document.getElementById('input-min');
             const inputMax = document.getElementById('input-max');
             const errorMsg = document.getElementById('error-range');
             const btnSimpan = document.getElementById('btn-simpan');
 
-            function validateRange() {
-                const minVal = parseFloat(inputMin.value) || 0;
-                const maxVal = parseFloat(inputMax.value) || 0;
-
-                // Validasi logika angka (Min < Max)
-                // Hanya jalan kalau keduanya ada isinya
-                if (inputMin.value && inputMax.value) {
-                    if (minVal >= maxVal) {
-                        errorMsg.style.display = 'block';
-                        inputMin.style.borderColor = '#dc2626'; // Merah
-                        inputMax.style.borderColor = '#dc2626';
-                        btnSimpan.disabled = true; // Matikan tombol
-                    } else {
-                        errorMsg.style.display = 'none';
-                        inputMin.style.borderColor = 'var(--border-light)';
-                        inputMax.style.borderColor = 'var(--border-light)';
-                        btnSimpan.disabled = false; // Hidupkan tombol
-                    }
+            // --- 1. LOGIC KATEGORI (TOGGLE) ---
+            function toggleKategori() {
+                const mode = document.querySelector('input[name="kategori_mode"]:checked').value;
+                
+                if (mode === 'existing') {
+                    boxExisting.style.display = 'block';
+                    boxNew.style.display = 'none';
+                    
+                    inputExisting.required = true;
+                    inputNew.required = false;
+                    inputNew.value = ''; // Reset
                 } else {
-                    // Reset jika salah satu dihapus
-                    btnSimpan.disabled = false;
-                    errorMsg.style.display = 'none';
+                    boxExisting.style.display = 'none';
+                    boxNew.style.display = 'block';
+                    
+                    inputExisting.required = false;
+                    inputNew.required = true;
+                    inputExisting.value = ''; // Reset
                 }
             }
 
-            checkFlex.addEventListener('change', function() {
-                if (this.checked) {
-                    // MODE RENTANG AKTIF
+            radiosKat.forEach(r => r.addEventListener('change', toggleKategori));
+            toggleKategori(); // Init state
+
+            // --- 2. LOGIC HARGA (TOGGLE) ---
+            function toggleHarga() {
+                if (checkFlex.checked) {
+                    // Mode Rentang
                     groupTetap.style.display = 'none';
                     groupFlex.style.display = 'block';
                     
-                    // Reset Input Tetap & Hapus Required
+                    inputTetap.required = false;
                     inputTetap.value = '';
-                    inputTetap.removeAttribute('required');
-                    
-                    // Set Required untuk Min/Max
-                    inputMin.setAttribute('required', true);
-                    inputMax.setAttribute('required', true);
+
+                    inputMin.required = true;
+                    inputMax.required = true;
                 } else {
-                    // MODE HARGA TETAP AKTIF
+                    // Mode Tetap
                     groupTetap.style.display = 'block';
                     groupFlex.style.display = 'none';
-                    
-                    // Reset Input Min/Max & Hapus Required
+
+                    inputTetap.required = true;
+                    inputMin.required = false;
+                    inputMax.required = false;
                     inputMin.value = '';
                     inputMax.value = '';
-                    inputMin.removeAttribute('required');
-                    inputMax.removeAttribute('required');
                     
-                    // Set Required untuk Tetap
-                    inputTetap.setAttribute('required', true);
-                    
-                    // Bersihkan error jika ada
                     errorMsg.style.display = 'none';
                     btnSimpan.disabled = false;
                 }
-            });
+            }
 
-            // Listeners Input
-            inputMin.addEventListener('input', validateRange);
-            inputMax.addEventListener('input', validateRange);
+            checkFlex.addEventListener('change', toggleHarga);
+            toggleHarga(); // Init state
 
-            // --- 3. FINAL VALIDATION ON SUBMIT ---
-            form.addEventListener('submit', function(e) {
-                let isValid = true;
+            // --- 3. VALIDASI HARGA RENTANG ---
+            function validateRange() {
+                const min = parseFloat(inputMin.value) || 0;
+                const max = parseFloat(inputMax.value) || 0;
 
-                // Cek lagi logika harga rentang
-                if (checkFlex.checked) {
-                    const min = parseFloat(inputMin.value);
-                    const max = parseFloat(inputMax.value);
-                    
+                if (checkFlex.checked && inputMin.value && inputMax.value) {
                     if (min >= max) {
-                        alert('Harga Minimum harus lebih kecil dari Harga Maksimum!');
-                        isValid = false;
+                        errorMsg.style.display = 'block';
+                        btnSimpan.disabled = true;
+                    } else {
+                        errorMsg.style.display = 'none';
+                        btnSimpan.disabled = false;
                     }
                 }
+            }
 
-                if (!isValid) {
-                    e.preventDefault(); // Batalkan kirim data
-                }
-            });
+            inputMin.addEventListener('input', validateRange);
+            inputMax.addEventListener('input', validateRange);
         });
     </script>
-
 </body>
 </html>

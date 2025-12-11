@@ -113,6 +113,18 @@
             border-color: var(--accent-blue);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
         }
+        
+        .btn-add {
+            padding: 10px 20px;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
@@ -131,12 +143,15 @@
                         <li><a class="active" href="{{ route('admin.layanan.index') }}">Data Layanan</a></li>
                     </ul>
                 </div>
+                <a href="{{ route('admin.layanan.create') }}" class="btn-add">
+                    <i class='bx bx-plus'></i> Tambah Layanan
+                </a>
             </div>
 
             <div class="table-data">
                 <div class="order">
                     <div class="head">
-                        <h3>Data Layanan</h3>
+                        <h3>Daftar Harga & Layanan</h3>
                         <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari layanan...">
                         <button id="tableSearchBtn" style="background:none; border:none; cursor:pointer; font-size:22px; display:flex; align-items:center;">
                             <i class='bx bx-search'></i>
@@ -146,8 +161,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>ID Layanan</th>
-                                    <th>Kategori</th>
+                                    <th>No</th> <th>Kategori</th>
                                     <th>Nama Layanan</th>
                                     <th>Satuan</th>
                                     <th>Harga</th>
@@ -155,19 +169,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($layanan as $item)
+                                @forelse($layanan as $item)
                                 <tr>
-                                    <td>LYN-{{ str_pad($item->id_layanan, 3, '0', STR_PAD_LEFT) }}</td>
+                                    <td>{{ $loop->iteration }}</td>
+                                    
                                     <td>{{ $item->kategori }}</td>
                                     <td>{{ $item->nama_layanan }}</td>
                                     <td>{{ $item->satuan }}</td>
-                                    <td>
-                                        @if($item->is_flexible)
-                                            Rp {{ number_format($item->harga_min, 0, ',', '.') }} - {{ number_format($item->harga_max, 0, ',', '.') }}
-                                        @else
-                                            Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
-                                        @endif
+                                    
+                                    <td style="font-weight: 500; color: #2e7d32;">
+                                        {{ $item->harga_format }}
                                     </td>
+                                    
                                     <td>
                                         <div class="btn-action-group">
                                             <a href="{{ route('admin.layanan.edit', $item->id_layanan) }}" class="btn-detail edit">
@@ -183,7 +196,11 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="6" style="text-align:center;">Belum ada data layanan.</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -192,35 +209,33 @@
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container"></div>
-
     <script src="{{ asset('admin/script/script.js') }}"></script>
-    <script src="{{ asset('admin/script/pagination.js') }}"></script>
-    <script src="{{ asset('admin/script/chart.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
     <script>
-    const searchBtn = document.getElementById('tableSearchBtn');
-const searchInput = document.getElementById('tableSearchInput');
+        const searchBtn = document.getElementById('tableSearchBtn');
+        const searchInput = document.getElementById('tableSearchInput');
 
-// Toggle input
-searchBtn.addEventListener('click', () => {
-    searchInput.classList.toggle('show');
-    if (searchInput.classList.contains('show')) searchInput.focus();
-});
+        // Toggle input
+        searchBtn.addEventListener('click', () => {
+            searchInput.classList.toggle('show');
+            if (searchInput.classList.contains('show')) searchInput.focus();
+        });
 
-// Live search table
-searchInput.addEventListener('input', () => {
-    const filter = searchInput.value.toLowerCase();
-    const rows = document.querySelectorAll('.table-container tbody tr');
+        // Live search table
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('.table-container tbody tr');
 
-    rows.forEach(row => {
-        const rowText = row.innerText.toLowerCase();
-        row.style.display = rowText.includes(filter) ? '' : 'none';
-    });
-});
-
-</script>
+            rows.forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                // Pastikan bukan baris kosong ("Belum ada data")
+                if(row.cells.length > 1) {
+                    row.style.display = rowText.includes(filter) ? '' : 'none';
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

@@ -75,7 +75,7 @@
                         <h3>Data Transaksi</h3>
                         
                         <div class="table-search-wrapper">
-                            <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama/Invoice...">
+                            <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama Pelanggan...">
                             <i class='bx bx-search' id="tableSearchIcon"></i>
                         </div>
 

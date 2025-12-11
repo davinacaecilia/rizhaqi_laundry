@@ -12,17 +12,17 @@
     
     <style>
         /* CSS TAMBAHAN: HILANGKAN PANAH DI INPUT NUMBER */
-        /* Chrome, Safari, Edge, Opera */
         input[type=number]::-webkit-outer-spin-button,
         input[type=number]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-
-        /* Firefox */
         input[type=number] {
             -moz-appearance: textfield;
         }
+        /* Style buat input harga kalau dilock/unlock */
+        .locked-input { background-color: #e9ecef; cursor: not-allowed; }
+        .unlocked-input { background-color: #fff; border: 1px solid #007bff; }
     </style>
 </head>
 <body>
@@ -50,20 +50,19 @@
                 <form id="formTransaksi" action="{{ route('admin.transaksi.store') }}" method="POST" data-redirect-url="{{ route('admin.transaksi.index') }}">
                     @csrf
 
-                    <!-- BAGIAN 1: DATA PELANGGAN -->
                     <div class="form-group">
                         <label for="pelanggan">Nama Pelanggan</label>
                         <input type="text" list="customer_list" id="pelanggan" name="nama_pelanggan" placeholder="Ketik nama pelanggan..." autocomplete="off" required>
                         <datalist id="customer_list">
-                            <option value="Budi Santoso">08123456789</option>
-                            <option value="Ani Wijaya">08134567890</option>
-                            <option value="Citra Lestari">08571234567</option>
+                            {{-- DATA PELANGGAN DARI DB --}}
+                            @foreach($pelanggan as $cust)
+                                <option value="{{ $cust->nama }}">{{ $cust->telepon }}</option>
+                            @endforeach
                         </datalist>
                     </div>
 
                     <div class="form-group">
                         <label for="no_hp">Nomor WhatsApp</label>
-                        <!-- Type number tetap agar keyboard angka muncul di HP, tapi panah dihilangkan via CSS -->
                         <input type="number" id="no_hp" name="no_hp" placeholder="Contoh: 0812..." required>
                     </div>
 
@@ -74,28 +73,45 @@
 
                     <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 20px 0;">
 
-                    <!-- BAGIAN 2: PILIH LAYANAN (CASCADING) -->
                     <div class="form-group">
                         <label for="kategori_id">Kategori Layanan</label>
                         <select id="kategori_id" name="kategori_id" required onchange="updateLayananDropdown()">
                             <option value="">-- Pilih Kategori --</option>
-                            <option value="kiloan">Regular Services (Kiloan)</option>
-                            <option value="promo_jumat">PROMO: Jumat Berkah</option>
-                            <option value="promo_selasa">PROMO: Selasa Ceria</option>
-                            <option value="paket">Package Services (Borongan)</option>
-                            <option value="satuan">Cuci Satuan (Pcs)</option>
-                            <option value="karpet">Cuci Karpet</option>
+                            {{-- LOOPING KATEGORI DARI DB --}}
+                            @foreach($kategori as $kat)
+                                <option value="{{ $kat->kategori }}">{{ $kat->kategori }}</option>
+                            @endforeach
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="layanan_id">Jenis Layanan</label>
-                        <select id="layanan_id" name="layanan_id" required disabled onchange="hitungTotal()">
+                        <select id="layanan_id" name="layanan_id" required disabled onchange="setHargaOtomatis()">
                             <option value="" data-harga="0">-- Pilih Kategori Terlebih Dahulu --</option>
+                            
+                            {{-- LOAD SEMUA LAYANAN TAPI DISEMBUNYIKAN JS DULU --}}
+                            @foreach($layanan as $item)
+                                <option value="{{ $item->id_layanan }}" 
+                                        data-kategori="{{ $item->kategori }}"
+                                        data-tipe="{{ $item->is_flexible ? 'range' : 'fixed' }}"
+                                        data-harga="{{ $item->harga_satuan }}"
+                                        data-min="{{ $item->harga_min }}"
+                                        data-max="{{ $item->harga_max }}">
+                                    {{ $item->nama_layanan }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
-                    <!-- BAGIAN 3: ADD ON -->
+                    <div class="form-group">
+                        <label for="harga_satuan">Harga Satuan / Per Item (Rp)</label>
+                        <input type="number" id="harga_satuan" name="harga_satuan" 
+                               placeholder="0" required 
+                               oninput="hitungTotal()" 
+                               class="locked-input" readonly>
+                        <small id="info_range" style="color: blue; display: none; margin-top: 5px;"></small>
+                    </div>
+
                     <div class="form-group">
                         <label>Layanan Tambahan (Add On)</label>
                         <div class="addon-container">
@@ -104,7 +120,6 @@
                                     <input type="checkbox" id="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')">
                                     <span>Layanan Ekspress (+Rp 5.000/kg)</span>
                                 </label>
-                                <!-- Step 1 agar bulat -->
                                 <input type="number" id="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1">
                             </div>
                             <div class="addon-row">
@@ -133,7 +148,6 @@
 
                     <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 20px 0;">
 
-                    <!-- BAGIAN 4: DETAIL PAKAIAN -->
                     <div class="form-group">
                         <label class="toggle-detail-wrapper">
                             <input type="checkbox" id="toggleDetail" onchange="toggleDetailSection()">
@@ -160,11 +174,9 @@
                         </div>
                     </div>
 
-                    <!-- BAGIAN 5: INPUT BERAT & TOTAL -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label for="berat">Berat (Kg) / Jumlah (Pcs)</label>
-                            <!-- REVISI: step="1" biar bilangan bulat -->
                             <input type="number" id="berat" name="berat" placeholder="1" step="1" min="1" required style="font-weight: bold;" oninput="hitungTotal()">
                             <small style="color: var(--text-secondary);">Masukkan angka bulat (tanpa koma).</small>
                         </div>

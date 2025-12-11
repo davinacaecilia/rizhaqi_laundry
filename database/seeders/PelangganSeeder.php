@@ -15,7 +15,7 @@ class PelangganSeeder extends Seeder
     public function run(): void
     {
         DB::table('pelanggan')->insert([
-            'uuid'      => (string) Str::uuid(),
+            'id_pelanggan'  => Str::uuid(),
             'nama' => 'Emih',
             'alamat' => 'Jl. Universitas',
             'telepon' => '081269224252',

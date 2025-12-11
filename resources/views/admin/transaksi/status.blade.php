@@ -88,7 +88,9 @@
             width: 36px; height: 36px;
             border-radius: 8px;
             font-size: 20px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .status-summary li .info h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1; }
@@ -125,7 +127,6 @@
                 </div>
             </div>
 
-            <!-- [BARU] CARD RINGKASAN STATUS KECIL -->
             <ul class="status-summary">
                 <li>
                     <i class='bx bx-receipt bg-diterima'></i>
@@ -182,18 +183,15 @@
                 <div class="order">
                     
                     <div class="head">
-                        <!-- Baris 1: Judul & Search -->
                         <div class="filter-row">
                             <h3 class="filter-title">Update Status (Real-time)</h3>
                             
-                            <!-- Search Bar -->
                             <div class="table-search-wrapper">
                                 <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama...">
                                 <i class='bx bx-search bx-search-toggle' id="tableSearchIcon"></i>
                             </div>
                         </div>
 
-                        <!-- Baris 2: Filter Tanggal & Status Pills -->
                         <div class="filter-row">
                             <input type="date" id="dateFilter" class="filter-date" title="Filter Tanggal Masuk">
 
@@ -220,69 +218,84 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- SKENARIO 1: DITERIMA --}}
                                 @foreach ($transaksi as $item)
                                     @php
-                                        // --- LOGIKA UTAMA (Tentukan Warna & Tombol Selanjutnya) ---
-                                        $badgeClass = '';
-                                        $btnClass = '';
-                                        $btnText = '';
-                                        $btnIcon = '';
-                                        $nextStatus = '';
+                                        // 1. Ambil status dan bersihkan (lowercase)
+                                        $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
+                                        
+                                        // 2. Normalisasi status lama 'siap diambil' menjadi 'siap' biar codingan ga bingung
+                                        if ($rawStatus == 'siap diambil') {
+                                            $rawStatus = 'siap';
+                                        }
+
+                                        // Default Variables
+                                        $badgeClass = 'st-diterima';
+                                        $btnClass   = 'btn-blue';
+                                        $btnText    = 'Mulai Cuci';
+                                        $btnIcon    = 'bx-water';
+                                        $nextStatus = 'dicuci';
                                         $isDisabled = false;
 
-                                        switch($item->status_pesanan) {
+                                        // 3. Logika Switch Case (ALUR LENGKAP: Diterima -> Dicuci -> Kering -> Setrika -> Packing -> Siap -> Selesai)
+                                        switch($rawStatus) {
                                             case 'diterima':
                                                 $badgeClass = 'st-diterima';
-                                                $btnClass = 'btn-blue';
-                                                $btnText = 'Mulai Cuci';
-                                                $btnIcon = 'bx-water';
+                                                $btnClass   = 'btn-blue';
+                                                $btnText    = 'Mulai Cuci';
+                                                $btnIcon    = 'bx-water';
                                                 $nextStatus = 'dicuci';
                                                 break;
                                             case 'dicuci':
                                                 $badgeClass = 'st-dicuci';
-                                                $btnClass = 'btn-orange';
-                                                $btnText = 'Ke Pengeringan';
-                                                $btnIcon = 'bx-wind';
+                                                $btnClass   = 'btn-orange';
+                                                $btnText    = 'Ke Pengeringan';
+                                                $btnIcon    = 'bx-wind';
                                                 $nextStatus = 'dikeringkan';
                                                 break;
                                             case 'dikeringkan':
                                                 $badgeClass = 'st-dikeringkan';
-                                                $btnClass = 'btn-purple';
-                                                $btnText = 'Mulai Setrika';
-                                                $btnIcon = 'bxs-t-shirt';
+                                                $btnClass   = 'btn-purple';
+                                                $btnText    = 'Mulai Setrika';
+                                                $btnIcon    = 'bxs-t-shirt';
                                                 $nextStatus = 'disetrika';
                                                 break;
                                             case 'disetrika':
                                                 $badgeClass = 'st-disetrika';
-                                                $btnClass = 'btn-teal';
-                                                $btnText = 'Mulai Packing';
-                                                $btnIcon = 'bx-box';
+                                                $btnClass   = 'btn-teal';
+                                                $btnText    = 'Mulai Packing';
+                                                $btnIcon    = 'bx-box';
                                                 $nextStatus = 'packing';
                                                 break;
                                             case 'packing':
                                                 $badgeClass = 'st-packing';
-                                                $btnClass = 'btn-green';
-                                                $btnText = 'Tandai Siap';
-                                                $btnIcon = 'bx-check-circle';
+                                                $btnClass   = 'btn-green';
+                                                $btnText    = 'Tandai Siap';
+                                                $btnIcon    = 'bx-check-circle';
                                                 $nextStatus = 'siap';
                                                 break;
                                             case 'siap':
+                                            case 'siap diambil': // Handle data lama
                                                 $badgeClass = 'st-siap';
-                                                $btnClass = 'btn-dark';
-                                                $btnText = 'Konfirmasi Ambil';
-                                                $btnIcon = 'bx-package';
+                                                $btnClass   = 'btn-dark';
+                                                $btnText    = 'Konfirmasi Ambil';
+                                                $btnIcon    = 'bx-package';
                                                 $nextStatus = 'selesai';
                                                 break;
                                             case 'selesai':
                                                 $badgeClass = 'st-selesai';
-                                                $btnClass = 'disabled'; // Tombol mati
-                                                $btnText = 'Selesai';
-                                                $btnIcon = 'bx-check-double';
+                                                $btnClass   = 'disabled';
+                                                $btnText    = 'Selesai';
+                                                $btnIcon    = 'bx-check-double';
                                                 $isDisabled = true;
+                                                $nextStatus = ''; // Tidak ada next status
                                                 break;
                                             default:
+                                                // Jika status kosong/error (akibat enum error sebelumnya), kita anggap diterima biar bisa di-reset
                                                 $badgeClass = 'st-diterima';
+                                                $btnClass   = 'btn-blue';
+                                                $btnText    = 'Reset Status';
+                                                $btnIcon    = 'bx-refresh';
+                                                $nextStatus = 'diterima'; 
                                         }
                                     @endphp
 
@@ -291,35 +304,32 @@
                                         <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
                                         <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td> 
                                         <td>
+                                            {{-- Tampilkan Status (Capitalized) --}}
                                             <span class="status-badge {{ $badgeClass }}">
-                                                {{ ucfirst($item->status_pesanan) }}
+                                                {{ ucfirst($rawStatus) }}
                                             </span>
                                         </td>
                                         <td>
                                             @if(!$isDisabled)
-                                                <form action="{{ route('admin.transaksi.status', $item->id_transaksi) }}" method="POST">
+                                                {{-- FIX ROUTE: Pake admin.transaksi.updateStatus --}}
+                                                <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
+                                                    {{-- PASTIKAN VALUE NEXT STATUS ADA --}}
                                                     <input type="hidden" name="status" value="{{ $nextStatus }}">
                                                     
-                                                    <button type="submit" class="btn-status {{ $btnClass }}" onclick="return confirm('Yakin update status ke {{ $nextStatus }}?')">
+                                                    <button type="submit" class="btn-status {{ $btnClass }}" onclick="return confirm('Yakin update status ke {{ ucfirst($nextStatus) }}?')">
                                                         <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
                                                     </button>
                                                 </form>
                                             @else
-                                                {{-- Kalau Selesai, tampilkan tombol mati --}}
                                                 <button type="button" class="btn-status disabled">
                                                     <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
                                                 </button>
                                             @endif
                                         </td>
                                     </tr>
-                                
                                 @endforeach
-            
-                       
-
-                          
                             </tbody>
                         </table>
                     </div>

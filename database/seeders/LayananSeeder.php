@@ -2,190 +2,99 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str; // Import Str untuk UUID
-use Carbon\Carbon; // Import Carbon untuk Waktu
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class LayananSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $now = Carbon::now();
+        Schema::disableForeignKeyConstraints();
+        DB::table('layanan')->truncate();
+        Schema::enableForeignKeyConstraints();
 
         $layanan = [
-            // --- KATEGORI: REGULAR (Kiloan) ---
+            // --- 1. DISCOUNT JUMAT BERKAH ---
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Regular',
-                'nama_layanan'  => 'Cuci Kering Setrika - Pakaian',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 10000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT JUMAT BERKAH', 'nama_layanan' => 'CKS - Pakaian', 'satuan' => 'kg', 'harga_satuan' => 9000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Regular',
-                'nama_layanan'  => 'Cuci Kering Setrika - Pakaian Dalam',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 14500,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT JUMAT BERKAH', 'nama_layanan' => 'CKS - Sprei/Selimut/B.Cover', 'satuan' => 'kg', 'harga_satuan' => 12000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Regular',
-                'nama_layanan'  => 'Cuci Kering Setrika - Sprei/Selimut/Bed Cover',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 14000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ],
-            [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Regular',
-                'nama_layanan'  => 'Cuci Kering Setrika - Fitrasi/Gordyn',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 14000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ],
-            [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Regular',
-                'nama_layanan'  => 'Setrika Saja',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 8000, // Disesuaikan dengan brosur 8.000
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT JUMAT BERKAH', 'nama_layanan' => 'Setrika', 'satuan' => 'kg', 'harga_satuan' => 5000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
 
-            // --- KATEGORI: PAKET (Borongan) ---
+            // --- 2. DISCOUNT SELASA CERIA ---
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Paket',
-                'nama_layanan'  => 'Cuci Kering (Tanpa Setrika)',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 20000, // Harga paket misal per load/ketentuan khusus
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT SELASA CERIA', 'nama_layanan' => 'CKS - Pakaian', 'satuan' => 'kg', 'harga_satuan' => 9500, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Paket',
-                'nama_layanan'  => 'Cuci Kering Lipat',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 25000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ],
-            
-            // --- KATEGORI: SATUAN (Ada Harga Rentang) ---
-            [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Satuan',
-                'nama_layanan'  => 'Pakaian Satuan (Kemeja/Celana)',
-                'satuan'        => 'pcs',
-                'harga_satuan'  => 15000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ],
-            [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Satuan',
-                'nama_layanan'  => 'Jas',
-                'satuan'        => 'pcs',
-                'harga_satuan'  => 20000, // Harga Min
-                'harga_maksimum'=> 35000, // Harga Max (Rentang)
-                'created_at'    => $now,
-                'updated_at'    => $now,
-            ],
-            [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Satuan',
-                'nama_layanan'  => 'Kebaya/Gaun',
-                'satuan'        => 'pcs',
-                'harga_satuan'  => 30000, // Harga Min
-                'harga_maksimum'=> 50000, // Harga Max (Rentang)
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT SELASA CERIA', 'nama_layanan' => 'CKS - Sprei/Selimut/B.Cover', 'satuan' => 'kg', 'harga_satuan' => 13500, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
 
-            // --- KATEGORI: KARPET ---
+            // --- 3. CUCI SATUAN ---
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Karpet',
-                'nama_layanan'  => 'Karpet Tipis',
-                'satuan'        => 'm2',
-                'harga_satuan'  => 18500,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'CUCI SATUAN', 'nama_layanan' => 'Pakaian', 'satuan' => 'pcs', 'harga_satuan' => 15000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Karpet',
-                'nama_layanan'  => 'Karpet Tebal/Berbulu',
-                'satuan'        => 'm2',
-                'harga_satuan'  => 20000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'CUCI SATUAN', 'nama_layanan' => 'Jas', 'satuan' => 'pcs', 'harga_satuan' => 20000, 'is_flexible' => 1, 'harga_min' => 20000, 'harga_max' => 35000,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'CUCI SATUAN', 'nama_layanan' => 'Kebaya/Gaun', 'satuan' => 'pcs', 'harga_satuan' => 30000, 'is_flexible' => 1, 'harga_min' => 30000, 'harga_max' => 50000,
             ],
 
-            // --- KATEGORI: ADD ON ---
+            // --- 4. REGULAR SERVICES ---
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Add On',
-                'nama_layanan'  => 'Layanan Ekspress',
-                'satuan'        => 'kg',
-                'harga_satuan'  => 5000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'REGULAR SERVICES', 'nama_layanan' => 'Cuci Kering Setrika - Pakaian', 'satuan' => 'kg', 'harga_satuan' => 10000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Add On',
-                'nama_layanan'  => 'Hanger',
-                'satuan'        => 'pcs',
-                'harga_satuan'  => 3000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'REGULAR SERVICES', 'nama_layanan' => 'CKS - Pakaian Dalam', 'satuan' => 'kg', 'harga_satuan' => 14500, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Add On',
-                'nama_layanan'  => 'Plastik Packing',
-                'satuan'        => 'pcs',
-                'harga_satuan'  => 3000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'REGULAR SERVICES', 'nama_layanan' => 'CKS - Sprei/Selimut/B.Cover', 'satuan' => 'kg', 'harga_satuan' => 14000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
             [
-                'id_layanan'    => Str::uuid(),
-                'kategori'      => 'Add On',
-                'nama_layanan'  => 'Hanger + Plastik',
-                'satuan'        => 'pcs',
-                'harga_satuan'  => 5000,
-                'harga_maksimum'=> null,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'id_layanan' => Str::uuid(), 'kategori' => 'REGULAR SERVICES', 'nama_layanan' => 'CKS - Fitrasi/Gordyn', 'satuan' => 'kg', 'harga_satuan' => 14000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'REGULAR SERVICES', 'nama_layanan' => 'Setrika', 'satuan' => 'kg', 'harga_satuan' => 6000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+
+            // --- 5. PACKAGE SERVICES ---
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'PACKAGE SERVICES', 'nama_layanan' => 'Cuci Kering', 'satuan' => 'pcs', 'harga_satuan' => 20000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'PACKAGE SERVICES', 'nama_layanan' => 'Cuci Kering Lipat', 'satuan' => 'pcs', 'harga_satuan' => 25000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'PACKAGE SERVICES', 'nama_layanan' => 'Setrika', 'satuan' => 'pcs', 'harga_satuan' => 250000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+
+            // --- 6. KARPET ---
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'KARPET', 'nama_layanan' => 'Karpet Tipis', 'satuan' => 'm2', 'harga_satuan' => 18500, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'KARPET', 'nama_layanan' => 'Karpet Tebal/Berbulu', 'satuan' => 'm2', 'harga_satuan' => 20000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+
+            // --- 7. ADD ON (SESUAI BROSUR POJOK KANAN BAWAH) ---
+            // Wajib ada di DB, tapi nanti kita hide dari dropdown
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'ADD ON', 'nama_layanan' => 'Ekspress', 'satuan' => 'kg', 'harga_satuan' => 5000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'ADD ON', 'nama_layanan' => 'Hanger', 'satuan' => 'pcs', 'harga_satuan' => 3000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'ADD ON', 'nama_layanan' => 'Plastik', 'satuan' => 'pcs', 'harga_satuan' => 3000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
+            ],
+            [
+                'id_layanan' => Str::uuid(), 'kategori' => 'ADD ON', 'nama_layanan' => 'Hanger + Plastik', 'satuan' => 'pcs', 'harga_satuan' => 5000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
             ],
         ];
 

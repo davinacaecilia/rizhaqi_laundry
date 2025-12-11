@@ -161,7 +161,8 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>No</th> <th>Kategori</th>
+                                    <th>No</th> 
+                                    <th>Kategori</th>
                                     <th>Nama Layanan</th>
                                     <th>Satuan</th>
                                     <th>Harga</th>
@@ -173,23 +174,42 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     
-                                    <td>{{ $item->kategori }}</td>
+                                    <td>
+                                        {{-- LOGIKA WARNA KATEGORI BIAR CANTIK --}}
+                                        <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; 
+                                            background-color: {{ $item->kategori == 'Regular' ? '#e3f2fd' : ($item->kategori == 'Satuan' ? '#f3e5f5' : '#fce4ec') }};
+                                            color: {{ $item->kategori == 'Regular' ? '#1565c0' : ($item->kategori == 'Satuan' ? '#7b1fa2' : '#c2185b') }};">
+                                            {{ $item->kategori }}
+                                        </span>
+                                    </td>
+
                                     <td>{{ $item->nama_layanan }}</td>
                                     <td>{{ $item->satuan }}</td>
                                     
                                     <td style="font-weight: 500; color: #2e7d32;">
-                                        {{ $item->harga_format }}
+                                        {{-- LOGIKA HARGA RANGE VS TETAP --}}
+                                        @if($item->is_flexible == 1)
+                                            <span style="color: #f57c00;">
+                                                Rp {{ number_format($item->harga_min, 0, ',', '.') }} - 
+                                                Rp {{ number_format($item->harga_max, 0, ',', '.') }}
+                                            </span>
+                                        @else
+                                            Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                                        @endif
                                     </td>
                                     
                                     <td>
                                         <div class="btn-action-group">
+                                            {{-- TOMBOL EDIT --}}
                                             <a href="{{ route('admin.layanan.edit', $item->id_layanan) }}" class="btn-detail edit">
                                                 <i class='bx bx-edit'></i> Edit
                                             </a>
+                                            
+                                            {{-- TOMBOL DELETE --}}
                                             <form action="{{ route('admin.layanan.destroy', $item->id_layanan) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Hapus layanan ini?')">
+                                                <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin ingin menghapus layanan ini?')">
                                                     <i class='bx bx-trash'></i> Delete
                                                 </button>
                                             </form>
@@ -198,7 +218,10 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" style="text-align:center;">Belum ada data layanan.</td>
+                                    <td colspan="6" style="text-align:center; padding: 20px; color: #999;">
+                                        <i class='bx bx-folder-open' style="font-size: 24px; display:block; margin-bottom: 5px;"></i>
+                                        Belum ada data layanan.
+                                    </td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -216,20 +239,20 @@
         const searchBtn = document.getElementById('tableSearchBtn');
         const searchInput = document.getElementById('tableSearchInput');
 
-        // Toggle input
+        // Toggle input search
         searchBtn.addEventListener('click', () => {
             searchInput.classList.toggle('show');
             if (searchInput.classList.contains('show')) searchInput.focus();
         });
 
-        // Live search table
+        // Live search logic
         searchInput.addEventListener('input', () => {
             const filter = searchInput.value.toLowerCase();
             const rows = document.querySelectorAll('.table-container tbody tr');
 
             rows.forEach(row => {
                 const rowText = row.innerText.toLowerCase();
-                // Pastikan bukan baris kosong ("Belum ada data")
+                // Pastikan bukan baris "Belum ada data"
                 if(row.cells.length > 1) {
                     row.style.display = rowText.includes(filter) ? '' : 'none';
                 }

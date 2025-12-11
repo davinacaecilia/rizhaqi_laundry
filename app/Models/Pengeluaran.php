@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Pengeluaran extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
     
     protected $table = 'pengeluaran'; 
     protected $primaryKey = 'id_pengeluaran'; 
     public $timestamps = false; // Karena tabel hanya punya kolom tanggal
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_user',

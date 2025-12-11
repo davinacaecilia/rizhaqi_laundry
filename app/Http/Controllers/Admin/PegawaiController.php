@@ -46,44 +46,6 @@ class PegawaiController extends Controller
     {
         abort(404);
     }
-    public function edit(string $id)
-    {
-        $pegawai = User::findOrFail($id);
-
-        // Pastikan yang diedit hanya pegawai/owner
-        if (!in_array($pegawai->role, ['pegawai', 'owner'])) {
-            return redirect()->route('admin.pegawai.index')->with('error', 'Hanya pegawai atau owner yang bisa diedit.');
-        }
-
-        return view('admin.pegawai.edit', compact('pegawai'));
-    }
-    public function update(Request $request, string $id)
-    {
-        $pegawai = User::findOrFail($id);
-
-        $request->validate([
-            'nama' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,' . $id . ',id_user',
-            'role' => 'required|in:pegawai,owner',
-            'is_active' => 'required|boolean',
-            'password' => 'nullable|string|min:6',
-        ]);
-
-        $data = [
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'role' => $request->role,
-            'is_active' => $request->is_active,
-        ];
-
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        $pegawai->update($data);
-
-        return redirect()->route('admin.pegawai.index')->with('success', 'Data pegawai berhasil diperbarui!');
-    }
     public function destroy(string $id)
     {
         $pegawai = User::findOrFail($id);

@@ -106,14 +106,18 @@ return new class extends Migration
 
         // 9. TABEL PENGELUARAN (PK: UUID) -> BARU DITAMBAHKAN
         Schema::create('pengeluaran', function (Blueprint $table) {
+            // 1. Primary Key (UUID)
             $table->uuid('id_pengeluaran')->primary();
-            $table->foreignUuid('id_user')->constrained('users', 'id_user');
-            $table->string('nama_pengeluaran', 100);
-            $table->text('keterangan')->nullable();
+            $table->uuid('id_user'); 
+            $table->string('keterangan', 255);
             $table->integer('jumlah');
-            $table->date('tanggal')->useCurrent();
-            $table->string('kategori', 50)->default('Operasional');
+            $table->date('tanggal');      
             $table->timestamps();
+
+            $table->foreign('id_user')
+                ->references('id_user')->on('users')
+                ->onDelete('restrict')
+                ->name('fk_pengeluaran_user');
         });
 
         // 10. TABEL LAPORAN HARIAN PEGAWAI (PK: UUID)
@@ -127,11 +131,16 @@ return new class extends Migration
 
         // 11. TABEL LOG (PK: UUID)
         Schema::create('log', function (Blueprint $table) {
-            $table->uuid('id_log')->primary();
-            $table->foreignUuid('id_user')->constrained('users', 'id_user');
+            $table->uuid('id_log')->primary(); // <--- GANTI JADI UUID
+            $table->uuid('id_user')->nullable();
             $table->string('aksi', 50);
             $table->text('keterangan')->nullable();
             $table->timestamp('waktu')->useCurrent();
+
+            $table->foreign('id_user')
+                  ->references('id_user')
+                  ->on('users')
+                  ->onDelete('set null');
         });
     }
 

@@ -44,7 +44,7 @@ class AlatController extends Controller
     public function show(string $id)
     {
     }
-    public function edit(string $id)
+    public function edit($id)
     {
         // ambil data alat berdasarkan id_alat
         $alat = Alat::findOrFail($id);

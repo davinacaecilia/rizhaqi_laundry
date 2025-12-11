@@ -138,7 +138,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>ID Alat</th>
+                                    <th>No</th>
                                     <th>Nama Alat</th>
                                     <th>Jumlah</th>
                                     <th>Tanggal Maintenance Terakhir</th>
@@ -148,18 +148,18 @@
                             <tbody>
                                 @foreach ($alat as $item)
                                     <tr>
-                                        <td>AL{{ str_pad($item->id_alat, 3, '0', STR_PAD_LEFT) }}</td>
+                                        <td>{{ $loop->iteration }}</td>
                                         <td>{{ $item->nama_alat }}</td>
                                         <td>{{ $item->jumlah }}</td>
                                         <td>{{ $item->tgl_maintenance_terakhir ? \Carbon\Carbon::parse($item->tgl_maintenance_terakhir)->format('d-m-Y') : '-' }}
                                         </td>
                                         <td>
                                             <div class="btn-action-group">
-                                                <a href="{{ url('admin/alat/' . $item->id_alat . '/edit') }}"
+                                                <a href="{{ route('admin.alat.edit', $item->id_alat) }}"
                                                     class="btn-detail edit">
                                                     <i class='bx bx-edit'></i> Edit
                                                 </a>
-                                                <form action="{{ url('admin/alat/' . $item->id_alat) }}" method="POST"
+                                                <form action="{{ route('admin.alat.destroy', $item->id_alat) }}" method="POST"
                                                     style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
@@ -182,38 +182,7 @@
 
     <div id="pagination" class="pagination-container"></div>
 
-    <script>
-        // Dummy delete
-        function hapusData(id) {
-            if (confirm(`Yakin ingin menghapus data alat ${id}?`)) {
-                alert(`Data alat ${id} berhasil dihapus (dummy).`);
-            }
-        }
-
-        // Search bar animation
-        document.getElementById('tableSearchIcon').addEventListener('click', function () {
-            const input = document.getElementById('tableSearchInput');
-            input.classList.toggle('show');
-            if (input.classList.contains('show')) input.focus();
-        });
-
-        // SEARCH FUNCTION
-        const tableSearchInput = document.getElementById('tableSearchInput');
-        tableSearchInput.addEventListener('input', () => {
-            const filter = tableSearchInput.value.toLowerCase();
-            const rows = document.querySelectorAll('.table-container tbody tr');
-
-            rows.forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                if (rowText.includes(filter)) {
-                    row.style.display = ''; // tampilkan
-                } else {
-                    row.style.display = 'none'; // sembunyikan
-                }
-            });
-        });
-    </script>
-
+    <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 </body>
 

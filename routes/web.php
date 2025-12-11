@@ -31,6 +31,8 @@ Route::post('/status', [UserController::class, 'checkStatus'])->name('status.che
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/transaksi/status', [TransaksiController::class, 'status'])->name('transaksi.status');
+    // routes/web.php
+    Route::put('/transaksi/{id}/update-status', [TransaksiController::class, 'updateStatus'])->name('transaksi.updateStatus');
     Route::resource('transaksi', TransaksiController::class);
 
     Route::post('pegawai/{pegawai}/status', [PegawaiController::class, 'toggleStatus'])->name('pegawai.status.toggle');

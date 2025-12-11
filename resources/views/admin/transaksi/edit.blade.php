@@ -28,7 +28,7 @@
         <main>
             <div class="head-title">
                 <div class="left">
-                    <h1>Edit Transaksi (TRX-001)</h1>
+                    <h1>Edit Transaksi ({{ $transaksi->kode_invoice }})</h1>
                     <ul class="breadcrumb">
                         <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
@@ -40,29 +40,30 @@
             </div>
 
             <div class="form-card">
-                <form id="formTransaksi" action="{{ route('admin.transaksi.update', 1) }}" method="POST" data-redirect-url="{{ route('admin.transaksi.index') }}">
+                <form id="formTransaksi" action="{{ route('admin.transaksi.update', $transaksi->id_transaksi) }}" method="POST" >
                     @csrf
                     @method('PUT')
 
                     <!-- BAGIAN 1: PELANGGAN -->
                     <div class="form-group">
                         <label for="pelanggan">Nama Pelanggan</label>
-                        <input type="text" list="customer_list" id="pelanggan" name="nama_pelanggan" value="Budi Santoso" required>
+                        <input type="text" list="customer_list" id="pelanggan" name="nama_pelanggan" value="{{ $transaksi->pelanggan->nama }}" required>
                         <datalist id="customer_list">
-                            <option value="Budi Santoso">08123456789</option>
-                            <option value="Ani Wijaya">08134567890</option>
+                            @foreach($pelanggan as $p)
+                                <option value="{{ $p->nama }}">{{ $p->telepon }}</option>
+                            @endforeach
                         </datalist>
                     </div>
 
                     <div class="form-group">
                         <label for="no_hp">Nomor WhatsApp</label>
                         <!-- INPUT NUMBER TANPA PANAH -->
-                        <input type="number" id="no_hp" name="no_hp" value="08123456789" required>
+                        <input type="number" id="no_hp" name="no_hp" value="{{ $transaksi->pelanggan->telepon }}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="alamat">Alamat Pelanggan (Opsional)</label>
-                        <textarea id="alamat" name="alamat" rows="2">Jl. Merpati No. 1, Medan</textarea>
+                        <textarea id="alamat" name="alamat" rows="2">{{ $transaksi->pelanggan->alamat ?? '' }}</textarea>
                     </div>
 
                     <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 20px 0;">
@@ -70,22 +71,28 @@
                     <!-- BAGIAN 2: LAYANAN (BERTINGKAT) -->
                     <div class="form-group">
                         <label for="kategori_id">Kategori Layanan</label>
+
+                        @php 
+                            $kategoriDB = $transaksi->layanan->kategori ?? ''; 
+                        @endphp
+
                         <select id="kategori_id" name="kategori_id" required onchange="updateLayananDropdown()">
-                            <option value="">-- Pilih Kategori --</option>
-                            <option value="kiloan" selected>Regular Services (Kiloan)</option>
-                            <option value="promo_jumat">PROMO: Jumat Berkah</option>
-                            <option value="promo_selasa">PROMO: Selasa Ceria</option>
-                            <option value="paket">Package Services (Borongan)</option>
-                            <option value="satuan">Cuci Satuan (Pcs)</option>
-                            <option value="karpet">Cuci Karpet</option>
+                            <option value="">-- Pilih Kategori Layanan --</option>
+
+                            @foreach($layanan->unique('kategori') as $l)
+                                @if($l->kategori != 'Add On') 
+                                    <option value="{{ $l->kategori }}" {{ $kategoriDB == $l->kategori ? 'selected' : '' }}>
+                                        {{ ucfirst($l->kategori) }}
+                                    </option>
+                                @endif
+                            @endforeach
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="layanan_id">Jenis Layanan</label>
                         <select id="layanan_id" name="layanan_id" required onchange="hitungTotal()">
-                            <!-- Option Dummy Terpilih -->
-                            <option value="1" data-harga="10000" selected>Cuci Kering Setrika Pakaian (Rp 10.000)</option>
+                            <option value="" data-harga="0">-- Pilih Kategori Terlebih Dahulu --</option>
                         </select>
                     </div>
 
@@ -94,37 +101,45 @@
                         <label>Layanan Tambahan (Add On)</label>
                         <div class="addon-container">
                             
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')">
-                                    <span>Layanan Ekspress (+Rp 5.000/kg)</span>
-                                </label>
-                                <input type="number" id="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1">
-                            </div>
+                            @foreach($layanan as $addon)
+                                @if($addon->kategori == 'Add On')
+                                    @php
+                                        // LOGIKA CHECKBOX TERCENTANG
+                                        // Sesuaikan logika ini dengan nama kolom di database lu
+                                        $isActive = false; 
+                                        $qtyVal = '';
 
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger" data-harga="3000" onchange="toggleAddonQty(this, 'qty_hanger')" checked>
-                                    <span>Hanger (+Rp 3.000/pcs)</span>
-                                </label>
-                                <input type="number" id="qty_hanger" class="addon-qty" style="display:block;" value="5" min="1" step="1" oninput="hitungTotal()">
-                            </div>
+                                        if (stripos($addon->nama_layanan, 'Ekspress') !== false && $transaksi->qty_ekspress > 0) {
+                                            $isActive = true; $qtyVal = $transaksi->qty_ekspress;
+                                        } 
+                                        elseif (stripos($addon->nama_layanan, 'Hanger') !== false && $transaksi->qty_hanger > 0) {
+                                            $isActive = true; $qtyVal = $transaksi->qty_hanger;
+                                        }
+                                        elseif (stripos($addon->nama_layanan, 'Plastik') !== false && $transaksi->qty_plastik > 0) {
+                                            $isActive = true; $qtyVal = $transaksi->qty_plastik;
+                                        }
+                                    @endphp
 
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_plastik" data-harga="3000" onchange="toggleAddonQty(this, 'qty_plastik')">
-                                    <span>Plastik (+Rp 3.000/pcs)</span>
-                                </label>
-                                <input type="number" id="qty_plastik" class="addon-qty" placeholder="Pcs" min="1" step="1" value="1" oninput="hitungTotal()">
-                            </div>
+                                    <div class="addon-row">
+                                        <label class="addon-label">
+                                            <input type="checkbox" class="addon-checkbox" 
+                                                   data-id="{{ $addon->id_layanan }}"
+                                                   data-harga="{{ $addon->harga_satuan }}"
+                                                   data-satuan="{{ strtolower($addon->satuan) }}"
+                                                   name="addons[{{ $addon->id_layanan }}][checked]" 
+                                                   value="1"
+                                                   {{ $isActive ? 'checked' : '' }}>
+                                            <span>{{ $addon->nama_layanan }} (+Rp {{ number_format($addon->harga_satuan) }})</span>
+                                        </label>
 
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger_plastik" data-harga="5000" onchange="toggleAddonQty(this, 'qty_hanger_plastik')">
-                                    <span>Hanger + Plastik (+Rp 5.000/pcs)</span>
-                                </label>
-                                <input type="number" id="qty_hanger_plastik" class="addon-qty" placeholder="Pcs" min="1" step="1" value="1" oninput="hitungTotal()">
-                            </div>
+                                        <input type="number" id="qty_addon_{{ $addon->id_layanan }}"
+                                               name="addons[{{ $addon->id_layanan }}][qty]"
+                                               class="addon-qty {{ strtolower($addon->satuan) == 'kg' ? 'qty-readonly' : '' }}" 
+                                               value="{{ $qtyVal }}" placeholder="{{ ucfirst($addon->satuan) }}" 
+                                               min="1" {{ $isActive ? '' : 'readonly' }}> 
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
 
@@ -161,7 +176,7 @@
                         <div class="form-group">
                             <label for="berat">Berat (Kg) / Jumlah (Pcs)</label>
                             <!-- INPUT BERAT BULAT (STEP 1) -->
-                            <input type="number" id="berat" name="berat" value="5" step="1" min="1" required style="font-weight: bold;" oninput="hitungTotal()">
+                            <input type="number" id="berat" name="berat" value="" step="1" min="1" required style="font-weight: bold;" oninput="hitungTotal()">
                             <small style="color: var(--text-secondary);">Masukkan angka bulat (tanpa koma).</small>
                         </div>
 
@@ -177,21 +192,22 @@
                     <!-- BAGIAN 6: STATUS -->
                     <div class="form-group">
                         <label for="tgl_selesai">Estimasi Selesai</label>
-                        <input type="date" id="tgl_selesai" name="tgl_selesai" value="2025-11-26" required>
+                        <input type="date" id="tgl_selesai" name="tgl_selesai" value="{{ date('Y-m-d', strtotime($transaksi->tgl_selesai)) }}" required>
                     </div>
 
                     <div class="form-group">
                         <label for="status_bayar">Status Pembayaran</label>
                         <select id="status_bayar" name="status_bayar" required onchange="toggleInputDP()">
-                            <option value="belum">Belum Bayar</option>
-                            <option value="lunas">Lunas</option>
-                            <option value="dp" selected>DP (Uang Muka)</option>
+                            <option value="belum" {{ $transaksi->status_bayar == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
+                            <option value="lunas" {{ $transaksi->status_bayar == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                            <option value="dp"    {{ $transaksi->status_bayar == 'dp' ? 'selected' : '' }}>DP (Uang Muka)</option>
                         </select>
                     </div>
 
-                    <div class="form-group fade-in" id="container_input_dp" style="display: block;">
-                        <label for="jumlah_dp" style="color: #f57c00;">Nominal DP (Rp)</label>
-                        <input type="number" id="jumlah_dp" name="jumlah_dp" value="20000" min="0">
+                    <div class="form-group fade-in" id="container_input_dp" 
+                         style="{{ $transaksi->status_bayar == 'dp' ? 'display: block;' : 'display: none;' }}">
+                        <label style="color: #f57c00;">Nominal DP (Rp)</label>
+                        <input type="number" id="jumlah_dp" name="jumlah_dp" value="{{ $transaksi->jumlah_dp ?? 0 }}" min="0">
                     </div>
 
                     <div class="form-group">

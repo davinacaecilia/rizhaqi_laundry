@@ -10,8 +10,7 @@ class PelangganController extends Controller
 {
     public function index()
     {
-        $pelanggan = Pelanggan::orderBy('id_pelanggan', 'desc')->paginate(10);
-
+        $pelanggan = Pelanggan::latest()->get();
         return view('admin.pelanggan.index', compact('pelanggan'));
     }
 
@@ -22,56 +21,46 @@ class PelangganController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi
         $request->validate([
-            'nama_pelanggan' => 'required|string|max:100',
-            'alamat'         => 'nullable|string',
-            'no_telepon'     => 'required|numeric|digits_between:10,15',
-        ], [
-            'nama_pelanggan.required' => 'Nama pelanggan wajib diisi.',
-            'no_telepon.required'     => 'Nomor telepon wajib diisi.',
-            'no_telepon.numeric'      => 'Nomor telepon harus berupa angka.',
-        ]);
-        
-        Pelanggan::create([
-            'nama'    => $request->nama_pelanggan,
-            'alamat'  => $request->alamat,
-            'telepon' => $request->no_telepon,
+            'nama' => 'required|string|max:100',
+            'telepon' => 'required|numeric', // Cukup numeric, panjangnya database yg atur
+            'alamat' => 'nullable|string'
         ]);
 
-        // 3. Redirect kembali ke index dengan pesan sukses
-        return redirect()->route('admin.pelanggan.index')
-            ->with('success', 'Data pelanggan berhasil ditambahkan!');
+        // Create (UUID otomatis digenerate oleh Model)
+        Pelanggan::create($request->all());
+
+        return redirect()->route('admin.pelanggan.index')->with('success', 'Pelanggan berhasil ditambahkan');
     }
 
-    public function edit(Pelanggan $pelanggan)
+    public function edit($id)
     {
+        $pelanggan = Pelanggan::findOrFail($id);
         return view('admin.pelanggan.edit', compact('pelanggan'));
     }
 
-    public function update(Request $request, Pelanggan $pelanggan)
+    public function update(Request $request, $id)
     {
-        // 1. Validasi
+        $pelanggan = Pelanggan::findOrFail($id);
+
         $request->validate([
-            'nama_pelanggan' => 'required|string|max:100',
-            'alamat'         => 'nullable|string',
-            'no_telepon'     => 'required|numeric|digits_between:10,15',
-        ]);
-        
-        $pelanggan->update([
-            'nama'    => $request->nama_pelanggan,
-            'alamat'  => $request->alamat,
-            'telepon' => $request->no_telepon,
+            'nama' => 'required|string|max:100',
+            'telepon' => 'required|numeric',
+            'alamat' => 'nullable|string'
         ]);
 
+        $pelanggan->update($request->all());
+
         return redirect()->route('admin.pelanggan.index')
-            ->with('success', 'Data pelanggan berhasil diperbarui!');
+                         ->with('success', 'Data pelanggan diperbarui');
     }
 
-    public function destroy(Pelanggan $pelanggan)
+    public function destroy($id)
     {
+        $pelanggan = Pelanggan::findOrFail($id);
         $pelanggan->delete();
 
-        return redirect()->route('admin.pelanggan.index')
-            ->with('success', 'Data pelanggan berhasil dihapus!');
+        return redirect()->route('admin.pelanggan.index')->with('success', 'Pelanggan dihapus');
     }
 }

@@ -142,16 +142,16 @@
                         <label>Total Biaya (Rp)</label>
                         <input type="number" name="jumlah" value="{{ old('jumlah', $data->jumlah) }}" min="0" required>
                     </div>
+                    <div class="form-actions">
+                        <a href="{{ route('admin.pengeluaran.index') }}" class="btn-cancel">
+                            <i class='bx bx-x'></i> Batal
+                        </a>
+                        <button type="submit" class="btn-submit">
+                            <i class='bx bx-save'></i> Simpan Perubahan
+                        </button>
+                    </div>
             </div>
 
-            <div class="form-actions">
-                <a href="{{ route('admin.pengeluaran.index') }}" class="btn-cancel">
-                    <i class='bx bx-x'></i> Batal
-                </a>
-                <button type="submit" class="btn-submit">
-                    <i class='bx bx-save'></i> Simpan Perubahan
-                </button>
-            </div>
             </form>
             </div>
         </main>

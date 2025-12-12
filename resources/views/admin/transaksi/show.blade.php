@@ -137,7 +137,7 @@
                                     {{ ucfirst($item->layanan->satuan ?? 'Pcs') }}
                                 </td>
                                 <td class="price">
-                                    Rp {{ number_format($item->harga_saat_transaksi * $item->jumlah, 0, ',', '.') }}
+                                    Rp {{ number_format($transaksi->sisa_tagihan, 0, ',', '.') }}
                                 </td>
                             </tr>
                         @endforeach
@@ -172,7 +172,7 @@
 
                         <div class="total-row final">
                             <span>Sisa Tagihan</span>
-                            <span>Rp {{ number_format($transaksi->total_biaya - $transaksi->jumlah_bayar, 0, ',', '.') }}</span>
+                            <span>Rp {{ number_format($transaksi->sisa_tagihan, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>

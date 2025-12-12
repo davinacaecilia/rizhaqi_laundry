@@ -80,8 +80,13 @@ return new class extends Migration
             FOR EACH ROW
             BEGIN
                 INSERT INTO log (id_log, id_user, aksi, keterangan, waktu)
-                VALUES (UUID(), NEW.id_user, 'CREATE ORDER', 
-                CONCAT('Invoice ', NEW.kode_invoice, ' dibuat. Total Estimasi: Rp ', NEW.total_biaya), NOW());
+                VALUES (
+                    UUID(), 
+                    NEW.id_user, 
+                    'CREATE ORDER', 
+                    CONCAT('Invoice ', NEW.kode_invoice, ' berhasil dibuat.'), 
+                    NOW()
+                );
             END
         ");
 
@@ -139,25 +144,6 @@ return new class extends Migration
                         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Alert: Harga layanan tetap tidak boleh diubah!';
                     END IF;
                 END IF;
-            END
-        ");
-
-        // ==============================================================================
-        // 5. TABEL DETAIL TRANSAKSI (AFTER INSERT)
-        // Hitung Ulang: Update Total Biaya di Header Transaksi
-        // ==============================================================================
-        DB::unprepared("DROP TRIGGER IF EXISTS trg_ai_detail_transaksi");
-        DB::unprepared("
-            CREATE TRIGGER trg_ai_detail_transaksi
-            AFTER INSERT ON detail_transaksi
-            FOR EACH ROW
-            BEGIN
-                DECLARE v_total DECIMAL(15,2);
-                
-                SELECT SUM(jumlah * harga_saat_transaksi) INTO v_total
-                FROM detail_transaksi WHERE id_transaksi = NEW.id_transaksi;
-                
-                UPDATE transaksi SET total_biaya = v_total WHERE id_transaksi = NEW.id_transaksi;
             END
         ");
 

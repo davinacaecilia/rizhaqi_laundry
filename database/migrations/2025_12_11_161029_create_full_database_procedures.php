@@ -18,35 +18,44 @@ return new class extends Migration
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_input_pembayaran");
         DB::unprepared("
             CREATE PROCEDURE sp_input_pembayaran(
-                IN p_id_transaksi CHAR(36),
-                IN p_id_user CHAR(36),
+                -- KITA PAKSA AGAR PARAMETER STRING SESUAI DENGAN TABEL LARAVEL
+                IN p_id_transaksi CHAR(36) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                IN p_id_user CHAR(36) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci,
                 IN p_jumlah DECIMAL(15,2),
-                IN p_keterangan VARCHAR(255)
+                IN p_keterangan VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci
             )
             BEGIN
-                DECLARE v_total_biaya DECIMAL(15,2);
-                DECLARE v_sudah_bayar DECIMAL(15,2);
-                DECLARE v_total_masuk DECIMAL(15,2);
+                DECLARE v_total_tagihan DECIMAL(15,2);
+                DECLARE v_total_bayar_sekarang DECIMAL(15,2);
 
-                -- 1. Insert ke tabel pembayaran
-                INSERT INTO pembayaran (id_pembayaran, id_transaksi, id_user, jlh_pembayaran, tgl_bayar, keterangan, created_at, updated_at)
-                VALUES (UUID(), p_id_transaksi, p_id_user, p_jumlah, NOW(), p_keterangan, NOW(), NOW());
+                -- 1. Catat Uang Masuk
+                INSERT INTO pembayaran (
+                    id_pembayaran, id_transaksi, id_user, jlh_pembayaran, 
+                    tgl_bayar, keterangan, created_at, updated_at
+                ) VALUES (
+                    UUID(), p_id_transaksi, p_id_user, p_jumlah, 
+                    NOW(), p_keterangan, NOW(), NOW()
+                );
 
-                -- 2. Ambil data keuangan terkini dari transaksi
-                SELECT total_biaya, jumlah_bayar INTO v_total_biaya, v_sudah_bayar
-                FROM transaksi WHERE id_transaksi = p_id_transaksi;
-
-                -- 3. Hitung total uang yang masuk (yg lama + yg baru diinput)
-                SET v_total_masuk = v_sudah_bayar + p_jumlah;
-
-                -- 4. Update Header Transaksi
+                -- 2. Update Jumlah Bayar di Transaksi
                 UPDATE transaksi 
-                SET jumlah_bayar = v_total_masuk,
-                    status_bayar = CASE 
-                        WHEN v_total_masuk >= v_total_biaya THEN 'lunas'
-                        ELSE 'dp'
-                    END
+                SET jumlah_bayar = jumlah_bayar + p_jumlah
                 WHERE id_transaksi = p_id_transaksi;
+
+                -- 3. PANGGIL FUNCTION (Pastikan function ini juga sudah fix collation-nya)
+                SET v_total_tagihan = fn_hitung_total_transaksi(p_id_transaksi);
+
+                -- 4. Ambil Total yang SUDAH dibayar
+                SELECT jumlah_bayar INTO v_total_bayar_sekarang
+                FROM transaksi 
+                WHERE id_transaksi = p_id_transaksi;
+
+                -- 5. Cek Status Lunas / DP
+                IF v_total_bayar_sekarang >= v_total_tagihan THEN
+                    UPDATE transaksi SET status_bayar = 'lunas' WHERE id_transaksi = p_id_transaksi;
+                ELSE
+                    UPDATE transaksi SET status_bayar = 'dp' WHERE id_transaksi = p_id_transaksi;
+                END IF;
             END
         ");
 

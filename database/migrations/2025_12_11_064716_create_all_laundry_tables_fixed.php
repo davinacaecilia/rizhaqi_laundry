@@ -62,7 +62,6 @@ return new class extends Migration
             $table->dateTime('tgl_masuk')->useCurrent();
             $table->date('tgl_selesai')->nullable();
             $table->float('berat')->default(0); 
-            $table->integer('total_biaya');
             $table->integer('jumlah_bayar')->default(0);
             $table->enum('status_bayar', ['belum', 'dp', 'lunas'])->default('belum');
             $table->enum('status_pesanan', ['diterima', 'dicuci', 'dikeringkan', 'disetrika', 'siap diambil', 'selesai'])->default('diterima');

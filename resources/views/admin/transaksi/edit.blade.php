@@ -210,8 +210,8 @@
 
                         <div class="form-group">
                             <label for="total_biaya">Estimasi Total Biaya (Rp)</label>
-                            <input type="text" id="total_biaya_tampil" value="Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}" readonly>
-                            <input type="hidden" id="total_biaya" name="total_biaya" value="{{ $transaksi->total_biaya }}">
+                            <input type="text" id="total_biaya_tampil" value="Rp " readonly>
+                            <input type="hidden" id="total_biaya" name="total_biaya" value="">
                         </div>
                     </div>
 

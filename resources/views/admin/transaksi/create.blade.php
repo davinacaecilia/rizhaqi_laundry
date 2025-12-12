@@ -117,31 +117,31 @@
                         <div class="addon-container">
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')">
+                                    <input type="checkbox" id="addon_ekspress" name="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')">
                                     <span>Layanan Ekspress (+Rp 5.000/kg)</span>
                                 </label>
-                                <input type="number" id="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1">
+                                <input type="number" id="qty_ekspress" name="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1">
                             </div>
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger" data-harga="3000" onchange="toggleAddonQty(this, 'qty_hanger')">
+                                    <input type="checkbox" id="addon_hanger" name="addon_hanger" data-harga="3000" onchange="toggleAddonQty(this, 'qty_hanger')">
                                     <span>Hanger (+Rp 3.000/pcs)</span>
                                 </label>
-                                <input type="number" id="qty_hanger" class="addon-qty" placeholder="Pcs" min="1" value="1" oninput="hitungTotal()">
+                                <input type="number" id="qty_hanger" name="qty_hanger" class="addon-qty" placeholder="Pcs" min="1" value="1" oninput="hitungTotal()">
                             </div>
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_plastik" data-harga="3000" onchange="toggleAddonQty(this, 'qty_plastik')">
+                                    <input type="checkbox" id="addon_plastik" name="addon_plastik" data-harga="3000" onchange="toggleAddonQty(this, 'qty_plastik')">
                                     <span>Plastik (+Rp 3.000/pcs)</span>
                                 </label>
-                                <input type="number" id="qty_plastik" class="addon-qty" placeholder="Pcs" min="1" value="1" oninput="hitungTotal()">
+                                <input type="number" id="qty_plastik" name="qty_plastik" class="addon-qty" placeholder="Pcs" min="1" value="1" oninput="hitungTotal()">
                             </div>
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger_plastik" data-harga="5000" onchange="toggleAddonQty(this, 'qty_hanger_plastik')">
+                                    <input type="checkbox" id="addon_hanger_plastik" name="addon_hanger_plastik" data-harga="5000" onchange="toggleAddonQty(this, 'qty_hanger_plastik')">
                                     <span>Hanger + Plastik (+Rp 5.000/pcs)</span>
                                 </label>
-                                <input type="number" id="qty_hanger_plastik" class="addon-qty" placeholder="Pcs" min="1" value="1" oninput="hitungTotal()">
+                                <input type="number" id="qty_hanger_plastik" name="qty_hanger_plastik" class="addon-qty" placeholder="Pcs" min="1" value="1" oninput="hitungTotal()">
                             </div>
                         </div>
                     </div>
@@ -150,7 +150,7 @@
 
                     <div class="form-group">
                         <label class="toggle-detail-wrapper">
-                            <input type="checkbox" id="toggleDetail" onchange="toggleDetailSection()">
+                            <input type="checkbox" id="toggleDetail" name="toggleDetail" onchange="toggleDetailSection()">
                             <span><i class='bx bx-list-plus'></i> Isi Rincian Pakaian? (Inventaris)</span>
                         </label>
                         <small style="display:block; margin-top:5px; color:var(--text-tertiary);">Data ini hanya untuk catatan nota (tidak mempengaruhi harga kiloan).</small>

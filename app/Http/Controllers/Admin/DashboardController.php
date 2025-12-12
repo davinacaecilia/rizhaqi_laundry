@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // <--- WAJIB ADA BIAR BISA PAKAI QUERY SQL
+use Illuminate\Support\Facades\DB; // Wajib import ini
 use App\Models\Log; 
 use App\Models\Transaksi;
 use Carbon\Carbon;
@@ -19,13 +19,20 @@ class DashboardController extends Controller
                          ->take(5)
                          ->get();
 
-        // 2. Hitung Statistik Kartu (Real-time dari Database)
-        $totalTransaksi   = Transaksi::count(); // Total semua baris
-        $transaksiHariIni = Transaksi::whereDate('tgl_masuk', Carbon::today())->count(); // Cuma hari ini
+        // --- PERBAIKAN ZONA WAKTU ---
+        // Kita paksa pakai tanggal hari ini di zona waktu Jakarta (WIB)
+        $hariIni = Carbon::now('Asia/Jakarta')->format('Y-m-d');
+
+        // 2. Hitung Statistik Kartu
+        $totalTransaksi   = Transaksi::count();
         
-        // 3. Hitung Berat Menggunakan Stored Function SQL
+        // Gunakan variabel $hariIni agar hitungan "Hari Ini" akurat sesuai WIB
+        $transaksiHariIni = Transaksi::whereDate('tgl_masuk', $hariIni)->count(); 
+        
+        // 3. Hitung Berat (Menggunakan Stored Function SQL)
+        // Pastikan function get_total_berat_hari_ini sudah dibuat di database
         $queryBerat = DB::select("SELECT get_total_berat_hari_ini() AS total");
-        $beratHariIni = $queryBerat[0]->total;
+        $beratHariIni = $queryBerat[0]->total ?? 0;
 
         // 4. Kirim semua variabel ke View
         return view('admin.dashboard', compact('recentLogs', 'totalTransaksi', 'transaksiHariIni', 'beratHariIni')); 

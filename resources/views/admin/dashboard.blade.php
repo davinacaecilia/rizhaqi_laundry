@@ -58,7 +58,7 @@
                         <i class='bx bx-package' ></i>
                         <span class="text">
                             {{-- Panggil Variabel Berat Hari Ini --}}
-                            <h3>{{ $beratHariIni }} Kg</h3>
+                            <h3>{{ number_format($beratHariIni, 0, ',', '.') }} Kg</h3>
                             <p>Volume Cucian Hari Ini</p> 
                         </span>
                     </li>

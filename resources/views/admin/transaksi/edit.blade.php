@@ -254,65 +254,75 @@
         </main>
     </section>
 
-    <script src="{{ asset('admin/script/script.js') }}"></script>
+<script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
     <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
 
     <script>
+        // FUNGSI UTAMA: Mengatur Status Input Harga (Dipanggil saat dropdown berubah)
+        function setHargaOtomatis() {
+            const select = document.getElementById('layanan_id');
+            const inputHarga = document.getElementById('harga_satuan');
+            const infoRange = document.getElementById('info_range');
+            
+            if (!select || !inputHarga) return;
+
+            const selectedOption = select.options[select.selectedIndex];
+            const tipe = selectedOption.getAttribute('data-tipe');
+            const harga = selectedOption.getAttribute('data-harga');
+            const min = selectedOption.getAttribute('data-min');
+            const max = selectedOption.getAttribute('data-max');
+
+            // Reset dulu class dan atribut
+            inputHarga.classList.remove('locked-input', 'unlocked-input');
+            infoRange.style.display = 'none';
+
+            if (tipe === 'range') {
+                // KASUS 1: HARGA RENTANG (BISA DIEDIT)
+                inputHarga.readOnly = false;
+                inputHarga.value = ""; // Kosongkan biar user isi sendiri (atau isi min kalau mau)
+                inputHarga.placeholder = `Min: ${formatRupiah(min)}`;
+                
+                // Ubah style jadi putih & kursor teks
+                inputHarga.style.backgroundColor = "#fff";
+                inputHarga.style.cursor = "text"; 
+                inputHarga.classList.add('unlocked-input');
+
+                // Tampilkan info range
+                infoRange.style.display = 'block';
+                infoRange.textContent = `*Harga Fleksibel: Rp ${formatRupiah(min)} - Rp ${formatRupiah(max)}`;
+            } else {
+                // KASUS 2: HARGA FIX (TERKUNCI)
+                inputHarga.readOnly = true;
+                inputHarga.value = harga;
+                
+                // Ubah style jadi abu-abu & kursor not-allowed
+                inputHarga.style.backgroundColor = "#e9ecef";
+                inputHarga.style.cursor = "not-allowed";
+                inputHarga.classList.add('locked-input');
+            }
+            
+            hitungTotal(); // Hitung ulang total biaya
+        }
+
+        // Helper format rupiah sederhana
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        // Event Listener saat halaman dimuat (Khusus Edit)
         document.addEventListener('DOMContentLoaded', function() {
-            // Kita kasih waktu 500ms (setengah detik) biar JS utama loading datanya selesai dulu
-            setTimeout(function() {
-                console.log("Menjalankan Auto-Fill Edit...");
-
-                // 1. Data Penting dari Controller (Inject PHP ke JS)
-                const oldLayananId = "{{ $layananLamaId }}";
-                const oldHarga = "{{ $hargaLama }}";
-                // PERBAIKAN: Ambil ID 'kategori_id' yang sudah benar
-                const kategoriEl = document.getElementById('kategori_id');
-
-                // 2. Trigger Update Dropdown berdasarkan Kategori yang terpilih
-                // Kita panggil fungsi global dari form-transaksi.js
-                if (kategoriEl && typeof updateLayananDropdown === "function") {
-                    updateLayananDropdown(); 
-                }
-
-                // 3. Pilih ulang layanan lama
-                const selectLayanan = document.getElementById('layanan_id');
-                const inputHarga = document.getElementById('harga_satuan');
-
-                if(selectLayanan && oldLayananId) {
-                    selectLayanan.value = oldLayananId;
-                    
-                    // PERBAIKAN: Paksa enable biar bisa diklik
-                    selectLayanan.disabled = false;
-                    
-                    // Cek apakah berhasil terpilih?
-                    if(selectLayanan.value == "") {
-                        console.warn("Layanan lama tidak ditemukan di list kategori ini.");
-                    } else {
-                        // 4. Setup status Locked/Unlocked (Harga Rentang vs Fix)
-                        setHargaOtomatis(); 
-                        
-                        // 5. TIMPA dengan harga deal lama (Penting!)
-                        // Kita kasih timeout lagi dikit biar setHargaOtomatis kelar dulu
-                        setTimeout(() => {
-                            if(inputHarga) {
-                                inputHarga.value = oldHarga;
-                                // Pastikan input terbuka kalau ini harga custom/rentang
-                                const selectedOpt = selectLayanan.options[selectLayanan.selectedIndex];
-                                if(selectedOpt && selectedOpt.getAttribute('data-tipe') === 'range') {
-                                    inputHarga.readOnly = false;
-                                    inputHarga.style.backgroundColor = "#ffffff";
-                                    inputHarga.classList.remove('locked-input');
-                                    inputHarga.classList.add('unlocked-input');
-                                }
-                            }
-                            // 6. Hitung total akhir
-                            hitungTotal();
-                        }, 100);
-                    }
-                }
-            }, 500); // Delay 500ms
+            // Jalankan sekali saat load agar status awal benar
+            const select = document.getElementById('layanan_id');
+            if(select && !select.disabled && select.value !== "") {
+                setHargaOtomatis();
+                
+                // Khusus Edit: Kembalikan nilai harga lama jika ada
+                @if(isset($hargaLama))
+                    const inputHarga = document.getElementById('harga_satuan');
+                    if(inputHarga) inputHarga.value = "{{ $hargaLama }}";
+                @endif
+            }
         });
     </script>
 </body>

@@ -147,6 +147,13 @@
             </a>
         </li>
 
+        <li class="{{ Request::is('admin/log-aktivitas') ? 'active' : '' }}">
+            <a href="{{ route('admin.log.index') }}">
+                <i class='bx bx-history'></i>
+                <span class="text">Log Aktivitas</span>
+            </a>
+        </li>
+
     </ul>
 
     <ul class="side-menu">

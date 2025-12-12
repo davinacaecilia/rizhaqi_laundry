@@ -30,7 +30,8 @@ class DashboardController extends Controller
         $transaksiHariIni = Transaksi::whereDate('tgl_masuk', $hariIni)->count(); 
         
         // 3. Hitung Berat (Menggunakan Stored Function SQL)
-        // Pastikan function get_total_berat_hari_ini sudah dibuat di database
+        // Kita pakai 'get_total_berat_hari_ini' karena itu yang ada di database lokalmu saat ini
+        // Punya temanmu 'fn_...' nanti kita sesuaikan belakangan kalau perlu
         $queryBerat = DB::select("SELECT get_total_berat_hari_ini() AS total");
         $beratHariIni = $queryBerat[0]->total ?? 0;
 

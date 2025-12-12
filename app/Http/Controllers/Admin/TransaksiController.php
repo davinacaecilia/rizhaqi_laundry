@@ -221,14 +221,7 @@ class TransaksiController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-
-            dd([
-                'PESAN ERROR' => $e->getMessage(),
-                'DI FILE' => $e->getFile(),
-                'BARIS KE' => $e->getLine(),
-                'TRACE' => $e->getTraceAsString() // Opsional, buat liat urutan proses
-            ]);
-            // return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -359,37 +352,78 @@ class TransaksiController extends Controller
 
     public function status()
     {
-        $transaksi = Transaksi::with('pelanggan')->orderBy('id_transaksi', 'desc')->get();
-        
+        $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'pembayaran', 'inventaris'])
+            // 1. Ambil kolom asli
+            ->select('transaksi.*')
+            
+            // 2. AMBIL TOTAL BIAYA (Virtual Column)
+            ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
+            
+            // 3. AMBIL SISA TAGIHAN (Virtual Column)
+            // Biar kita gak perlu hitung manual (total - bayar) di view
+            ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        // 2. AMBIL JUMLAH STATUS (PANGGIL PROCEDURE)
+        // Hasilnya berupa array object: [{'status_kategori': 'dicuci', 'total': 5}, ...]
+        $rawCounts = DB::select("CALL sp_get_status_counts()");
+
+        // 3. Siapkan Template Default (Supaya view tidak error jika ada status kosong)
         $counts = [
-            'diterima' => Transaksi::where('status_pesanan', 'diterima')->count(),
-            'dicuci' => Transaksi::where('status_pesanan', 'dicuci')->count(),
-            'dikeringkan' => Transaksi::where('status_pesanan', 'dikeringkan')->count(),
-            'disetrika' => Transaksi::where('status_pesanan', 'disetrika')->count(),
-            'packing' => Transaksi::where('status_pesanan', 'packing')->count(),
-            'siap' => Transaksi::where('status_pesanan', 'siap')->orWhere('status_pesanan', 'siap diambil')->count(),
-            'selesai' => Transaksi::where('status_pesanan', 'selesai')->count(),
+            'diterima' => 0, 'dicuci' => 0, 'dikeringkan' => 0, 
+            'disetrika' => 0, 'packing' => 0, 'siap' => 0, 'selesai' => 0
         ];
+
+        // 4. Masukkan Data dari Database ke Template
+        foreach ($rawCounts as $row) {
+            // Karena procedure sudah merapikan nama (lowercase & normalize),
+            // kita tinggal pakai langsung sebagai key array.
+            if (isset($counts[$row->status_kategori])) {
+                $counts[$row->status_kategori] = $row->total;
+            }
+        }
 
         return view('admin.transaksi.status', compact('transaksi', 'counts'));
     }
 
     public function updateStatus(Request $request, $id)
     {
-        $transaksi = Transaksi::findOrFail($id);
-        $statusBaru = $request->status;
+        // PERBAIKAN: Validasi harus menerima 'siap diambil' (pakai spasi)
+        $request->validate([
+            'status' => 'required|in:dicuci,dikeringkan,disetrika,packing,siap diambil,selesai'
+        ]);
 
-        $dataUpdate = ['status_pesanan' => $statusBaru];
+        try {
+            if ($request->status == 'selesai') {
+                // ... logic selesai (sama) ...
+                DB::statement("CALL sp_ambil_cucian(?, ?)", [$id, Auth::id() ?? 1]);
+                $msg = 'Order berhasil diselesaikan.';
+            } else {
+                // ... logic status lain ...
+                DB::statement("CALL sp_update_status_transaksi(?, ?, ?)", [
+                    $id,
+                    $request->status, // Ini akan mengirim 'siap diambil' ke DB
+                    Auth::id() ?? 1
+                ]);
+                $msg = 'Status order berhasil diperbarui.';
+            }
 
-        // --- LOGIKA AUTO LUNAS ---
-        if ($statusBaru == 'selesai') {
-            $dataUpdate['status_bayar'] = 'lunas';
-            $dataUpdate['jumlah_bayar'] = $transaksi->total_biaya;
+            return back()->with('success', $msg);
+
+        } catch (\Exception $e) {
+            $pesan = $e->getMessage();
+            
+            // Bersihkan pesan error SQL biar enak dibaca user
+            if (str_contains($pesan, 'GAGAL:')) {
+                // Ambil teks setelah kata GAGAL:
+                $pesan = substr($pesan, strpos($pesan, 'GAGAL:')); 
+            } else if (str_contains($pesan, 'Security Alert:')) {
+                $pesan = substr($pesan, strpos($pesan, 'Security Alert:'));
+            }
+
+            return back()->with('error', $pesan);
         }
-
-        $transaksi->update($dataUpdate);
-
-        return back()->with('success', 'Status berhasil diupdate!');
     }
 
     public function bayarCicilan(Request $request)

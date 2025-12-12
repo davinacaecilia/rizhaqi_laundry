@@ -228,7 +228,6 @@ return new class extends Migration
         DB::unprepared("DROP TRIGGER IF EXISTS trg_ai_transaksi");
         DB::unprepared("DROP TRIGGER IF EXISTS trg_au_transaksi");
         DB::unprepared("DROP TRIGGER IF EXISTS trg_bi_detail_transaksi");
-        DB::unprepared("DROP TRIGGER IF EXISTS trg_ai_pembayaran");
         DB::unprepared("DROP TRIGGER IF EXISTS trg_ai_pengeluaran");
         DB::unprepared("DROP TRIGGER IF EXISTS trg_ai_pelanggan");
         DB::unprepared("DROP TRIGGER IF EXISTS trg_au_alat");

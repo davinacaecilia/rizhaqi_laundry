@@ -64,7 +64,7 @@ return new class extends Migration
             $table->float('berat')->default(0); 
             $table->integer('jumlah_bayar')->default(0);
             $table->enum('status_bayar', ['belum', 'dp', 'lunas'])->default('belum');
-            $table->enum('status_pesanan', ['diterima', 'dicuci', 'dikeringkan', 'disetrika', 'siap diambil', 'selesai'])->default('diterima');
+            $table->enum('status_pesanan', ['diterima', 'dicuci', 'dikeringkan', 'disetrika', 'packing', 'siap diambil', 'selesai'])->default('diterima');
             $table->text('catatan')->nullable();
             $table->timestamps();
         });

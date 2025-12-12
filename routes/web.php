@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\LayananController;
 use App\Http\Controllers\Admin\AlatController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\PengeluaranController;
+use App\Http\Controllers\Admin\LogAktivitasController;
 use App\Http\Controllers\Pegawai\PegawaiDashboardController;
 use App\Http\Controllers\Pegawai\PegawaiTransaksiController;
 use App\Http\Controllers\Pegawai\PegawaiPelangganController;
@@ -48,6 +49,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 
     Route::resource('pengeluaran', PengeluaranController::class);
+
+    Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log.aktivitas');
+
 });
 
 Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'role:pegawai'])->group(function () {

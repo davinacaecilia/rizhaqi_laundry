@@ -186,17 +186,17 @@
                         <div id="detail-pakaian-section" style="{{ $hasDetail ? 'display:block' : 'display:none' }}">
                             <div class="clothing-grid">
                                 <div>
-                                    <div class="clothing-item"><label>Kemeja/Baju</label> <input type="number" min="0" class="qty-input" name="qty_baju" value="{{ $inv['Kemeja/Baju'] ?? 0 }}"></div>
-                                    <div class="clothing-item" style="margin-top:8px"><label>Kaos/T-Shirt</label> <input type="number" min="0" class="qty-input" name="qty_kaos" value="{{ $inv['Kaos/T Shirt'] ?? 0 }}"></div>
+                                    <div class="clothing-item"><label>Kemeja/Baju</label> <input type="number" min="0" class="qty-input" name="qty_baju" value="{{ $inv['Baju'] ?? 0 }}"></div>
+                                    <div class="clothing-item" style="margin-top:8px"><label>Kaos/T-Shirt</label> <input type="number" min="0" class="qty-input" name="qty_kaos" value="{{ $inv['Kaos'] ?? 0 }}"></div>
                                     <div class="clothing-item" style="margin-top:8px"><label>Celana Panjang</label> <input type="number" min="0" class="qty-input" name="qty_celana_panjang" value="{{ $inv['Celana Panjang'] ?? 0 }}"></div>
                                     <div class="clothing-item" style="margin-top:8px"><label>Celana Pendek</label> <input type="number" min="0" class="qty-input" name="qty_celana_pendek" value="{{ $inv['Celana Pendek'] ?? 0 }}"></div>
                                 </div>
                                 <div>
-                                    <div class="clothing-item"><label>Jilbab/Kerudung</label> <input type="number" min="0" class="qty-input" name="qty_jilbab" value="{{ $inv['Jilbab/Kerudung'] ?? 0 }}"></div>
-                                    <div class="clothing-item" style="margin-top:8px"><label>Jaket/Sweater</label> <input type="number" min="0" class="qty-input" name="qty_jaket" value="{{ $inv['Jaket/Sweater'] ?? 0 }}"></div>
+                                    <div class="clothing-item"><label>Jilbab/Kerudung</label> <input type="number" min="0" class="qty-input" name="qty_jilbab" value="{{ $inv['Jilbab'] ?? 0 }}"></div>
+                                    <div class="clothing-item" style="margin-top:8px"><label>Jaket/Sweater</label> <input type="number" min="0" class="qty-input" name="qty_jaket" value="{{ $inv['Jaket'] ?? 0 }}"></div>
                                     <div class="clothing-item" style="margin-top:8px"><label>Kaos Kaki (Psg)</label> <input type="number" min="0" class="qty-input" name="qty_kaos_kaki" value="{{ $inv['Kaos Kaki'] ?? 0 }}"></div>
-                                    <div class="clothing-item" style="margin-top:8px"><label>Sarung/Mukena</label> <input type="number" min="0" class="qty-input" name="qty_sarung" value="{{ $inv['Sarung/Mukena'] ?? 0 }}"></div>
-                                    <div class="clothing-item" style="margin-top:8px"><label>Daleman/Lainnya</label> <input type="number" min="0" class="qty-input" name="qty_lainnya" value="{{ $inv['Daleman/Lainnya'] ?? 0 }}"></div>
+                                    <div class="clothing-item" style="margin-top:8px"><label>Sarung/Mukena</label> <input type="number" min="0" class="qty-input" name="qty_sarung" value="{{ $inv['Sarung'] ?? 0 }}"></div>
+                                    <div class="clothing-item" style="margin-top:8px"><label>Daleman/Lainnya</label> <input type="number" min="0" class="qty-input" name="qty_lainnya" value="{{ $inv['Lainnya'] ?? 0 }}"></div>
                                 </div>
                             </div>
                         </div>

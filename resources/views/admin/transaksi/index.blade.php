@@ -158,9 +158,17 @@
                                                 <form action="{{ route('admin.transaksi.destroy', $item->id_transaksi) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus transaksi ini?')" title="Hapus">
-                                                        <i class='bx bx-trash'></i>
-                                                    </button>
+                                                    
+                                                    {{-- LOGIKA TOMBOL: Kalau sudah batal/selesai, tombol mati --}}
+                                                    @if(in_array($item->status_pesanan, ['dibatalkan', 'selesai']))
+                                                        <button type="button" class="btn-detail delete disabled" title="Sudah Selesai/Batal" style="opacity: 0.5; cursor: not-allowed;">
+                                                            <i class='bx bx-x-circle'></i> {{-- Ganti ikon jadi X --}}
+                                                        </button>
+                                                    @else
+                                                        <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin ingin MEMBATALKAN transaksi ini? Data tidak akan bisa diubah lagi.')" title="Batalkan Transaksi">
+                                                            <i class='bx bx-x-circle'></i> {{-- Ganti ikon jadi X biar beda sama trash --}}
+                                                        </button>
+                                                    @endif
                                                 </form>
                                             </div>
                                         </td>

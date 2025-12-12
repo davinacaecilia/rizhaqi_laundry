@@ -8,103 +8,87 @@
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
 
-    <title>Status Order - Rizhaqi Laundry Admin</title>
+    <title>Update Status Order - Rizhaqi Laundry Admin</title>
     
     <style>
-        /* CSS TABEL GRID */
-        .table-container table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-light); }
-        .table-container thead tr { background-color: var(--surface-white); border-bottom: 1px solid var(--border-light); }
-        .table-container th, .table-container td { padding: 15px; border: 1px solid var(--border-light); text-align: left; font-size: 14px; color: var(--text-primary); }
-        .table-container th { font-weight: 600; color: var(--text-secondary); font-family: var(--google-sans); background-color: var(--surface-white); }
-        .table-container tbody tr:hover { background-color: rgba(26, 115, 232, 0.04); }
+        /* CSS KHUSUS STATUS */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .status-icon {
+            width: 40px; height: 40px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+        }
+        
+        /* WARNA ICON */
+        .ic-diterima { background: #E0E0E0; color: #616161; }
+        .ic-dicuci { background: #E3F2FD; color: #1976D2; }
+        .ic-dikeringkan { background: #FFF3E0; color: #F57C00; }
+        .ic-disetrika { background: #F3E5F5; color: #7B1FA2; }
+        .ic-packing { background: #E0F2F1; color: #00796B; }
+        .ic-siap { background: #E8F5E9; color: #388E3C; }
+        .ic-selesai { background: #212121; color: #fff; }
 
-        /* TOMBOL AKSI */
-        .btn-status { padding: 8px 16px; border-radius: 6px; color: white; font-weight: 500; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
-        .btn-status:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-status.disabled { background-color: #e0e0e0 !important; color: #999 !important; cursor: not-allowed; pointer-events: none; transform: none; box-shadow: none; }
+        .status-info h3 { font-size: 20px; font-weight: 700; margin: 0; }
+        .status-info p { font-size: 12px; color: #888; margin: 0; }
 
-        /* WARNA TOMBOL */
-        .btn-blue { background-color: var(--accent-blue); }
-        .btn-orange { background-color: #FF9800; }
-        .btn-purple { background-color: #9C27B0; }
-        .btn-teal { background-color: #009688; }
-        .btn-green { background-color: var(--accent-green); }
-        .btn-dark { background-color: #455A64; }
-        .btn-red { background-color: var(--accent-red); }
-
-        /* BADGES STATUS */
-        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+        /* TABLE STYLING */
+        .table-status td { vertical-align: middle; }
+        .badge-status { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; }
+        
+        /* STATUS COLORS */
         .st-diterima { background: #E0E0E0; color: #424242; }
         .st-dicuci { background: #E3F2FD; color: #1565C0; }
         .st-dikeringkan { background: #FFF3E0; color: #EF6C00; }
         .st-disetrika { background: #F3E5F5; color: #7B1FA2; }
         .st-packing { background: #E0F2F1; color: #00695C; }
         .st-siap { background: #E8F5E9; color: #2E7D32; }
-        .st-selesai { background: #1B5E20; color: #fff; }
+        .st-selesai { background: #212121; color: #fff; }
+        .st-dibatalkan { background: #FFEBEE; color: #C62828; text-decoration: line-through; }
 
-        /* --- UI FILTER BARU (PILLS & DATE) --- */
-        .table-data .order .head { display: flex; flex-direction: column; gap: 15px; align-items: flex-start; }
-        .filter-row { display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap; }
-        .filter-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-right: auto; }
-        .filter-date { padding: 8px 12px; border: 1px solid var(--border-light); border-radius: 20px; outline: none; font-size: 13px; color: var(--text-secondary); }
+        .btn-update {
+            padding: 6px 12px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-update:hover { opacity: 0.9; }
+        .btn-selesai { background: var(--accent-green); }
+        .btn-disabled { background: #ccc; cursor: not-allowed; }
 
-        .status-pills-container { display: flex; gap: 8px; flex-wrap: wrap; }
-        .filter-pill { padding: 6px 14px; border: 1px solid var(--border-light); border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: var(--text-secondary); transition: all 0.2s; user-select: none; }
-        .filter-pill:hover { background: #f5f5f5; border-color: #ccc; }
-        .filter-pill.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+        /* FILTER BUTTONS */
+        .filter-status-group { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px; }
+        .btn-filter-status { 
+            padding: 6px 12px; border: 1px solid var(--border-light); 
+            background: #fff; border-radius: 20px; font-size: 12px; cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .btn-filter-status.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
 
-        /* --- SEARCH BAR --- */
-        .table-search-wrapper { position: relative; display: flex; align-items: center; margin-left: auto; }
-        .table-search-input { width: 0; padding: 0; border: none; margin-left: 0; background: transparent; transition: width 0.3s ease, padding 0.3s ease; opacity: 0; pointer-events: none; height: 40px; border-radius: 20px; }
-        .table-search-input.show { width: 200px; padding: 6px 12px; border: 1px solid var(--border-light); margin-right: 10px; opacity: 1; pointer-events: auto; background: var(--surface-white); }
-        .table-search-input:focus { border-color: var(--accent-blue); outline: none; }
+        /* --- PERBAIKAN SEARCH BAR (YANG HILANG TADI) --- */
+        .table-search-wrapper { position: relative; display: flex; align-items: center; }
+        .table-search-input { width: 0; padding: 0; border: none; background: transparent; transition: all 0.3s ease; opacity: 0; height: 40px; border-radius: 20px; pointer-events: none; }
+        /* Class .show ini akan di-toggle oleh script.js */
+        .table-search-input.show { width: 200px; padding: 6px 12px; border: 1px solid var(--border-light); margin-right: 10px; opacity: 1; pointer-events: auto; background: #fff; }
         .bx-search-toggle { cursor: pointer; font-size: 20px; color: #888; padding: 5px; }
-
-        /* --- [NEW] STATUS SUMMARY CARDS (KECIL) --- */
-        .status-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Responsif */
-            gap: 12px;
-            margin-bottom: 24px;
-            list-style: none;
-            padding: 0;
-        }
-
-        .status-summary li {
-            background: #fff;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s ease;
-            cursor: default;
-        }
-        
-        .status-summary li:hover { transform: translateY(-2px); box-shadow: var(--shadow-light); }
-
-        .status-summary li .bx {
-            width: 36px; height: 36px;
-            border-radius: 8px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .status-summary li .info h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1; }
-        .status-summary li .info p { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
-
-        /* Warna Icon per Status */
-        .bg-diterima { background: #EEEEEE; color: #616161; }
-        .bg-dicuci { background: #E3F2FD; color: #1976D2; }
-        .bg-kering { background: #FFF3E0; color: #F57C00; }
-        .bg-setrika { background: #F3E5F5; color: #7B1FA2; }
-        .bg-packing { background: #E0F2F1; color: #00796B; }
-        .bg-siap { background: #E8F5E9; color: #388E3C; }
-        .bg-selesai { background: #263238; color: #fff; }
-
     </style>
 </head>
 <body>
@@ -113,6 +97,7 @@
 
     <section id="content">
         @include('partial.navbar')
+
         <main>
             <div class="head-title">
                 <div class="left">
@@ -122,204 +107,142 @@
                         <li><i class='bx bx-chevron-right' ></i></li>
                         <li><a href="{{ route('admin.transaksi.index') }}">Manajemen Transaksi</a></li>
                         <li><i class='bx bx-chevron-right' ></i></li>
-                        <li><a class="active" href="#">Status Order</a></li>
+                        <li><a class="active" href="#">Update Status</a></li>
                     </ul>
                 </div>
             </div>
 
-            <ul class="status-summary">
-                <li>
-                    <i class='bx bx-receipt bg-diterima'></i>
-                    <div class="info">
-                        <h3>{{ $counts['diterima'] }}</h3>
-                        <p>Diterima</p>
-                    </div>
-                </li>
-                <li>
-                    <i class='bx bx-water bg-dicuci'></i>
-                    <div class="info">
-                        <h3>{{ $counts['dicuci'] }}</h3>
-                        <p>Dicuci</p>
-                    </div>
-                </li>
-                <li>
-                    <i class='bx bx-wind bg-kering'></i>
-                    <div class="info">
-                        <h3>{{ $counts['dikeringkan'] }}</h3>
-                        <p>Dikeringkan</p>
-                    </div>
-                </li>
-                <li>
-                    <i class='bx bxs-t-shirt bg-setrika'></i>
-                    <div class="info">
-                        <h3>{{ $counts['disetrika'] }}</h3>
-                        <p>Disetrika</p>
-                    </div>
-                </li>
-                <li>
-                    <i class='bx bx-package bg-packing'></i>
-                    <div class="info">
-                        <h3>{{ $counts['packing'] }}</h3>
-                        <p>Packing</p>
-                    </div>
-                </li>
-                <li>
-                    <i class='bx bx-check-circle bg-siap'></i>
-                    <div class="info">
-                        <h3>{{ $counts['siap'] }}</h3>
-                        <p>Siap Ambil</p>
-                    </div>
-                </li>
-                <li>
-                    <i class='bx bx-check-double bg-selesai'></i>
-                    <div class="info">
-                        <h3>{{ $counts['selesai'] }}</h3>
-                        <p>Selesai</p>
-                    </div>
-                </li>
-            </ul>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-icon ic-diterima"><i class='bx bx-receipt'></i></div>
+                    <div class="status-info"><h3>{{ $counts['diterima'] ?? 0 }}</h3><p>Diterima</p></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon ic-dicuci"><i class='bx bx-water'></i></div>
+                    <div class="status-info"><h3>{{ $counts['dicuci'] ?? 0 }}</h3><p>Dicuci</p></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon ic-dikeringkan"><i class='bx bx-wind'></i></div>
+                    <div class="status-info"><h3>{{ $counts['dikeringkan'] ?? 0 }}</h3><p>Dikeringkan</p></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon ic-disetrika"><i class='bx bx-closet'></i></div>
+                    <div class="status-info"><h3>{{ $counts['disetrika'] ?? 0 }}</h3><p>Disetrika</p></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon ic-packing"><i class='bx bx-package'></i></div>
+                    <div class="status-info"><h3>{{ $counts['packing'] ?? 0 }}</h3><p>Packing</p></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon ic-siap"><i class='bx bx-check-circle'></i></div>
+                    <div class="status-info"><h3>{{ $counts['siap'] ?? 0 }}</h3><p>Siap Ambil</p></div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon ic-selesai"><i class='bx bx-check-double'></i></div>
+                    <div class="status-info"><h3>{{ $counts['selesai'] ?? 0 }}</h3><p>Selesai</p></div>
+                </div>
+            </div>
 
             <div class="table-data">
                 <div class="order">
-                    
                     <div class="head">
-                        <div class="filter-row">
-                            <h3 class="filter-title">Update Status (Real-time)</h3>
-                            
-                            <div class="table-search-wrapper">
-                                <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Nama...">
-                                <i class='bx bx-search bx-search-toggle' id="tableSearchIcon"></i>
-                            </div>
-                        </div>
-
-                        <div class="filter-row">
-                            <input type="date" id="dateFilter" class="filter-date" title="Filter Tanggal Masuk">
-
-                            <div class="status-pills-container">
-                                <span class="filter-pill" data-status="diterima">Diterima</span>
-                                <span class="filter-pill" data-status="dicuci">Dicuci</span>
-                                <span class="filter-pill" data-status="dikeringkan">Dikeringkan</span>
-                                <span class="filter-pill" data-status="disetrika">Disetrika</span>
-                                <span class="filter-pill" data-status="packing">Packing</span>
-                                <span class="filter-pill" data-status="siap diambil">Siap Ambil</span>
-                                <span class="filter-pill" data-status="selesai">Selesai</span>
-                            </div>
+                        <h3>Update Status (Real-time)</h3>
+                        
+                        <div class="table-search-wrapper">
+                            <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari Invoice/Nama...">
+                            <i class='bx bx-search bx-search-toggle' id="tableSearchIcon"></i>
                         </div>
                     </div>
-                    
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <input type="date" id="filterDate" class="filter-input" style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px;">
+                        <div class="filter-status-group" id="statusFilterContainer">
+                            <button class="btn-filter-status active" data-filter="all">Semua</button>
+                            <button class="btn-filter-status" data-filter="diterima">Diterima</button>
+                            <button class="btn-filter-status" data-filter="dicuci">Dicuci</button>
+                            <button class="btn-filter-status" data-filter="dikeringkan">Dikeringkan</button>
+                            <button class="btn-filter-status" data-filter="disetrika">Disetrika</button>
+                            <button class="btn-filter-status" data-filter="packing">Packing</button>
+                            <button class="btn-filter-status" data-filter="siap">Siap Ambil</button>
+                        </div>
+                    </div>
+
                     <div class="table-container">
-                        <table>
+                        <table class="table-status">
                             <thead>
-                                <tr style="background-color: #f2f2f2;">
+                                <tr>
                                     <th>Kode Invoice</th>
                                     <th>Nama Pelanggan</th>
-                                    <th>Tanggal Masuk</th> 
+                                    <th>Tanggal Masuk</th>
                                     <th>Status Sekarang</th>
                                     <th>Aksi Selanjutnya</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($transaksi as $item)
-                                    @php
-                                        // 1. Ambil status asli dari DB (pasti lowercase)
-                                        $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
-
-                                        // 2. Setup Default
-                                        $badgeClass = 'st-diterima';
-                                        $btnClass   = 'btn-blue';
-                                        $btnText    = 'Mulai Cuci';
-                                        $btnIcon    = 'bx-water';
-                                        $nextStatus = 'dicuci';
-                                        $isDisabled = false;
-
-                                        // 3. Logika Alur
-                                        switch($rawStatus) {
-                                            case 'diterima':
-                                                $badgeClass = 'st-diterima'; 
-                                                $nextStatus = 'dicuci'; 
-                                                $btnText = 'Mulai Cuci'; 
-                                                $btnClass = 'btn-blue'; 
-                                                $btnIcon = 'bx-water';
-                                                break;
-                                            case 'dicuci':
-                                                $badgeClass = 'st-dicuci'; 
-                                                $nextStatus = 'dikeringkan'; 
-                                                $btnText = 'Ke Pengeringan'; 
-                                                $btnClass = 'btn-orange'; 
-                                                $btnIcon = 'bx-wind';
-                                                break;
-                                            case 'dikeringkan':
-                                                $badgeClass = 'st-dikeringkan'; 
-                                                $nextStatus = 'disetrika'; 
-                                                $btnText = 'Mulai Setrika'; 
-                                                $btnClass = 'btn-purple'; 
-                                                $btnIcon = 'bxs-t-shirt';
-                                                break;
-                                            case 'disetrika':
-                                                $badgeClass = 'st-disetrika'; 
-                                                $nextStatus = 'packing'; 
-                                                $btnText = 'Mulai Packing'; 
-                                                $btnClass = 'btn-teal'; 
-                                                $btnIcon = 'bx-box';
-                                                break;
-                                            case 'packing':
-                                                $badgeClass = 'st-packing'; 
-                                                $nextStatus = 'siap diambil'; 
-                                                $btnText = 'Tandai Siap Ambil'; 
-                                                $btnClass = 'btn-green'; 
-                                                $btnIcon = 'bx-check-circle';
-                                                break;
-                                            case 'siap diambil': // Cek string lengkap
-                                                $badgeClass = 'st-siap'; 
-                                                $nextStatus = 'selesai'; 
-                                                $btnText = 'Serahkan (Selesai)'; 
-                                                $btnClass = 'btn-dark'; 
-                                                $btnIcon = 'bx-package';
-                                                break;
-                                            case 'selesai':
-                                                $badgeClass = 'st-selesai'; 
-                                                $isDisabled = true; 
-                                                $btnText = 'Selesai'; 
-                                                $btnClass = 'disabled';
-                                                break;
-                                            default:
-                                                $nextStatus = 'diterima'; 
-                                                $btnText = 'Reset';
-                                        }
-                                    @endphp
-
-                                    <tr>
+                            <tbody id="tableBody">
+                                @foreach($transaksi as $item)
+                                    <tr class="row-item" data-status="{{ strtolower($item->status_pesanan) }}" data-date="{{ date('Y-m-d', strtotime($item->tgl_masuk)) }}">
                                         <td><strong>{{ $item->kode_invoice }}</strong></td>
-                                        <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
-                                        <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td> 
+                                        <td>{{ $item->pelanggan->nama }}</td>
+                                        <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td>
+                                        
                                         <td>
-                                            {{-- Tampilkan Status (Capitalized) --}}
-                                            <span class="status-badge {{ $badgeClass }}">
-                                                {{ ucwords($rawStatus) }}
+                                            @php
+                                                $st = strtolower($item->status_pesanan);
+                                                $classBadge = 'st-diterima';
+                                                if($st == 'dicuci') $classBadge = 'st-dicuci';
+                                                elseif($st == 'dikeringkan') $classBadge = 'st-dikeringkan';
+                                                elseif($st == 'disetrika') $classBadge = 'st-disetrika';
+                                                elseif($st == 'packing') $classBadge = 'st-packing';
+                                                elseif($st == 'siap diambil') $classBadge = 'st-siap';
+                                                elseif($st == 'selesai') $classBadge = 'st-selesai';
+                                                elseif($st == 'dibatalkan') $classBadge = 'st-dibatalkan';
+                                            @endphp
+                                            <span class="badge-status {{ $classBadge }}">
+                                                {{ strtoupper($item->status_pesanan) }}
                                             </span>
                                         </td>
+
                                         <td>
-                                            @if(!$isDisabled)
-                                                {{-- FIX ROUTE: Pake admin.transaksi.updateStatus --}}
+                                            {{-- LOGIKA TOMBOL AKSI (TETAP AMAN) --}}
+                                            @if($item->status_pesanan == 'dibatalkan')
+                                                
+                                                <span style="color: #C62828; font-size: 12px; font-weight: 600;">
+                                                    <i class='bx bx-x-circle'></i> Order Dibatalkan
+                                                </span>
+
+                                            @elseif($item->status_pesanan == 'selesai')
+                                                
+                                                <span style="color: #2E7D32; font-size: 12px; font-weight: 600;">
+                                                    <i class='bx bx-check-double'></i> Transaksi Selesai
+                                                </span>
+
+                                            @else
+                                                
                                                 <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
-                                                    {{-- PASTIKAN VALUE NEXT STATUS ADA --}}
-                                                    <input type="hidden" name="status" value="{{ $nextStatus }}">
                                                     
-                                                    <button type="submit" class="btn-status {{ $btnClass }}" 
-                                                        @if($nextStatus == 'selesai' && $item->sisa_tagihan > 0)
-                                                            onclick="return confirm('PERINGATAN: Transaksi ini BELUM LUNAS (Kurang Rp {{ number_format($item->sisa_tagihan, 0, ',', '.') }}). Sistem akan MENOLAK jika Anda melanjutkan. Pastikan pelanggan membayar dulu!')"
-                                                        @else
-                                                            onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')"
-                                                        @endif>
-                                                        <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
-                                                    </button>
+                                                    @php
+                                                        $nextStatus = '';
+                                                        $btnText = '';
+                                                        $btnClass = 'btn-update';
+
+                                                        if($st == 'diterima') { $nextStatus = 'dicuci'; $btnText = 'Mulai Cuci'; }
+                                                        elseif($st == 'dicuci') { $nextStatus = 'dikeringkan'; $btnText = 'Mulai Keringkan'; }
+                                                        elseif($st == 'dikeringkan') { $nextStatus = 'disetrika'; $btnText = 'Mulai Setrika'; }
+                                                        elseif($st == 'disetrika') { $nextStatus = 'packing'; $btnText = 'Mulai Packing'; }
+                                                        elseif($st == 'packing') { $nextStatus = 'siap diambil'; $btnText = 'Siap Diambil'; }
+                                                        elseif($st == 'siap diambil') { $nextStatus = 'selesai'; $btnText = 'Ambil / Selesai'; $btnClass .= ' btn-selesai'; }
+                                                    @endphp
+
+                                                    @if($nextStatus)
+                                                        <input type="hidden" name="status" value="{{ $nextStatus }}">
+                                                        <button type="submit" class="{{ $btnClass }}">
+                                                            {{ $btnText }} <i class='bx bx-right-arrow-alt'></i>
+                                                        </button>
+                                                    @endif
                                                 </form>
-                                            @else
-                                                <button type="button" class="btn-status disabled">
-                                                    <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
-                                                </button>
+
                                             @endif
                                         </td>
                                     </tr>
@@ -329,15 +252,74 @@
                     </div>
                 </div>
             </div>
-
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container"></div>
-
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btns = document.querySelectorAll('.btn-filter-status');
+            const rows = document.querySelectorAll('.row-item');
+            const dateInput = document.getElementById('filterDate');
+            
+            // PERBAIKAN: Selector untuk search bar
+            const searchInput = document.getElementById('tableSearchInput'); 
 
+            function filterTable() {
+                const activeBtn = document.querySelector('.btn-filter-status.active');
+                const statusFilter = activeBtn.getAttribute('data-filter');
+                const dateFilter = dateInput.value;
+                const searchText = searchInput.value.toLowerCase(); // Ambil teks pencarian
+
+                rows.forEach(row => {
+                    const status = row.getAttribute('data-status');
+                    const date = row.getAttribute('data-date');
+                    const rowText = row.innerText.toLowerCase(); // Ambil semua teks di baris itu
+
+                    // Cek Status
+                    let statusMatch = (statusFilter === 'all');
+                    if (!statusMatch) {
+                        if (statusFilter === 'siap' && status === 'siap diambil') statusMatch = true;
+                        else if (status === statusFilter) statusMatch = true;
+                    }
+
+                    // Cek Tanggal
+                    let dateMatch = true;
+                    if (dateFilter && date !== dateFilter) dateMatch = false;
+
+                    // Cek Pencarian Teks
+                    let searchMatch = true;
+                    if (searchText && !rowText.includes(searchText)) {
+                        searchMatch = false;
+                    }
+
+                    // Gabungkan semua filter
+                    if (statusMatch && dateMatch && searchMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            // Event Listeners
+            btns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    btns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterTable();
+                });
+            });
+
+            dateInput.addEventListener('change', filterTable);
+            
+            // Tambahkan event listener buat search bar biar real-time
+            if(searchInput) {
+                searchInput.addEventListener('keyup', filterTable);
+            }
+        });
+    </script>
 </body>
 </html>

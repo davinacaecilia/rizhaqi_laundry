@@ -126,38 +126,66 @@ return new class extends Migration
             BEFORE INSERT ON detail_transaksi
             FOR EACH ROW
             BEGIN
-                DECLARE v_min DECIMAL(10,2);
-                DECLARE v_max DECIMAL(10,2);
+                DECLARE v_nama_layanan VARCHAR(100);
+                DECLARE v_kategori VARCHAR(50);
+                DECLARE v_tgl DATE;
+                DECLARE v_hari INT;
+                DECLARE v_min DECIMAL(15,2);
+                DECLARE v_max DECIMAL(15,2);
+                DECLARE v_is_flexible TINYINT;
 
-                -- PERBAIKAN: Ganti harga_maksimum jadi harga_max
-                SELECT harga_satuan, harga_max INTO v_min, v_max 
+                -- 1. AMBIL INFO LENGKAP LAYANAN (Termasuk Nama)
+                SELECT nama_layanan, kategori, harga_satuan, harga_max, is_flexible 
+                INTO v_nama_layanan, v_kategori, v_min, v_max, v_is_flexible
                 FROM layanan WHERE id_layanan = NEW.id_layanan;
 
-                IF v_max IS NOT NULL THEN
-                    -- Cek Range
+                -- Ambil tanggal
+                SELECT DATE(tgl_masuk) INTO v_tgl 
+                FROM transaksi WHERE id_transaksi = NEW.id_transaksi;
+
+                SET v_hari = DAYOFWEEK(v_tgl); -- 1=Minggu ... 6=Jumat, 7=Sabtu
+
+                -- 2. VALIDASI SECURITY (Wajib)
+                IF v_is_flexible = 1 THEN
                     IF NEW.harga_saat_transaksi < v_min OR NEW.harga_saat_transaksi > v_max THEN
-                        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Alert: Harga di luar rentang yang diizinkan!';
+                        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security: Harga di luar rentang!';
                     END IF;
                 ELSE
-                    -- Cek Harga Tetap
                     IF NEW.harga_saat_transaksi <> v_min THEN
-                        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Alert: Harga layanan tetap tidak boleh diubah!';
+                        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security: Harga tetap tidak boleh diubah!';
                     END IF;
                 END IF;
-            END
-        ");
 
-        // ==============================================================================
-        // 6. LOGGING DATA MASTER & KEUANGAN LAINNYA
-        // ==============================================================================
-        
-        // Log Pembayaran
-        DB::unprepared("DROP TRIGGER IF EXISTS trg_ai_pembayaran");
-        DB::unprepared("
-            CREATE TRIGGER trg_ai_pembayaran AFTER INSERT ON pembayaran FOR EACH ROW
-            BEGIN
-                INSERT INTO log (id_log, id_user, aksi, keterangan, waktu)
-                VALUES (UUID(), NEW.id_user, 'TERIMA UANG', CONCAT('Terima Rp ', NEW.jlh_pembayaran, ' (', NEW.keterangan, ')'), NOW());
+                -- 3. LOGIKA DISKON SPESIFIK (EDIT BAGIAN INI SESUAI NAMA LAYANANMU)
+                
+                -- KASUS A: JUMAT BERKAH (Diskon 10%)
+                -- Hanya berlaku untuk nama layanan yang ada di dalam kurung
+                IF v_kategori = 'REGULAR SERVICES' AND v_hari = 6 THEN
+                    IF v_nama_layanan = 'Cuci Kering Setrika - Pakaian' THEN
+                        SET NEW.harga_saat_transaksi = 9000;
+                    END IF;
+                    
+                    IF v_nama_layanan = 'CKS - Sprei/Selimut/B.Cover' THEN
+                        SET NEW.harga_saat_transaksi = 12000;
+                    END IF;
+                    
+                    IF v_nama_layanan = 'Setrika' THEN
+                        SET NEW.harga_saat_transaksi = 5000;
+                    END IF;
+                END IF;
+
+                -- KASUS B: SELASA CERIA (Diskon 5%)
+                -- Hanya berlaku untuk 'Cuci Boneka' atau layanan tertentu lain
+                IF v_kategori = 'REGULAR SERVICES' AND v_hari = 3 THEN
+                    IF v_nama_layanan = 'Cuci Kering Setrika - Pakaian' THEN
+                        SET NEW.harga_saat_transaksi = 9500;
+                    END IF;
+                    
+                    IF v_nama_layanan = 'CKS - Sprei/Selimut/B.Cover' THEN
+                        SET NEW.harga_saat_transaksi = 13500;
+                    END IF;
+                END IF;
+
             END
         ");
 

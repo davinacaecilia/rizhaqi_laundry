@@ -16,25 +16,6 @@ class LayananSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
 
         $layanan = [
-            // --- 1. DISCOUNT JUMAT BERKAH ---
-            [
-                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT JUMAT BERKAH', 'nama_layanan' => 'CKS - Pakaian', 'satuan' => 'kg', 'harga_satuan' => 9000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
-            ],
-            [
-                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT JUMAT BERKAH', 'nama_layanan' => 'CKS - Sprei/Selimut/B.Cover', 'satuan' => 'kg', 'harga_satuan' => 12000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
-            ],
-            [
-                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT JUMAT BERKAH', 'nama_layanan' => 'Setrika', 'satuan' => 'kg', 'harga_satuan' => 5000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
-            ],
-
-            // --- 2. DISCOUNT SELASA CERIA ---
-            [
-                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT SELASA CERIA', 'nama_layanan' => 'CKS - Pakaian', 'satuan' => 'kg', 'harga_satuan' => 9500, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
-            ],
-            [
-                'id_layanan' => Str::uuid(), 'kategori' => 'DISCOUNT SELASA CERIA', 'nama_layanan' => 'CKS - Sprei/Selimut/B.Cover', 'satuan' => 'kg', 'harga_satuan' => 13500, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,
-            ],
-
             // --- 3. CUCI SATUAN ---
             [
                 'id_layanan' => Str::uuid(), 'kategori' => 'CUCI SATUAN', 'nama_layanan' => 'Pakaian', 'satuan' => 'pcs', 'harga_satuan' => 15000, 'is_flexible' => 0, 'harga_min' => null, 'harga_max' => null,

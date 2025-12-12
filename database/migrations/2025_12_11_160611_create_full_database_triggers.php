@@ -123,17 +123,18 @@ return new class extends Migration
             BEGIN
                 DECLARE v_min DECIMAL(10,2);
                 DECLARE v_max DECIMAL(10,2);
-                
-                SELECT harga_satuan, harga_maksimum INTO v_min, v_max 
+
+                -- PERBAIKAN: Ganti harga_maksimum jadi harga_max
+                SELECT harga_satuan, harga_max INTO v_min, v_max 
                 FROM layanan WHERE id_layanan = NEW.id_layanan;
-                
+
                 IF v_max IS NOT NULL THEN
                     -- Cek Range
                     IF NEW.harga_saat_transaksi < v_min OR NEW.harga_saat_transaksi > v_max THEN
                         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Alert: Harga di luar rentang yang diizinkan!';
                     END IF;
                 ELSE
-                    -- Cek Harga Tetap (Toleransi 0 rupiah)
+                    -- Cek Harga Tetap
                     IF NEW.harga_saat_transaksi <> v_min THEN
                         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Security Alert: Harga layanan tetap tidak boleh diubah!';
                     END IF;

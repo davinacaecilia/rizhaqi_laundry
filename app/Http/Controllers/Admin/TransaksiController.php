@@ -504,7 +504,16 @@ class TransaksiController extends Controller
 
     public function destroy($id)
     {
-        Transaksi::findOrFail($id)->delete();
-        return redirect()->back()->with('success', 'Data Transaksi Dihapus!');
+        // Cari transaksi
+        $transaksi = Transaksi::findOrFail($id);
+
+        // Ubah status pesanan jadi 'dibatalkan'
+        // Ubah juga status bayar jadi 'batal' (opsional, biar jelas di laporan keuangan)
+        $transaksi->update([
+            'status_pesanan' => 'dibatalkan',
+            'status_bayar'   => 'batal' 
+        ]);
+
+        return redirect()->back()->with('success', 'Transaksi berhasil dibatalkan (Status: Dibatalkan)');
     }
 }

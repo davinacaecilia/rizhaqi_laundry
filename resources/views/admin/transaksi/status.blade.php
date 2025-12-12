@@ -40,7 +40,8 @@
         .st-disetrika { background: #F3E5F5; color: #7B1FA2; }
         .st-packing { background: #E0F2F1; color: #00695C; }
         .st-siap { background: #E8F5E9; color: #2E7D32; }
-        .st-selesai { background: #1B5E20; color: #fff; }
+        .st-selesai { background: #212121; color: #fff; }
+        .st-dibatalkan { background: #FFEBEE; color: #C62828; text-decoration: line-through; }
 
         /* --- UI FILTER BARU (PILLS & DATE) --- */
         .table-data .order .head { display: flex; flex-direction: column; gap: 15px; align-items: flex-start; }
@@ -131,49 +132,49 @@
                 <li>
                     <i class='bx bx-receipt bg-diterima'></i>
                     <div class="info">
-                        <h3>{{ $counts['diterima'] }}</h3>
+                        <h3>{{ $counts['diterima'] ?? 0 }}</h3>
                         <p>Diterima</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-water bg-dicuci'></i>
                     <div class="info">
-                        <h3>{{ $counts['dicuci'] }}</h3>
+                        <h3>{{ $counts['dicuci'] ?? 0 }}</h3>
                         <p>Dicuci</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-wind bg-kering'></i>
                     <div class="info">
-                        <h3>{{ $counts['dikeringkan'] }}</h3>
+                        <h3>{{ $counts['dikeringkan'] ?? 0 }}</h3>
                         <p>Dikeringkan</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bxs-t-shirt bg-setrika'></i>
                     <div class="info">
-                        <h3>{{ $counts['disetrika'] }}</h3>
+                        <h3>{{ $counts['disetrika'] ?? 0 }}</h3>
                         <p>Disetrika</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-package bg-packing'></i>
                     <div class="info">
-                        <h3>{{ $counts['packing'] }}</h3>
+                        <h3>{{ $counts['packing'] ?? 0 }}</h3>
                         <p>Packing</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-check-circle bg-siap'></i>
                     <div class="info">
-                        <h3>{{ $counts['siap'] }}</h3>
+                        <h3>{{ $counts['siap'] ?? 0 }}</h3>
                         <p>Siap Ambil</p>
                     </div>
                 </li>
                 <li>
                     <i class='bx bx-check-double bg-selesai'></i>
                     <div class="info">
-                        <h3>{{ $counts['selesai'] }}</h3>
+                        <h3>{{ $counts['selesai'] ?? 0 }}</h3>
                         <p>Selesai</p>
                     </div>
                 </li>
@@ -196,6 +197,7 @@
                             <input type="date" id="dateFilter" class="filter-date" title="Filter Tanggal Masuk">
 
                             <div class="status-pills-container">
+                                <span class="filter-pill active" data-status="all">Semua</span>
                                 <span class="filter-pill" data-status="diterima">Diterima</span>
                                 <span class="filter-pill" data-status="dicuci">Dicuci</span>
                                 <span class="filter-pill" data-status="dikeringkan">Dikeringkan</span>
@@ -203,6 +205,7 @@
                                 <span class="filter-pill" data-status="packing">Packing</span>
                                 <span class="filter-pill" data-status="siap diambil">Siap Ambil</span>
                                 <span class="filter-pill" data-status="selesai">Selesai</span>
+                                <span class="filter-pill" data-status="dibatalkan">Dibatalkan</span>
                             </div>
                         </div>
                     </div>
@@ -221,7 +224,7 @@
                             <tbody>
                                 @foreach ($transaksi as $item)
                                     @php
-                                        // 1. Ambil status asli dari DB (pasti lowercase)
+                                        // 1. Ambil status asli dari DB
                                         $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
 
                                         // 2. Setup Default
@@ -230,7 +233,8 @@
                                         $btnText    = 'Mulai Cuci';
                                         $btnIcon    = 'bx-water';
                                         $nextStatus = 'dicuci';
-                                        $isDisabled = false;
+                                        $isCancelled = false; // Flag untuk status batal
+                                        $isFinished = false;  // Flag untuk status selesai
 
                                         // 3. Logika Alur
                                         switch($rawStatus) {
@@ -269,7 +273,7 @@
                                                 $btnClass = 'btn-green'; 
                                                 $btnIcon = 'bx-check-circle';
                                                 break;
-                                            case 'siap diambil': // Cek string lengkap
+                                            case 'siap diambil': 
                                                 $badgeClass = 'st-siap'; 
                                                 $nextStatus = 'selesai'; 
                                                 $btnText = 'Serahkan (Selesai)'; 
@@ -278,9 +282,11 @@
                                                 break;
                                             case 'selesai':
                                                 $badgeClass = 'st-selesai'; 
-                                                $isDisabled = true; 
-                                                $btnText = 'Selesai'; 
-                                                $btnClass = 'disabled';
+                                                $isFinished = true; // Tandai selesai
+                                                break;
+                                            case 'dibatalkan':
+                                                $badgeClass = 'st-dibatalkan';
+                                                $isCancelled = true; // Tandai batal
                                                 break;
                                             default:
                                                 $nextStatus = 'diterima'; 
@@ -288,23 +294,29 @@
                                         }
                                     @endphp
 
-                                    <tr>
+                                    <tr class="row-item" data-status="{{ $rawStatus }}" data-date="{{ date('Y-m-d', strtotime($item->tgl_masuk)) }}">
                                         <td><strong>{{ $item->kode_invoice }}</strong></td>
                                         <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
                                         <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td> 
                                         <td>
-                                            {{-- Tampilkan Status (Capitalized) --}}
                                             <span class="status-badge {{ $badgeClass }}">
                                                 {{ ucwords($rawStatus) }}
                                             </span>
                                         </td>
                                         <td>
-                                            @if(!$isDisabled)
-                                                {{-- FIX ROUTE: Pake admin.transaksi.updateStatus --}}
+                                            {{-- LOGIKA TOMBOL AKSI DISINI --}}
+                                            @if($isCancelled)
+                                                <span style="color: #C62828; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                                                    <i class='bx bx-x-circle'></i> Order Dibatalkan
+                                                </span>
+                                            @elseif($isFinished)
+                                                <span style="color: #2E7D32; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                                                    <i class='bx bx-check-double'></i> Transaksi Selesai
+                                                </span>
+                                            @else
                                                 <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
-                                                    {{-- PASTIKAN VALUE NEXT STATUS ADA --}}
                                                     <input type="hidden" name="status" value="{{ $nextStatus }}">
                                                     
                                                     <button type="submit" class="btn-status {{ $btnClass }}" 
@@ -316,10 +328,6 @@
                                                         <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
                                                     </button>
                                                 </form>
-                                            @else
-                                                <button type="button" class="btn-status disabled">
-                                                    <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
-                                                </button>
                                             @endif
                                         </td>
                                     </tr>
@@ -333,11 +341,81 @@
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container"></div>
 
-    <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ELEMENT FILTER
+            const pills = document.querySelectorAll('.filter-pill');
+            const rows = document.querySelectorAll('.row-item');
+            const dateInput = document.getElementById('dateFilter');
+            const searchInput = document.getElementById('tableSearchInput');
+            const searchIcon = document.getElementById('tableSearchIcon');
+
+            // 1. FILTER FUNCTION
+            function filterTable() {
+                const activePill = document.querySelector('.filter-pill.active');
+                const statusFilter = activePill ? activePill.getAttribute('data-status') : 'all';
+                const dateFilter = dateInput.value;
+                const searchText = searchInput.value.toLowerCase();
+
+                rows.forEach(row => {
+                    const status = row.getAttribute('data-status');
+                    const date = row.getAttribute('data-date');
+                    const rowText = row.innerText.toLowerCase();
+
+                    // Logic Status
+                    let statusMatch = (statusFilter === 'all');
+                    if (!statusMatch && status === statusFilter) {
+                        statusMatch = true;
+                    }
+
+                    // Logic Date
+                    let dateMatch = true;
+                    if (dateFilter && date !== dateFilter) {
+                        dateMatch = false;
+                    }
+
+                    // Logic Search
+                    let searchMatch = true;
+                    if (searchText && !rowText.includes(searchText)) {
+                        searchMatch = false;
+                    }
+
+                    // Final Decision
+                    if (statusMatch && dateMatch && searchMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            // 2. EVENT LISTENER PILLS
+            pills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    // Reset active class
+                    pills.forEach(p => p.classList.remove('active'));
+                    // Set active current
+                    this.classList.add('active');
+                    filterTable();
+                });
+            });
+
+            // 3. EVENT LISTENER DATE & SEARCH
+            dateInput.addEventListener('change', filterTable);
+            searchInput.addEventListener('keyup', filterTable);
+
+            // 4. ANIMASI SEARCH BAR
+            searchIcon.addEventListener('click', function() {
+                searchInput.classList.toggle('show');
+                if(searchInput.classList.contains('show')) {
+                    searchInput.focus();
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>

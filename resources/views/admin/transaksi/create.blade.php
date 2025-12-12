@@ -231,5 +231,72 @@
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
     <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
 
+    <script>
+        // FUNGSI UTAMA: Mengatur Status Input Harga (Dipanggil saat dropdown berubah)
+        function setHargaOtomatis() {
+            const select = document.getElementById('layanan_id');
+            const inputHarga = document.getElementById('harga_satuan');
+            const infoRange = document.getElementById('info_range');
+            
+            if (!select || !inputHarga) return;
+
+            const selectedOption = select.options[select.selectedIndex];
+            const tipe = selectedOption.getAttribute('data-tipe');
+            const harga = selectedOption.getAttribute('data-harga');
+            const min = selectedOption.getAttribute('data-min');
+            const max = selectedOption.getAttribute('data-max');
+
+            // Reset dulu class dan atribut
+            inputHarga.classList.remove('locked-input', 'unlocked-input');
+            infoRange.style.display = 'none';
+
+            if (tipe === 'range') {
+                // KASUS 1: HARGA RENTANG (BISA DIEDIT)
+                inputHarga.readOnly = false;
+                inputHarga.value = ""; // Kosongkan biar user isi sendiri (atau isi min kalau mau)
+                inputHarga.placeholder = `Min: ${formatRupiah(min)}`;
+                
+                // Ubah style jadi putih & kursor teks
+                inputHarga.style.backgroundColor = "#fff";
+                inputHarga.style.cursor = "text"; 
+                inputHarga.classList.add('unlocked-input');
+
+                // Tampilkan info range
+                infoRange.style.display = 'block';
+                infoRange.textContent = `*Harga Fleksibel: Rp ${formatRupiah(min)} - Rp ${formatRupiah(max)}`;
+            } else {
+                // KASUS 2: HARGA FIX (TERKUNCI)
+                inputHarga.readOnly = true;
+                inputHarga.value = harga;
+                
+                // Ubah style jadi abu-abu & kursor not-allowed
+                inputHarga.style.backgroundColor = "#e9ecef";
+                inputHarga.style.cursor = "not-allowed";
+                inputHarga.classList.add('locked-input');
+            }
+            
+            hitungTotal(); // Hitung ulang total biaya
+        }
+
+        // Helper format rupiah sederhana
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        // Event Listener saat halaman dimuat (Khusus Edit)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Jalankan sekali saat load agar status awal benar
+            const select = document.getElementById('layanan_id');
+            if(select && !select.disabled && select.value !== "") {
+                setHargaOtomatis();
+                
+                // Khusus Edit: Kembalikan nilai harga lama jika ada
+                @if(isset($hargaLama))
+                    const inputHarga = document.getElementById('harga_satuan');
+                    if(inputHarga) inputHarga.value = "{{ $hargaLama }}";
+                @endif
+            }
+        });
+    </script>
 </body>
 </html>

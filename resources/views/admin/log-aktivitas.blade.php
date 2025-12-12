@@ -100,10 +100,7 @@
                     <div class="head">
                         <h3>Log Aktivitas</h3>
 
-                        <input type="text" id="tableSearchInput" class="table-search-input" placeholder="Cari aktivitas...">
-                        <button id="tableSearchBtn" style="background:none; border:none; cursor:pointer; font-size:22px; display:flex; align-items:center;">
-                            <i class='bx bx-search'></i>
-                        </button>
+                        
                     </div>
 
                     <div class="table-container">

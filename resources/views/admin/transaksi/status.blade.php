@@ -187,7 +187,8 @@
                                                 <span style="color: #2E7D32; font-size: 13px; font-weight: 600;"><i class='bx bx-check-double'></i> Transaksi Selesai</span>
                                             @else
                                                 <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
-                                                    @csrf @method('PUT')
+                                                    @csrf 
+                                                    @method('PUT')
                                                     <input type="hidden" name="status" value="{{ $nextStatus }}">
                                                     <button type="submit" class="btn-status {{ $btnClass }}" 
                                                         onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">
@@ -202,8 +203,6 @@
                         </table>
                     </div>
 
-                    <!-- {{-- 🟢 PAGINATION --}}
-                    @include('partial.pagination', ['data' => $transaksi]) -->
 
                 </div>
             </div>
@@ -212,43 +211,6 @@
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    <script src="{{ asset('admin/script/pagination.js') }}"></script>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // SEARCH & DATE SUDAH DIHANDLE script.js (karena ID nya tableSearchInput & dateFilter)
-
-            // CUSTOM LOGIC UNTUK PILLS (KLIK = RELOAD URL)
-            const pills = document.querySelectorAll('.filter-pill');
-            
-            pills.forEach(pill => {
-                pill.addEventListener('click', function() {
-                    const status = this.getAttribute('data-status');
-                    
-                    // Gunakan URLSearchParams untuk update parameter 'status'
-                    const url = new URL(window.location.href);
-                    if(status === 'all') {
-                        url.searchParams.delete('status');
-                    } else {
-                        url.searchParams.set('status', status);
-                    }
-                    
-                    // Reset ke page 1
-                    url.searchParams.set('page', 1);
-                    
-                    // Reload
-                    window.location.href = url.toString();
-                });
-            });
-
-            // UI Tweak untuk search bar
-            const searchIcon = document.getElementById('tableSearchIcon');
-            const searchInput = document.getElementById('tableSearchInput');
-            searchIcon.addEventListener('click', function() {
-                searchInput.classList.toggle('show');
-                if(searchInput.classList.contains('show')) searchInput.focus();
-            });
-        });
-    </script>
 </body>
 </html>

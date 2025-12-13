@@ -36,7 +36,7 @@ class PegawaiController extends Controller
         $request->validate([
             'nama' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:pegawai,owner',
+            'role' => 'required|in:pegawai,admin',
             'password' => 'required|string|min:6',
         ]);
 

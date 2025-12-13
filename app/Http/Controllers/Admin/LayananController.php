@@ -73,8 +73,8 @@ class LayananController extends Controller
                 'harga_max' => 'required|numeric|gt:harga_min', // Max harus > Min
             ]);
 
-            $data['harga_satuan'] = $request->harga_min; // Disimpan sebagai harga dasar
-            $data['harga_maksimum'] = $request->harga_max; // Disimpan sebagai batas atas
+            $data['harga_min'] = $request->harga_min; // Disimpan sebagai harga dasar
+            $data['harga_max'] = $request->harga_max; // Disimpan sebagai batas atas
         } else {
             // --- JIKA MODE HARGA TETAP ---
             $request->validate([
@@ -82,7 +82,8 @@ class LayananController extends Controller
             ]);
 
             $data['harga_satuan'] = $request->harga_tetap;
-            $data['harga_maksimum'] = null; // Pastikan null agar dianggap harga tetap
+            $data['harga_min'] = null; // Pastikan null agar dianggap harga tetap
+            $data['harga_max'] = null; // Pastikan null agar dianggap harga tetap
         }
 
         // 5. Eksekusi Simpan

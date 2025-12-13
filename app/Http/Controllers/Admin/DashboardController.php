@@ -13,29 +13,62 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Ambil 5 Log Terakhir
+        // ==========================================================
+        // 1. LOGIKA LAMA (TIDAK DIUBAH)
+        // ==========================================================
+        
+        // Ambil 5 Log Terakhir
         $recentLogs = Log::with('user') 
                          ->orderBy('waktu', 'desc')
                          ->take(5)
                          ->get();
 
-        // --- PERBAIKAN ZONA WAKTU ---
-        // Kita paksa pakai tanggal hari ini di zona waktu Jakarta (WIB)
+        // Perbaikan Zona Waktu Jakarta
         $hariIni = Carbon::now('Asia/Jakarta')->format('Y-m-d');
 
-        // 2. Hitung Statistik Kartu
+        // Hitung Statistik Kartu
         $totalTransaksi   = Transaksi::count();
-        
-        // Gunakan variabel $hariIni agar hitungan "Hari Ini" akurat sesuai WIB
         $transaksiHariIni = Transaksi::whereDate('tgl_masuk', $hariIni)->count(); 
         
-        // 3. Hitung Berat (Menggunakan Stored Function SQL)
-        // Kita pakai 'get_total_berat_hari_ini' karena itu yang ada di database lokalmu saat ini
-        // Punya temanmu 'fn_...' nanti kita sesuaikan belakangan kalau perlu
+        // Hitung Berat (Pakai Function SQL kamu yg sebelumnya)
         $queryBerat = DB::select("SELECT fn_total_berat_hari_ini() AS total");
         $beratHariIni = $queryBerat[0]->total ?? 0;
 
-        // 4. Kirim semua variabel ke View
-        return view('admin.dashboard', compact('recentLogs', 'totalTransaksi', 'transaksiHariIni', 'beratHariIni')); 
+
+        // ==========================================================
+        // 2. LOGIKA BARU: DATA CHART BULANAN
+        // ==========================================================
+        
+        // A. Siapkan kerangka array kosong (0 sampai 0) untuk 12 bulan
+        // Index 0 = Januari, Index 11 = Desember
+        $dataBeratPerBulan = array_fill(0, 12, 0);
+
+        // B. Query database: Jumlahkan berat, Kelompokkan per Bulan, Tahun Ini saja
+        $chartQuery = Transaksi::select(
+                            DB::raw('MONTH(tgl_masuk) as bulan'), 
+                            DB::raw('SUM(berat) as total_berat')
+                        )
+                        ->whereYear('tgl_masuk', date('Y')) // Filter Tahun Ini
+                        ->groupBy('bulan')
+                        ->get();
+
+        // C. Masukkan data DB ke dalam Array kerangka tadi
+        foreach ($chartQuery as $row) {
+            // $row->bulan isinya 1 s/d 12.
+            // Array Index mulainya dari 0. Jadi bulan - 1.
+            $dataBeratPerBulan[$row->bulan - 1] = $row->total_berat;
+        }
+
+
+        // ==========================================================
+        // 3. KIRIM KE VIEW
+        // ==========================================================
+        return view('admin.dashboard', compact(
+            'recentLogs', 
+            'totalTransaksi', 
+            'transaksiHariIni', 
+            'beratHariIni',
+            'dataBeratPerBulan' // <--- Variabel baru untuk Chart
+        )); 
     }
 }

@@ -139,6 +139,9 @@
             </div>
         </main>
     </section>
+    <script>
+        var chartDataBerat = @json($dataBeratPerBulan);
+    </script>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/chart.js') }}"></script>

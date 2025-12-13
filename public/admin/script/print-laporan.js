@@ -15,6 +15,7 @@
                 tabcontent = document.getElementsByClassName("tab-content");
                 for (i = 0; i < tabcontent.length; i++) {
                     tabcontent[i].style.display = "none";
+                    tabcontent[i].classList.remove("active");
                 }
                 tablinks = document.getElementsByClassName("tab-btn");
                 for (i = 0; i < tablinks.length; i++) {
@@ -24,6 +25,7 @@
                     tablinks[i].style.borderBottomColor = "transparent";
                 }
                 document.getElementById(tabName).style.display = "block";
+                document.getElementById(tabName).classList.add("active");
                 evt.currentTarget.classList.add("active");
                 // Set style aktif
                 evt.currentTarget.style.color = "var(--accent-blue)";
@@ -39,7 +41,7 @@
                 const periodEl = document.getElementById('printReportPeriod');
                 
                 if (tabName === 'tab-harian') {
-                    titleEl.textContent = 'LAPORAN KEUANGAN BULANAN';
+                    titleEl.textContent = 'LAPORAN KEUANGAN HARIAN';
                     const dateInput = document.getElementById('laporanDate');
                     if (dateInput && dateInput.value) {
                         const date = new Date(dateInput.value);

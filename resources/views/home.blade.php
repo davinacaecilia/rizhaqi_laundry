@@ -35,7 +35,7 @@
           <ul class="nav-link">
               <li><a href="#home" class="active">Home</a></li>
               <li><a href="{{ url('/status') }}">Cek Status</a></li>
-              <li><a href="{{ url('/go-login') }}">Login</a></li>
+              <li><a href="{{ url('/login') }}">Dashboard</a></li>
           </ul>
         </div>
 

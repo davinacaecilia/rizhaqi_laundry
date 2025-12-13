@@ -5,67 +5,11 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Transaksi;
+use App\Models\LaporanHarianPegawai;
+use Illuminate\Support\Facades\Auth;
 
 class PegawaiTransaksiController extends Controller
 {
-    public function index(Request $request)
-    {
-        // --- LOGIC FILTER (SEARCH + STATUS + TANGGAL) ---
-        $query = Transaksi::with('pelanggan')
-            // 1. Ambil semua kolom asli transaksi
-            ->select('transaksi.*')
-
-            // 2. PANGGIL FUNCTION DATABASE SEBAGAI KOLOM VIRTUAL
-            // Kita namakan 'total_biaya' supaya di view tidak perlu ubah kodingan
-            ->selectRaw('fn_hitung_total_transaksi(transaksi.id_transaksi) as total_biaya');
-
-        // 1. Search (Invoice / Nama Pelanggan)
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('kode_invoice', 'like', "%$search%")
-                    ->orWhereHas('pelanggan', function ($p) use ($search) {
-                        $p->where('nama', 'like', "%$search%");
-                    });
-            });
-        }
-
-        // 2. Filter Status Bayar
-        if ($request->filled('status_bayar')) {
-            $query->where('status_bayar', $request->status_bayar);
-        }
-
-        // 3. Filter Tanggal Masuk
-        if ($request->filled('tanggal')) {
-            $query->whereDate('tgl_masuk', $request->tanggal);
-        }
-
-        // Order & Paginate
-        $transaksi = $query->orderBy('tgl_masuk', 'desc')->paginate(10);
-
-        // Append query string (biar filter ga ilang pas ganti halaman)
-        $transaksi->appends($request->all());
-
-        return view('admin.transaksi.index', compact('transaksi'));
-    }
-
-    public function show($id)
-    {
-        $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'pembayaran', 'inventaris'])
-            // 1. Ambil kolom asli
-            ->select('transaksi.*')
-
-            // 2. AMBIL TOTAL BIAYA (Virtual Column)
-            ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
-
-            // 3. AMBIL SISA TAGIHAN (Virtual Column)
-            // Biar kita gak perlu hitung manual (total - bayar) di view
-            ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
-
-            ->findOrFail($id);
-
-        return view('admin.transaksi.show', compact('transaksi'));
-    }
 
     public function status(Request $request)
     {
@@ -106,6 +50,12 @@ class PegawaiTransaksiController extends Controller
         if ($trx->status_pesanan == 'disetrika') {
             $trx->status_pesanan = 'packing';
             $trx->save();
+
+            LaporanHarianPegawai::create([
+                'id_user'        => Auth::id(),           // Siapa yang klik (Pegawai)
+                'id_transaksi'   => $trx->id_transaksi,   // Transaksi mana
+                'tgl_dikerjakan' => now(),                // Kapan dikerjakan
+            ]);
 
             // Opsional: Tambah ke Log Pegawai disini
 

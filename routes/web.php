@@ -63,10 +63,6 @@ Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'role:pegawai'])
     Route::get('/transaksi', [PegawaiTransaksiController::class, 'index'])
         ->name('transaksi.index');
 
-    // Tambah order
-    Route::get('/transaksi/create', [PegawaiTransaksiController::class, 'create'])
-        ->name('transaksi.create');
-
     // List status
     Route::get('/transaksi/status', [PegawaiTransaksiController::class, 'status'])
         ->name('transaksi.status');

@@ -23,7 +23,7 @@ class RoleMiddleware
         $userRole = $user->role;
 
         if (!in_array($userRole, $roles)) {
-            return redirect('/')->with('error', 'Akses ditolak! Anda tidak memiliki hak.');
+            abort(404)->with('error', 'Akses ditolak! Anda tidak memiliki hak.');
         }
 
         return $next($request);

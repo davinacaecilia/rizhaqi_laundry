@@ -205,7 +205,7 @@
                                 <span class="filter-pill" data-status="packing">Packing</span>
                                 <span class="filter-pill" data-status="siap diambil">Siap Ambil</span>
                                 <span class="filter-pill" data-status="selesai">Selesai</span>
-                                <span class="filter-pill" data-status="dibatalkan">Dibatalkan</span>
+                                <span class="filter-pill" data-status="batal">Dibatalkan</span>
                             </div>
                         </div>
                     </div>
@@ -284,13 +284,12 @@
                                                 $badgeClass = 'st-selesai'; 
                                                 $isFinished = true; // Tandai selesai
                                                 break;
-                                            case 'dibatalkan':
+                                            case 'batal':
                                                 $badgeClass = 'st-dibatalkan';
                                                 $isCancelled = true; // Tandai batal
                                                 break;
                                             default:
-                                                $nextStatus = 'diterima'; 
-                                                $btnText = 'Reset';
+                                                $isFinished = true;
                                         }
                                     @endphp
 

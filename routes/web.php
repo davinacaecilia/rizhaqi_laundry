@@ -68,6 +68,8 @@ Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'role:pegawai'])
     Route::get('/transaksi/status', [PegawaiTransaksiController::class, 'status'])
         ->name('transaksi.status');
 
+    Route::post('/update-status/{id}', [PegawaiController::class, 'updateStatus'])->name('transaksi.update');
+
     // Detail transaksi
     Route::get('/transaksi/{id}', [PegawaiTransaksiController::class, 'show'])
         ->name('transaksi.show');

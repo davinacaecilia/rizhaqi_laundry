@@ -141,10 +141,28 @@
             </ul>
         </li>
 
-        <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }}">
-            <a href="{{ route('admin.laporan.index') }}"> <i class='bx bxs-report'></i>
-                <span class="text">Laporan Keuangan</span>
+        {{-- === BAGIAN YANG DIPERBARUI: LAPORAN JADI DROPDOWN === --}}
+        <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }} has-dropdown">
+            <a href="#" class="dropdown-toggle">
+                <i class='bx bxs-report'></i>
+                <span class="text">Pusat Laporan</span> {{-- Ganti teks jadi lebih umum --}}
+                <i class='bx bx-chevron-down toggle-icon'></i>
             </a>
+            <ul class="submenu">
+                {{-- Laporan Keuangan (Index Laporan) --}}
+                <li class="{{ Request::routeIs('admin.laporan.index') ? 'active' : '' }}">
+                    <a href="{{ route('admin.laporan.index') }}">
+                        <i class='bx bx-money'></i> <span class="text">Laporan Keuangan</span>
+                    </a>
+                </li>
+                
+                {{-- Laporan Pegawai (Menu Baru) --}}
+                <li class="{{ Request::routeIs('admin.laporan.pegawai') ? 'active' : '' }}">
+                    <a href="{{ route('admin.laporan.pegawai') }}">
+                        <i class='bx bx-user-check'></i> <span class="text">Laporan Pegawai</span>
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li class="{{ Request::is('admin/log-aktivitas') ? 'active' : '' }}">

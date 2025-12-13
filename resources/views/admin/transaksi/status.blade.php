@@ -203,7 +203,7 @@
                     </div>
 
                     <!-- {{-- 🟢 PAGINATION --}}
-                    @include('partial.pagination', ['data' => $transaksi]) -->
+                   {{-- @include('partial.pagination', ['data' => $transaksi]) --}}
 
                 </div>
             </div>

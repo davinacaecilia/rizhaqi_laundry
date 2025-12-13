@@ -47,6 +47,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     Route::resource('alat', AlatController::class);
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/pegawai', [LaporanController::class, 'laporanPegawai'])->name('laporan.pegawai');
 
     Route::resource('pengeluaran', PengeluaranController::class);
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log.index');

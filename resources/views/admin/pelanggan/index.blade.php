@@ -214,7 +214,7 @@
                     </div>
 
                     <!-- {{-- 🟢 PAGINATION COMPONENT --}}
-                    @include('partial.pagination', ['data' => $pelanggan]) -->
+                   {{-- @include('partial.pagination', ['data' => $pelanggan]) --}}
                 </div>
             </div>
 

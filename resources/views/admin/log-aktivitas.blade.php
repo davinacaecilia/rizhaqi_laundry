@@ -132,7 +132,7 @@
                         </table>
                         
                         </div>
-                        <!-- @include('partial.pagination', ['data' => $logs]) -->
+                        {{-- @include('partial.pagination', ['data' => $logs]) --}}
                 </div>
             </div>
 

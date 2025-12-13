@@ -289,7 +289,7 @@
                         <p style="font-size: 14px; margin: 0; color: #333;">
                             @foreach($transaksi->inventaris as $inv)
                                 {{ $inv->jumlah }} {{ $inv->nama_barang }}@if(!$loop->last), @endif
-                            @endforeach.
+                            @endforeach
                         </p>
                     </div>
                 @endif

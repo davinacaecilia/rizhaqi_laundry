@@ -18,16 +18,11 @@ class TransaksiController extends Controller
 {
     public function index(Request $request)
     {
-        // --- LOGIC FILTER (SEARCH + STATUS + TANGGAL) ---
         $query = Transaksi::with('pelanggan')
-            // 1. Ambil semua kolom asli transaksi
-            ->select('transaksi.*') 
-            
-            // 2. PANGGIL FUNCTION DATABASE SEBAGAI KOLOM VIRTUAL
-            // Kita namakan 'total_biaya' supaya di view tidak perlu ubah kodingan
+            ->select('transaksi.*')
             ->selectRaw('fn_hitung_total_transaksi(transaksi.id_transaksi) as total_biaya');
 
-        // 1. Search (Invoice / Nama Pelanggan)
+        // Filter Search
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -38,21 +33,21 @@ class TransaksiController extends Controller
             });
         }
 
-        // 2. Filter Status Bayar
-        if ($request->filled('status_bayar')) {
-            $query->where('status_bayar', $request->status_bayar);
+        // Filter Status Bayar
+        if ($request->filled('status')) {
+            $query->where('status_bayar', $request->status);
         }
 
-        // 3. Filter Tanggal Masuk
-        if ($request->filled('tanggal')) {
-            $query->whereDate('tgl_masuk', $request->tanggal);
+        // Filter Tanggal
+        if ($request->filled('date')) {
+            $query->whereDate('tgl_masuk', $request->date);
         }
 
-        // Order & Paginate
-        $transaksi = $query->orderBy('tgl_masuk', 'desc')->paginate(10);
+        // --- SHOW ALL SEMENTARA (PAGINATION DIKOMEN) ---
+        // $transaksi = $query->orderBy('tgl_masuk', 'desc')->paginate(10);
+        // $transaksi->appends($request->all());
 
-        // Append query string (biar filter ga ilang pas ganti halaman)
-        $transaksi->appends($request->all());
+        $transaksi = $query->orderBy('tgl_masuk', 'desc')->get();
 
         return view('admin.transaksi.index', compact('transaksi'));
     }
@@ -84,42 +79,22 @@ class TransaksiController extends Controller
 
     public function store(Request $request)
     {
-        // === DEBUGGING: LOG DATA REQUEST ===
-        \Log::info('=== DATA REQUEST MASUK ===');
-        \Log::info('Semua Data:', $request->all());
-        \Log::info('Harga Satuan:', $request->harga_satuan);
-        \Log::info('Berat:', $request->berat);
-        \Log::info('Status Bayar:', $request->status_bayar);
-        
-        // 1. VALIDASI (DIPERBAIKI: min:1 untuk harga_satuan)
-        try {
-            $validated = $request->validate([
-                'nama_pelanggan' => 'required|string|max:100',
-                'no_hp'          => 'required|string|max:15',
-                'layanan_id'     => 'required|exists:layanan,id_layanan',
-                'berat'          => 'required|numeric|min:0.1',
-                'harga_satuan'   => 'required|numeric|min:1', // ← PERBAIKAN: min:1 (tidak boleh 0)
-                'tgl_selesai'    => 'required|date|after_or_equal:today',
-                'status_bayar'   => 'required|in:belum,lunas,dp',
-                'jumlah_dp'      => 'required_if:status_bayar,dp|nullable|numeric|min:1', // ← PERBAIKAN: Validasi DP
-            ]);
-            
-            \Log::info('✅ Validasi Berhasil');
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('❌ Validasi Gagal:', $e->errors());
-            return redirect()->back()
-                ->withErrors($e->errors())
-                ->withInput()
-                ->with('error', 'Data tidak valid! Periksa kembali form Anda.');
-        }
+        // VALIDASI
+        $request->validate([
+            'nama_pelanggan' => 'required|string|max:100',
+            'no_hp'          => 'required|string|max:15',
+            'layanan_id'     => 'required|exists:layanan,id_layanan',
+            'berat'          => 'required|numeric|min:0.1',
+            'harga_satuan'   => 'required|numeric|min:1',
+            'tgl_selesai'    => 'required|date|after_or_equal:today',
+            'status_bayar'   => 'required|in:belum,lunas,dp',
+            'jumlah_dp'      => 'required_if:status_bayar,dp|nullable|numeric|min:1',
+        ]);
 
         DB::beginTransaction();
 
         try {
-            \Log::info('🔄 Mulai Transaksi Database...');
-            
-            // 2. CEK / BUAT PELANGGAN
+            // CEK / BUAT PELANGGAN
             $pelanggan = Pelanggan::where('nama', $request->nama_pelanggan)
                 ->orWhere('telepon', $request->no_hp)
                 ->first();
@@ -130,17 +105,15 @@ class TransaksiController extends Controller
                     'telepon' => $request->no_hp,
                     'alamat'  => $request->alamat
                 ]);
-                \Log::info('✅ Pelanggan Baru Dibuat:', ['id' => $pelanggan->id_pelanggan]);
             } else {
                 if($request->filled('alamat')) {
                     $pelanggan->update(['alamat' => $request->alamat]);
                 }
-                \Log::info('✅ Pelanggan Existing:', ['id' => $pelanggan->id_pelanggan]);
             }
 
-            // 3. SIMPAN HEADER TRANSAKSI
+            // SIMPAN HEADER TRANSAKSI
             $transaksi = Transaksi::create([
-                'kode_invoice'   => 'AUTO', 
+                'kode_invoice'   => 'AUTO',
                 'id_pelanggan'   => $pelanggan->id_pelanggan,
                 'id_user'        => Auth::id() ?? 1,
                 'tgl_masuk'      => Carbon::now(),
@@ -152,19 +125,16 @@ class TransaksiController extends Controller
                 'catatan'        => $request->catatan,
             ]);
 
-            $transaksi->refresh(); 
-            \Log::info('✅ Transaksi Header Dibuat:', ['invoice' => $transaksi->kode_invoice]);
+            $transaksi->refresh();
 
-            // 4. SIMPAN DETAIL LAYANAN UTAMA
+            // SIMPAN DETAIL LAYANAN UTAMA
             $layananDb = Layanan::find($request->layanan_id);
             
-            // PERBAIKAN: Validasi harga untuk flexible pricing
             if ($layananDb->is_flexible == 1) {
                 $hargaMin = $layananDb->harga_satuan;
                 $hargaMax = $layananDb->harga_maksimum;
                 $hargaInput = $request->harga_satuan;
                 
-                // Cek apakah harga dalam rentang yang valid
                 if ($hargaInput < $hargaMin || $hargaInput > $hargaMax) {
                     throw new \Exception("Harga tidak valid! Harus antara Rp " . number_format($hargaMin) . " - Rp " . number_format($hargaMax));
                 }
@@ -180,17 +150,10 @@ class TransaksiController extends Controller
                 'jumlah'               => $request->berat,
                 'harga_saat_transaksi' => $hargaFinal,
             ]);
-            
-            \Log::info('✅ Detail Layanan Utama Disimpan:', [
-                'layanan' => $layananDb->nama_layanan,
-                'harga' => $hargaFinal,
-                'jumlah' => $request->berat
-            ]);
 
-            // 5. SIMPAN DETAIL ADDON (DIPERBAIKI: Cek qty > 0)
+            // SIMPAN DETAIL ADDON
             $listAddons = ['ekspress', 'hanger', 'plastik', 'hanger_plastik'];
             foreach ($listAddons as $key) {
-                // PERBAIKAN: Cek checkbox DAN qty > 0
                 if ($request->has("addon_$key") && $request->filled("qty_$key")) {
                     $qty = $request->input("qty_$key", 0);
                     
@@ -205,14 +168,12 @@ class TransaksiController extends Controller
                                 'jumlah'               => $qty,
                                 'harga_saat_transaksi' => $addonDb->harga_satuan,
                             ]);
-                            
-                            \Log::info("✅ Addon '{$addonDb->nama_layanan}' Disimpan: {$qty} x Rp " . number_format($addonDb->harga_satuan));
                         }
                     }
                 }
             }
 
-            // 6. SIMPAN INVENTARIS
+            // SIMPAN INVENTARIS
             if ($request->has('toggleDetail') && $request->toggleDetail == 'on') {
                 $bajuOps = ['qty_baju', 'qty_kaos', 'qty_celana_panjang', 'qty_celana_pendek', 'qty_jilbab', 'qty_jaket', 'qty_kaos_kaki', 'qty_sarung', 'qty_lainnya'];
                 
@@ -227,26 +188,19 @@ class TransaksiController extends Controller
                         ]);
                     }
                 }
-                \Log::info('✅ Inventaris Pakaian Disimpan');
             }
 
-            // 7. PROSES PEMBAYARAN
+            // PROSES PEMBAYARAN
             if ($request->status_bayar != 'belum') {
-                
-                // Hitung total dari database
                 $totalTagihan = DB::select("SELECT fn_hitung_total_transaksi(?) as total", [$transaksi->id_transaksi])[0]->total;
-                \Log::info('💰 Total Tagihan dari DB:', ['total' => $totalTagihan]);
-                
                 $uangBayar = 0;
 
                 if ($request->status_bayar == 'lunas') {
                     $uangBayar = $totalTagihan;
                 } elseif ($request->status_bayar == 'dp') {
                     $uangBayar = $request->jumlah_dp;
-                    
-                    // PERBAIKAN: Validasi DP tidak boleh lebih dari total
                     if ($uangBayar > $totalTagihan) {
-                        throw new \Exception("Jumlah DP (Rp " . number_format($uangBayar) . ") tidak boleh lebih dari total tagihan (Rp " . number_format($totalTagihan) . ")");
+                        throw new \Exception("Jumlah DP tidak boleh lebih dari total tagihan.");
                     }
                 }
 
@@ -257,17 +211,10 @@ class TransaksiController extends Controller
                         $uangBayar,
                         $request->status_bayar == 'lunas' ? 'Lunas Awal' : 'DP Awal'
                     ]);
-                    
-                    \Log::info('✅ Pembayaran Dicatat:', [
-                        'status' => $request->status_bayar,
-                        'jumlah' => $uangBayar
-                    ]);
                 }
             }
 
             DB::commit();
-            \Log::info('✅ TRANSAKSI BERHASIL DISIMPAN!', ['invoice' => $transaksi->kode_invoice]);
-
             $transaksi->refresh();
 
             return redirect()->route('admin.transaksi.index')
@@ -275,31 +222,52 @@ class TransaksiController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            
-            \Log::error('❌ ERROR SAAT MENYIMPAN:', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            
             return redirect()->back()
                 ->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage())
                 ->withInput();
         }
     }
 
-    public function update(Request $request, string $id) 
+    public function edit($id)
+    {
+        $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'inventaris'])
+            ->select('transaksi.*')
+            ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
+            ->findOrFail($id);
+
+        $pelanggan = Pelanggan::orderBy('nama', 'asc')->get();
+        $layanan = Layanan::all();
+
+        $kategori = Layanan::select('kategori')
+            ->where('kategori', '!=', 'ADD ON')
+            ->distinct()
+            ->get()
+            ->sortBy(function($item) {
+                $urutan = [
+                    'REGULAR SERVICES'      => 1,
+                    'PACKAGE SERVICES'      => 2,
+                    'KARPET'                => 3,
+                    'DISCOUNT JUMAT BERKAH' => 4,
+                    'DISCOUNT SELASA CERIA' => 5,
+                    'CUCI SATUAN'           => 6
+                ];
+                return $urutan[$item->kategori] ?? 99;
+            });
+
+        return view('admin.transaksi.edit', compact('transaksi', 'pelanggan', 'layanan', 'kategori'));
+    }
+
+    public function update(Request $request, $id) 
     { 
-        // 1. VALIDASI
         $request->validate([
             'nama_pelanggan' => 'required|string',
             'no_hp'          => 'required',
             'layanan_id'     => 'required',
             'berat'          => 'required|numeric|min:0.1',
-            'harga_satuan'   => 'required|numeric|min:1', // ← PERBAIKAN
+            'harga_satuan'   => 'required|numeric|min:1',
             'tgl_selesai'    => 'required|date',
             'status_bayar'   => 'required|in:belum,lunas,dp',
+            'jumlah_dp'      => 'required_if:status_bayar,dp|numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -307,22 +275,21 @@ class TransaksiController extends Controller
         try {
             $transaksi = Transaksi::findOrFail($id);
 
-            // 2. UPDATE PELANGGAN
+            // UPDATE DATA PELANGGAN
             $transaksi->pelanggan->update([
                 'nama'    => $request->nama_pelanggan,
                 'telepon' => $request->no_hp,
                 'alamat'  => $request->alamat
             ]);
 
-            // 3. UPDATE HEADER TRANSAKSI
+            // UPDATE HEADER TRANSAKSI
             $transaksi->update([
                 'tgl_selesai' => $request->tgl_selesai,
                 'berat'       => $request->berat,
-                'status_bayar'=> $request->status_bayar,
                 'catatan'     => $request->catatan,
             ]);
 
-            // 4. RESET & UPDATE DETAIL LAYANAN UTAMA
+            // UPDATE DETAIL LAYANAN
             $transaksi->detailTransaksi()->delete();
             
             $layananDb = Layanan::find($request->layanan_id);
@@ -335,12 +302,11 @@ class TransaksiController extends Controller
                 'harga_saat_transaksi' => $hargaFinal,
             ]);
 
-            // 5. UPDATE ADDONS (DIPERBAIKI)
+            // UPDATE ADDONS
             $listAddons = ['ekspress', 'hanger', 'plastik', 'hanger_plastik'];
             foreach ($listAddons as $key) {
                 if ($request->has("addon_$key") && $request->filled("qty_$key")) {
                     $qty = $request->input("qty_$key", 0);
-                    
                     if ($qty > 0) {
                         $keyword = str_replace('_', ' ', $key);
                         $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
@@ -357,46 +323,61 @@ class TransaksiController extends Controller
                 }
             }
 
-            // 6. UPDATE INVENTARIS
-            $transaksi->inventaris()->delete(); 
-            $bajuOps = ['qty_baju', 'qty_kaos', 'qty_celana_panjang', 'qty_celana_pendek', 'qty_jilbab', 'qty_jaket', 'qty_kaos_kaki', 'qty_sarung', 'qty_lainnya'];
-            foreach ($bajuOps as $field) {
-                $qty = $request->input($field, 0);
-                if ($qty > 0) {
-                    $namaBarang = ucwords(str_replace(['qty_', '_'], ['', ' '], $field));
-                    TransaksiInventaris::create([
-                        'id_transaksi' => $transaksi->id_transaksi,
-                        'nama_barang'  => $namaBarang,
-                        'jumlah'       => $qty
-                    ]);
+            // UPDATE INVENTARIS
+            $transaksi->inventaris()->delete();
+            if($request->has('toggleDetail')) {
+                $bajuOps = ['qty_baju', 'qty_kaos', 'qty_celana_panjang', 'qty_celana_pendek', 'qty_jilbab', 'qty_jaket', 'qty_kaos_kaki', 'qty_sarung', 'qty_lainnya'];
+                foreach ($bajuOps as $field) {
+                    $qty = $request->input($field, 0);
+                    if ($qty > 0) {
+                        $namaBarang = ucwords(str_replace(['qty_', '_'], ['', ' '], $field));
+                        TransaksiInventaris::create([
+                            'id_transaksi' => $transaksi->id_transaksi,
+                            'nama_barang'  => $namaBarang,
+                            'jumlah'       => $qty
+                        ]);
+                    }
                 }
             }
 
-            // 7. LOGIKA KEUANGAN PASCA-EDIT
+            // LOGIKA KEUANGAN (AUTO-CORRECT STATUS BAYAR)
             $totalBaru = DB::select("SELECT fn_hitung_total_transaksi(?) as total", [$transaksi->id_transaksi])[0]->total;
-            $sudahBayar = $transaksi->jumlah_bayar;
+            $sudahBayar = $transaksi->jumlah_bayar; 
 
             if ($request->status_bayar == 'lunas') {
                 $kurang = $totalBaru - $sudahBayar;
                 if ($kurang > 0) {
                     DB::statement("CALL sp_input_pembayaran(?, ?, ?, ?)", [
-                        $transaksi->id_transaksi,
-                        Auth::id() ?? 1,
-                        $kurang,
-                        'Pelunasan (Update Order)'
+                        $transaksi->id_transaksi, Auth::id() ?? 1, $kurang, 'Pelunasan (Edit Order)'
                     ]);
                 }
-            } else {
-                if ($sudahBayar >= $totalBaru) {
+                $transaksi->update(['status_bayar' => 'lunas']);
+            } 
+            elseif ($request->status_bayar == 'dp') {
+                $inputDP = $request->input('jumlah_dp', 0);
+                $selisih = $inputDP - $sudahBayar;
+
+                if($selisih > 0) {
+                    DB::statement("CALL sp_input_pembayaran(?, ?, ?, ?)", [
+                        $transaksi->id_transaksi, Auth::id() ?? 1, $selisih, 'Tambahan DP (Edit Order)'
+                    ]);
+                }
+                $transaksi->update(['status_bayar' => 'dp']);
+            }
+            else {
+                if ($sudahBayar >= $totalBaru && $totalBaru > 0) {
                     $transaksi->update(['status_bayar' => 'lunas']);
-                } else {
+                } else if ($sudahBayar > 0) {
                     $transaksi->update(['status_bayar' => 'dp']);
+                } else {
+                    $transaksi->update(['status_bayar' => 'belum']);
                 }
             }
 
             DB::commit();
+            
             return redirect()->route('admin.transaksi.index')
-                             ->with('success', 'Data Transaksi Berhasil Diupdate!');
+                             ->with('success', 'Transaksi berhasil diperbarui!');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -404,14 +385,80 @@ class TransaksiController extends Controller
         }
     }
 
-    public function status()
+    public function bayarCepat(Request $request, $id)
     {
-        $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'pembayaran', 'inventaris'])
+        $request->validate([
+            'nominal_bayar' => 'required|numeric|min:1'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $transaksi = Transaksi::findOrFail($id);
+            
+            DB::statement("CALL sp_input_pembayaran(?, ?, ?, ?)", [
+                $transaksi->id_transaksi,
+                Auth::id() ?? 1, 
+                $request->nominal_bayar,
+                'Pelunasan via Menu Cepat'
+            ]);
+
+            $transaksi->refresh(); 
+
+            if ($transaksi->status_bayar != 'lunas') {
+                $totalMasuk = DB::table('pembayaran')->where('id_transaksi', $id)->sum('jumlah_bayar');
+                $cekTotal = DB::select("SELECT fn_hitung_total_transaksi(?) as total", [$id]);
+                $totalTagihan = $cekTotal[0]->total ?? $transaksi->total_biaya;
+
+                if ($totalMasuk >= $totalTagihan) {
+                    $transaksi->status_bayar = 'lunas';
+                } else {
+                    $transaksi->status_bayar = 'dp';
+                }
+                
+                if($transaksi->isDirty('status_bayar')){
+                    $transaksi->save();
+                }
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Pembayaran berhasil! Status sekarang: ' . strtoupper($transaksi->status_bayar));
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 'Error Database: ' . $e->getMessage());
+        }
+    }
+
+    public function status(Request $request)
+    {
+        $query = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'pembayaran', 'inventaris'])
             ->select('transaksi.*')
             ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
-            ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
-            ->orderBy('updated_at', 'desc')
-            ->get();
+            ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan');
+
+        if ($request->filled('status') && $request->status != 'all') {
+            $query->where('status_pesanan', $request->status);
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('tgl_masuk', $request->date);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('kode_invoice', 'like', "%$search%")
+                  ->orWhereHas('pelanggan', function($p) use ($search) {
+                      $p->where('nama', 'like', "%$search%");
+                  });
+            });
+        }
+
+        // --- SHOW ALL SEMENTARA (PAGINATION DIKOMEN) ---
+        // $transaksi = $query->orderBy('updated_at', 'desc')->paginate(10);
+        // $transaksi->appends($request->all());
+
+        $transaksi = $query->orderBy('updated_at', 'desc')->get();
 
         $rawCounts = DB::select("CALL sp_get_status_counts()");
 
@@ -502,42 +549,13 @@ class TransaksiController extends Controller
         return view('admin.transaksi.show', compact('transaksi'));
     }
 
-    public function edit($id)
-    {
-        $transaksi = Transaksi::with(['pelanggan', 'pembayaran', 'detailTransaksi.layanan', 'inventaris'])
-            ->select('transaksi.*')
-            ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
-            ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
-            ->findOrFail($id);
-        
-        $pelanggan = Pelanggan::orderBy('nama', 'asc')->get();
-        $layanan = Layanan::all(); 
-
-        $kategori = Layanan::select('kategori')
-            ->where('kategori', '!=', 'ADD ON')
-            ->distinct()
-            ->get()
-            ->sortBy(function($item) {
-                $urutan = [
-                    'REGULAR SERVICES'      => 1,
-                    'PACKAGE SERVICES'      => 2,
-                    'KARPET'                => 3,
-                    'DISCOUNT JUMAT BERKAH' => 4,
-                    'DISCOUNT SELASA CERIA' => 5,
-                    'CUCI SATUAN'           => 6
-                ];
-                return $urutan[$item->kategori] ?? 99;
-            });
-        
-        return view('admin.transaksi.edit', compact('transaksi', 'pelanggan', 'layanan', 'kategori'));
-    }
-
     public function destroy($id)
     {
+        // Cari transaksi
         $transaksi = Transaksi::findOrFail($id);
 
         $transaksi->update([
-            'status_pesanan' => 'dibatalkan',
+            'status_pesanan' => 'batal', // sesuai standar database 'batal' atau 'dibatalkan'
             'status_bayar'   => 'batal' 
         ]);
 

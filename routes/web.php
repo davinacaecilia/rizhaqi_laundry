@@ -35,6 +35,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     // routes/web.php
     Route::put('/transaksi/{id}/update-status', [TransaksiController::class, 'updateStatus'])->name('transaksi.updateStatus');
     Route::resource('transaksi', TransaksiController::class);
+    
+    
+    Route::post('/transaksi/{id}/bayar-cepat', [TransaksiController::class, 'bayarCepat'])
+     ->name('transaksi.bayarCepat');
 
     Route::post('pegawai/{pegawai}/status', [PegawaiController::class, 'toggleStatus'])->name('pegawai.status.toggle');
     Route::resource('pegawai', PegawaiController::class);

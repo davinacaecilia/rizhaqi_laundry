@@ -25,7 +25,11 @@
                 
                 <header class="dashboard-header">
                     <div class="header-text">
+                        @if(auth()->user()->role === 'owner')
+                        <h1>Owner Dashboard - Rizhaqi Laundry</h1>
+                        @else
                         <h1>Admin Dashboard - Rizhaqi Laundry</h1>
+                        @endif
                         <p>Ringkasan Kinerja dan Status Bisnis</p>
                     </div>
                     

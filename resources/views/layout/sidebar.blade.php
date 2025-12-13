@@ -11,11 +11,17 @@
                 <span class="text">Dashboard</span>
             </a>
         </li>
-        
+
         <li class="{{ Request::is('pegawai/transaksi/status*') ? 'active' : '' }}">
             <a href="{{ route('pegawai.transaksi.status') }}">
-                <i class='bx bx-check-shield'></i> 
+                <i class='bx bx-check-shield'></i>
                 <span class="text">Status Order</span>
+            </a>
+        </li>
+        <li class="{{ Request::is('pegawai/laporan-pegawai') ? 'active' : '' }}">
+            <a href="{{ route('pegawai.laporan') }}">
+                <i class='bx bx-file'></i>
+                <span class="text">Laporan Harian</span>
             </a>
         </li>
     </ul>
@@ -23,7 +29,7 @@
     <ul class="side-menu">
         <li>
             <a href="{{ route('logout') }}" class="logout"
-            onclick="event.preventDefault(); if(confirm('Yakin ingin keluar?')) { document.getElementById('logout-form').submit(); }">
+                onclick="event.preventDefault(); if(confirm('Yakin ingin keluar?')) { document.getElementById('logout-form').submit(); }">
                 <i class='bx bxs-log-out-circle'></i>
                 <span class="text">Logout</span>
             </a>

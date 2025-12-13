@@ -201,7 +201,7 @@
                     <div class="table-card">
                         <div class="card-header">
                             <h2>Preview Status Order</h2>
-                            <a href="{{ route('pegawai.transaksi.index') }}" class="btn-see-all">See All</a>
+                            <a href="{{ route('pegawai.transaksi.status') }}" class="btn-see-all">See All</a>
                         </div>
                         <div class="card-body">
                             <table>

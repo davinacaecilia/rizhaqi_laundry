@@ -80,6 +80,7 @@
                         </div>
                     </div>
                     
+                    @if(auth()->user()->role === 'owner')
                     {{-- TABEL LOG AKTIVITAS (PENGGANTI CHART DONAT) --}}
                     <div class="chart-card" style="overflow: hidden;"> 
                         <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -139,6 +140,7 @@
                             </table>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </main>

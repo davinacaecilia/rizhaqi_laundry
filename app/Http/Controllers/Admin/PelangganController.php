@@ -10,10 +10,6 @@ class PelangganController extends Controller
 {
     public function index()
     {
-        // 3. PAGINATION (DIKOMEN DULU SEPERTI REQUEST ANDA)
-        // $pelanggan = $query->paginate(20);
-        // $pelanggan->appends($request->all());
-        $logs = $query->get();
         $pelanggan = Pelanggan::latest()->get();
         return view('admin.pelanggan.index', compact('pelanggan'));
     }

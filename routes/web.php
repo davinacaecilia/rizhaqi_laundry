@@ -17,6 +17,7 @@ use App\Http\Controllers\Pegawai\PegawaiDashboardController;
 use App\Http\Controllers\Pegawai\PegawaiTransaksiController;
 use App\Http\Controllers\Pegawai\PegawaiPelangganController;
 use App\Http\Controllers\Pegawai\PegawaiCucianController;
+use App\Http\Controllers\Pegawai\LaporanPegawaiController;
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -33,10 +34,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     // routes/web.php
     Route::put('/transaksi/{id}/update-status', [TransaksiController::class, 'updateStatus'])->name('transaksi.updateStatus');
     Route::resource('transaksi', TransaksiController::class);
-    
-    
+
+
     Route::post('/transaksi/{id}/bayar-cepat', [TransaksiController::class, 'bayarCepat'])
-     ->name('transaksi.bayarCepat');
+        ->name('transaksi.bayarCepat');
 
     Route::post('pegawai/{pegawai}/status', [PegawaiController::class, 'toggleStatus'])->name('pegawai.status.toggle');
     Route::resource('pegawai', PegawaiController::class);
@@ -70,7 +71,7 @@ Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'role:pegawai'])
     Route::get('/transaksi/status', [PegawaiTransaksiController::class, 'status'])
         ->name('transaksi.status');
 
-    Route::post('/update-status/{id}', [PegawaiController::class, 'updateStatus'])->name('transaksi.update');
+    Route::post('/update-status/{id}', [PegawaiTransaksiController::class, 'updateStatus'])->name('transaksi.update');
 
     // Detail transaksi
     Route::get('/transaksi/{id}', [PegawaiTransaksiController::class, 'show'])
@@ -83,4 +84,7 @@ Route::prefix('pegawai')->name('pegawai.')->middleware(['auth', 'role:pegawai'])
     // Halaman list cucian
     Route::get('/cucian', [PegawaiCucianController::class, 'index'])
         ->name('cucian.index');
+
+    Route::get('/laporan-pegawai', [LaporanPegawaiController::class, 'index'])
+        ->name('laporan');
 });

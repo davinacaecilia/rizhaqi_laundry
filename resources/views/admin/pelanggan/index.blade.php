@@ -188,6 +188,7 @@
                                                 <i class='bx bx-edit'></i> Edit
                                             </a>
 
+                                            @if(auth()->user()->role === 'owner')
                                             <form action="{{ route('admin.pelanggan.destroy', $item->id_pelanggan) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
@@ -195,6 +196,7 @@
                                                     <i class='bx bx-trash'></i> Delete
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

@@ -1,54 +1,50 @@
-const totalPages = 3;
-  let currentPage = 1;
+// ========================================
+// PAGINATION LOGIC - Auto Work
+// ========================================
 
-  function renderPagination() {
-    const container = document.getElementById("pagination");
-    container.innerHTML = "";
+document.addEventListener('DOMContentLoaded', function() {
+    // Deteksi pagination links
+    const paginationLinks = document.querySelectorAll('.pagination-wrapper a:not(.disabled)');
+    
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Jika link adalah arrow/number biasa, biarkan default behavior (pindah halaman)
+            // Tidak perlu e.preventDefault() karena kita pakai href Laravel
+            
+            // Optional: Tambahkan loading indicator
+            const wrapper = this.closest('.pagination-wrapper');
+            if (wrapper) {
+                wrapper.style.opacity = '0.6';
+                wrapper.style.pointerEvents = 'none';
+            }
+        });
+    });
+    
+    // Update info text saat halaman load (untuk AJAX pagination jika diperlukan)
+    updatePaginationInfo();
+});
 
-    // Tombol First
-    if (currentPage > 1) {
-      const firstBtn = createButton("« First", () => changePage(1));
-      container.appendChild(firstBtn);
-    }
+// Function untuk update info "Showing X-Y of Z" (jika pakai AJAX)
+function updatePaginationInfo() {
+    const infoElement = document.querySelector('.pagination-info');
+    if (!infoElement) return;
+    
+    // Ambil data dari URL atau element
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentPage = parseInt(urlParams.get('page')) || 1;
+    
+    // Contoh kalkulasi (sesuaikan dengan data Anda)
+    const totalRows = document.querySelectorAll('.table-container tbody tr:not(.no-data-row)').length;
+    const perPage = 10; // Sesuaikan dengan Laravel Paginator
+    
+    const from = ((currentPage - 1) * perPage) + 1;
+    const to = Math.min(currentPage * perPage, totalRows);
+    
+    // Update text (opsional, karena Laravel sudah inject)
+    // infoElement.textContent = `Menampilkan ${from}-${to} dari ${totalRows} data`;
+}
 
-    // Tombol Previous
-    if (currentPage > 1) {
-      const prevBtn = createButton("Previous", () => changePage(currentPage - 1));
-      container.appendChild(prevBtn);
-    }
-
-    // Nomor halaman
-    for (let i = 1; i <= totalPages; i++) {
-      const pageBtn = createButton(i, () => changePage(i));
-      if (i === currentPage) pageBtn.classList.add("active");
-      container.appendChild(pageBtn);
-    }
-
-    // Tombol Next
-    if (currentPage < totalPages) {
-      const nextBtn = createButton("Next", () => changePage(currentPage + 1));
-      container.appendChild(nextBtn);
-    }
-
-    // Tombol Last
-    if (currentPage < totalPages) {
-      const lastBtn = createButton("Last »", () => changePage(totalPages));
-      container.appendChild(lastBtn);
-    }
-  }
-
-  function createButton(text, onClick) {
-    const btn = document.createElement("button");
-    btn.textContent = text;
-    btn.onclick = onClick;
-    return btn;
-  }
-
-  function changePage(page) {
-    currentPage = page;
-    renderPagination();
-    // Lo bisa panggil fungsi loadPageData(page) di sini kalau mau load data sesuai halaman
-  }
-
-  // Inisialisasi
-  renderPagination();
+// Export function untuk digunakan di halaman lain (optional)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { updatePaginationInfo };
+}

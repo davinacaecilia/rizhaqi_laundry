@@ -25,8 +25,8 @@ class DynamicDBConnection
             $role = Auth::user()->role;
 
             switch ($role) {
-                case 'admin':
                 case 'owner':
+                case 'admin':
                     Config::set('database.default', 'mysql');
                     break;
                 case 'pegawai':

@@ -601,6 +601,10 @@ class TransaksiController extends Controller
 
     public function destroy($id)
     {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->back()->with('error', 'Admin tidak diizinkan untuk membatalkan transaksi.');
+        }
+
         // Cari transaksi
         $transaksi = Transaksi::findOrFail($id);
 

@@ -54,11 +54,14 @@
                         <i class='bx bx-list-ul'></i> <span class="text">Data Pegawai</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('admin/pegawai/create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.pegawai.create') }}">
-                        <i class='bx bx-user-plus'></i> <span class="text">Tambah Pegawai</span>
-                    </a>
-                </li>
+                {{-- Hanya Owner yang boleh menambah pegawai --}}
+                @if(auth()->user()->role === 'owner')
+                    <li class="{{ Request::is('admin/pegawai/create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pegawai.create') }}">
+                            <i class='bx bx-user-plus'></i> <span class="text">Tambah Pegawai</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </li>
 
@@ -69,7 +72,8 @@
                 <i class='bx bx-chevron-down toggle-icon'></i>
             </a>
             <ul class="submenu">
-                <li class="{{ Request::is('admin/pelanggan') && !Request::is('admin/pelanggan/create') ? 'active' : '' }}">
+                <li
+                    class="{{ Request::is('admin/pelanggan') && !Request::is('admin/pelanggan/create') ? 'active' : '' }}">
                     <a href="{{ route('admin.pelanggan.index') }}">
                         <i class='bx bx-list-ul'></i> <span class="text">Data Pelanggan</span>
                     </a>
@@ -94,72 +98,83 @@
                         <i class='bx bx-list-ul'></i> <span class="text">Daftar Harga</span>
                     </a>
                 </li>
-                <li class="{{ Request::is('admin/layanan/create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.layanan.create') }}">
-                        <i class='bx bx-plus-circle'></i> <span class="text">Tambah Layanan</span>
-                    </a>
-                </li>
+                {{-- Hanya Owner yang boleh menambah layanan --}}
+                @if(auth()->user()->role === 'owner')
+                    <li class="{{ Request::is('admin/layanan/create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.layanan.create') }}">
+                            <i class='bx bx-plus-circle'></i> <span class="text">Tambah Layanan</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </li>
 
-        <li class="{{ Request::is('admin/alat*') ? 'active' : '' }} has-dropdown">
-            <a href="#" class="dropdown-toggle">
-                <i class='bx bxs-wrench'></i>
-                <span class="text">Manajemen Alat</span>
-                <i class='bx bx-chevron-down toggle-icon'></i>
-            </a>
-            <ul class="submenu">
-                <li class="{{ Request::is('admin/alat') && !Request::is('admin/alat/create') && !Request::is('admin/alat/stok') ? 'active' : '' }}">
-                    <a href="{{ route('admin.alat.index') }}">
-                        <i class='bx bx-list-ul'></i> <span class="text">Data Alat</span>
-                    </a>
-                </li>
-                <li class="{{ Request::is('admin/alat/create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.alat.create') }}">
-                        <i class='bx bx-plus-circle'></i> <span class="text">Tambah Alat</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
+        {{-- START: MENU KHUSUS OWNER --}}
+        @if(auth()->user()->role === 'owner')
 
-        <li class="{{ Request::is('admin/pengeluaran*') ? 'active' : '' }} has-dropdown">
-            <a href="#" class="dropdown-toggle">
-                <i class='bx bxs-wallet-alt'></i> <span class="text">Manajemen Pengeluaran</span>
-                <i class='bx bx-chevron-down toggle-icon'></i>
-            </a>
-            <ul class="submenu">
-                <li class="{{ Request::is('admin/pengeluaran') && !Request::is('admin/pengeluaran/create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.pengeluaran.index') }}">
-                        <i class='bx bx-list-ul'></i> <span class="text">Riwayat Pengeluaran</span>
-                    </a>
-                </li>
-                <li class="{{ Request::is('admin/pengeluaran/create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.pengeluaran.create') }}">
-                        <i class='bx bx-plus-circle'></i> <span class="text">Catat Pengeluaran</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
+            <li class="{{ Request::is('admin/alat*') ? 'active' : '' }} has-dropdown">
+                <a href="#" class="dropdown-toggle">
+                    <i class='bx bxs-wrench'></i>
+                    <span class="text">Manajemen Alat</span>
+                    <i class='bx bx-chevron-down toggle-icon'></i>
+                </a>
+                <ul class="submenu">
+                    <li
+                        class="{{ Request::is('admin/alat') && !Request::is('admin/alat/create') && !Request::is('admin/alat/stok') ? 'active' : '' }}">
+                        <a href="{{ route('admin.alat.index') }}">
+                            <i class='bx bx-list-ul'></i> <span class="text">Data Alat</span>
+                        </a>
+                    </li>
+                    <li class="{{ Request::is('admin/alat/create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.alat.create') }}">
+                            <i class='bx bx-plus-circle'></i> <span class="text">Tambah Alat</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }}">
-            <a href="{{ route('admin.laporan.index') }}"> <i class='bx bxs-report'></i>
-                <span class="text">Laporan Keuangan</span>
-            </a>
-        </li>
+            <li class="{{ Request::is('admin/pengeluaran*') ? 'active' : '' }} has-dropdown">
+                <a href="#" class="dropdown-toggle">
+                    <i class='bx bxs-wallet-alt'></i> <span class="text">Manajemen Pengeluaran</span>
+                    <i class='bx bx-chevron-down toggle-icon'></i>
+                </a>
+                <ul class="submenu">
+                    <li
+                        class="{{ Request::is('admin/pengeluaran') && !Request::is('admin/pengeluaran/create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pengeluaran.index') }}">
+                            <i class='bx bx-list-ul'></i> <span class="text">Riwayat Pengeluaran</span>
+                        </a>
+                    </li>
+                    <li class="{{ Request::is('admin/pengeluaran/create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pengeluaran.create') }}">
+                            <i class='bx bx-plus-circle'></i> <span class="text">Catat Pengeluaran</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-        <li class="{{ Request::is('admin/log-aktivitas') ? 'active' : '' }}">
-            <a href="{{ route('admin.log.index') }}">
-                <i class='bx bx-history'></i>
-                <span class="text">Log Aktivitas</span>
-            </a>
-        </li>
+            <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }}">
+                <a href="{{ route('admin.laporan.index') }}"> <i class='bx bxs-report'></i>
+                    <span class="text">Laporan Keuangan</span>
+                </a>
+            </li>
+
+            <li class="{{ Request::is('admin/log-aktivitas') ? 'active' : '' }}">
+                <a href="{{ route('admin.log.index') }}">
+                    <i class='bx bx-history'></i>
+                    <span class="text">Log Aktivitas</span>
+                </a>
+            </li>
+
+        @endif
+        {{-- END: MENU KHUSUS OWNER --}}
 
     </ul>
 
     <ul class="side-menu">
         <li>
             <a href="{{ route('logout') }}" class="logout"
-            onclick="event.preventDefault(); if(confirm('Yakin ingin keluar?')) { document.getElementById('logout-form').submit(); }">
+                onclick="event.preventDefault(); if(confirm('Yakin ingin keluar?')) { document.getElementById('logout-form').submit(); }">
                 <i class='bx bxs-log-out-circle'></i>
                 <span class="text">Logout</span>
             </a>

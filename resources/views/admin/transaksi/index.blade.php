@@ -134,13 +134,18 @@
                                         
                                         {{-- KOLOM KE-5 (Index 4) DI BACA OLEH JS BUAT FILTER STATUS --}}
                                         <td>
-                                            @if($item->status_bayar == 'lunas')
-                                                <span class="badge-bayar bayar-lunas">LUNAS</span>
-                                            @elseif($item->status_bayar == 'dp')
-                                                <span class="badge-bayar bayar-dp">DP (Rp {{ number_format($item->jumlah_bayar, 0, ',', '.') }})</span>
+                                            @if ($item->status_pesanan != 'batal')
+                                                @if($item->status_bayar == 'lunas')
+                                                    <span class="badge-bayar bayar-lunas">LUNAS</span>
+                                                @elseif($item->status_bayar == 'dp')
+                                                    <span class="badge-bayar bayar-dp">DP (Rp {{ number_format($item->jumlah_bayar, 0, ',', '.') }})</span>
+                                                @else
+                                                    <span class="badge-bayar bayar-belum">BELUM BAYAR</span>
+                                                @endif
                                             @else
-                                                <span class="badge-bayar bayar-belum">BELUM BAYAR</span>
+                                                <span class="badge-bayar bayar-belum">DIBATALKAN</span>
                                             @endif
+                                            
                                         </td>
                                         
                                         <td>Rp {{ number_format($item->total_biaya, 0, ',', '.') }}</td>
@@ -151,16 +156,23 @@
                                                     <i class='bx bx-show'></i>
                                                 </a>
 
-                                                <a href="{{ route('admin.transaksi.edit', $item->id_transaksi) }}" class="btn-detail edit" title="Edit Data">
-                                                    <i class='bx bx-edit'></i>
-                                                </a>
+                                                @if(in_array($item->status_pesanan, ['batal', 'selesai']))
+                                                    <a href="#" class="btn-detail edit disabled" title="Edit Data" style="opacity: 0.5; cursor: not-allowed;">
+                                                        <i class='bx bx-edit'></i>
+                                                    </a>
+                                                @else
+                                                    <a href="{{ route('admin.transaksi.edit', $item->id_transaksi) }}" class="btn-detail edit" title="Edit Data">
+                                                        <i class='bx bx-edit'></i>
+                                                    </a>
+                                                @endif
+
 
                                                 <form action="{{ route('admin.transaksi.destroy', $item->id_transaksi) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
                                                     
                                                     {{-- LOGIKA TOMBOL: Kalau sudah batal/selesai, tombol mati --}}
-                                                    @if(in_array($item->status_pesanan, ['dibatalkan', 'selesai']))
+                                                    @if(in_array($item->status_pesanan, ['batal', 'selesai']))
                                                         <button type="button" class="btn-detail delete disabled" title="Sudah Selesai/Batal" style="opacity: 0.5; cursor: not-allowed;">
                                                             <i class='bx bx-x-circle'></i> {{-- Ganti ikon jadi X --}}
                                                         </button>

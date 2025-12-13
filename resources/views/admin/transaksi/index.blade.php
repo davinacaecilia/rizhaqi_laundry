@@ -156,16 +156,37 @@
                                                     <i class='bx bx-show'></i>
                                                 </a>
 
-                                                @if(in_array($item->status_pesanan, ['batal', 'selesai']))
-                                                    <a href="#" class="btn-detail edit disabled" title="Edit Data" style="opacity: 0.5; cursor: not-allowed;">
+                                                @if($item->status_pesanan == 'diterima')
+                                                    <a href="{{ route('admin.transaksi.edit', $item->id_transaksi) }}" class="btn-detail edit" title="Edit Data">
                                                         <i class='bx bx-edit'></i>
                                                     </a>
                                                 @else
-                                                    <a href="{{ route('admin.transaksi.edit', $item->id_transaksi) }}" class="btn-detail edit" title="Edit Data">
+                                                    <a href="#" class="btn-detail edit disabled" title="Edit Data" style="opacity: 0.5; cursor: not-allowed;">
                                                         <i class='bx bx-edit'></i>
                                                     </a>
                                                 @endif
 
+                                                @if($item->status_bayar != 'lunas' && $item->status_pesanan != 'batal')
+    
+                                                    <form action="{{ route('admin.transaksi.bayarCepat', $item->id_transaksi) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        {{-- Kirim nominal pelunasan otomatis (Sisa Tagihan) --}}
+                                                        <input type="hidden" name="nominal_bayar" value="{{ $item->sisa_tagihan }}">
+                                                        
+                                                        <button type="submit" 
+                                                                class="btn-detail edit" 
+                                                                title="Lunaskan Tagihan (Rp {{ number_format($item->sisa_tagihan, 0, ',', '.') }})"
+                                                                onclick="return confirm('Apakah Anda yakin ingin melunaskan tagihan sebesar Rp {{ number_format($item->sisa_tagihan, 0, ',', '.') }}?')">
+                                                            <i class='bx bx-wallet'></i> Lunaskan
+                                                        </button>
+                                                    </form>
+
+                                                @else
+                                                    {{-- TOMBOL DISABLED --}}
+                                                    <button type="button" class="btn-detail edit disabled" title="Sudah Lunas/Batal" style="opacity: 0.5; cursor: not-allowed;">
+                                                        <i class='bx bx-check-double'></i> Lunaskan
+                                                    </button>
+                                                @endif
 
                                                 <form action="{{ route('admin.transaksi.destroy', $item->id_transaksi) }}" method="POST" style="display:inline;">
                                                     @csrf

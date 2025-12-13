@@ -63,30 +63,7 @@
                     <input type="password" name="password" placeholder="Password" required>
                 </div>
 
-                <p class="small-link">
-                    Lupa password? <span id="goReset">Reset Password</span>
-                </p>
-
                 <button type="submit">Masuk</button>
-            </form>
-        </div>
-
-        <!-- RESET PASSWORD FORM -->
-        <div class="form-container reset-container">
-            <!-- Action mengarah ke route yang sama -->
-            <form action="{{ route('login.submit') }}" method="POST">
-                @csrf <!-- Wajib ada -->
-                <input type="hidden" name="form_type" value="reset">
-
-                <h2>Reset Password</h2>
-
-                <div class="input-box">
-                    <input type="email" name="email" placeholder="Masukkan Email untuk reset" required>
-                </div>
-
-                <button type="submit" class="reset-btn">Kirim Link Reset</button>
-
-                <p class="small-link">Kembali ke login? <span id="goLogin">Login</span></p>
             </form>
         </div>
 
@@ -102,24 +79,9 @@
     </div>
 
     <script>
-        let wrapper = document.querySelector(".wrapper");
-        let goReset = document.getElementById("goReset");
-        let goLogin = document.getElementById("goLogin");
         let sliderText = document.getElementById("sliderText");
-
-        // Cek dulu supaya tidak error saat element belum ada
-        if (goReset) {
-            goReset.onclick = () => {
-                wrapper.classList.add("active");
-                sliderText.textContent = "Silahkan reset password anda";
-            };
-        }
-
-        if (goLogin) {
-            goLogin.onclick = () => {
-                wrapper.classList.remove("active");
-                sliderText.textContent = "Silahkan login akun anda";
-            };
+        if (sliderText) {
+            sliderText.textContent = "Silahkan login akun anda";
         }
     </script>
 

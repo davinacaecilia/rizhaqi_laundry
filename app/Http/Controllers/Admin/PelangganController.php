@@ -57,11 +57,15 @@ class PelangganController extends Controller
         $pelanggan->update($request->all());
 
         return redirect()->route('admin.pelanggan.index')
-                         ->with('success', 'Data pelanggan diperbarui');
+            ->with('success', 'Data pelanggan diperbarui');
     }
 
     public function destroy($id)
     {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.pelanggan.index')->with('error', 'Admin tidak diizinkan untuk menghapus data pelanggan.');
+        }
+
         $pelanggan = Pelanggan::findOrFail($id);
         $pelanggan->delete();
 

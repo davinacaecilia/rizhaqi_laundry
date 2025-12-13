@@ -189,10 +189,6 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div style="margin-top: 20px;">
-                        {{ $transaksi->links() }}
-                    </div>
                 </div>
             </div>
         </main>

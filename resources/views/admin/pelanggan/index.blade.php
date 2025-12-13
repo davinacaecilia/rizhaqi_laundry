@@ -217,7 +217,6 @@
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container"></div>
 
     <script>
         const searchBtn = document.getElementById('tableSearchBtn');

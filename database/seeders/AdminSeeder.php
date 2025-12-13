@@ -14,17 +14,8 @@ class AdminSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
-        // 1. Akun ADMIN
-        User::create([
-            'id_user'  => Str::uuid(), // Generate UUID
-            'nama'     => 'Admin',
-            'email'    => 'admin@gmail.com',
-            'password' => Hash::make('admin123'),
-            'role'     => 'admin',
-        ]);
-
-        // 2. Akun OWNER
+    {   
+        // 1. Akun OWNER
         User::create([
             'id_user'  => Str::uuid(),
             'nama'     => 'Owner',
@@ -33,6 +24,15 @@ class AdminSeeder extends Seeder
             'role'     => 'owner',
         ]);
 
+        // 2. Akun ADMIN
+        User::create([
+            'id_user'  => Str::uuid(), // Generate UUID
+            'nama'     => 'Admin',
+            'email'    => 'admin@gmail.com',
+            'password' => Hash::make('admin123'),
+            'role'     => 'admin',
+        ]);
+        
         // 3. Akun PEGAWAI
         User::create([
             'id_user'  => Str::uuid(),

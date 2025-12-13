@@ -27,7 +27,7 @@
             {{-- 3. Gambar Profil Otomatis Berdasarkan Inisial Nama --}}
             {{-- Kita pakai layanan UI Avatars biar gak repot upload foto --}}
             <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nama ?? 'Guest') }}&background=random&color=fff&size=128" 
-                 alt="User Profile"> 
+                alt="User Profile"> 
         </a>
     </div>
 

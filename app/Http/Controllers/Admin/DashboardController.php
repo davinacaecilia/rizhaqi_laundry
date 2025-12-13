@@ -49,6 +49,11 @@ class DashboardController extends Controller
                             DB::raw('SUM(berat) as total_berat')
                         )
                         ->whereYear('tgl_masuk', date('Y')) // Filter Tahun Ini
+                        
+                        // [PENTING] FILTER INI DITAMBAHKAN:
+                        // Agar transaksi batal tidak dihitung sebagai beban kerja
+                        ->where('status_pesanan', '!=', 'batal') 
+                        
                         ->groupBy('bulan')
                         ->get();
 

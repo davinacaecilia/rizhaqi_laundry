@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,10 +10,20 @@
     <title>Invoice #{{ $transaksi->kode_invoice }} - Rizhaqi Laundry</title>
     
     <style>
-        /* CSS KHUSUS INVOICE */
-        .detail-card { background: var(--primary-white); padding: 40px; border-radius: 12px; box-shadow: var(--shadow-light); border: 1px solid var(--border-light); max-width: 800px; margin: 24px auto; }
+        /* ========================================= */
+        /* STYLE TAMPILAN WEB (SCREEN) */
+        /* ========================================= */
+        .detail-card { 
+            background: var(--primary-white); 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: var(--shadow-light); 
+            border: 1px solid var(--border-light); 
+            max-width: 800px; 
+            margin: 24px auto; 
+        }
         
-        .invoice-header { display: flex; justify-content: space-between; border-bottom: 2px dashed var(--border-light); padding-bottom: 20px; margin-bottom: 20px; }
+        .web-invoice-header { display: flex; justify-content: space-between; border-bottom: 2px dashed var(--border-light); padding-bottom: 20px; margin-bottom: 20px; }
         .invoice-title h2 { color: var(--accent-blue); margin-bottom: 5px; }
         .invoice-title p { color: var(--text-secondary); font-size: 14px; }
         
@@ -47,12 +57,126 @@
         .btn-print { background: var(--accent-blue); color: white; }
         .btn-print:hover { background: var(--accent-blue-hover); }
 
-        /* PRINT MODE */
+        .print-header, .print-footer { display: none; }
+
+        /* ========================================= */
+        /* STYLE KHUSUS PRINT (PERBAIKAN MARGIN) */
+        /* ========================================= */
         @media print {
-            #sidebar, nav, .head-title, .action-buttons { display: none !important; }
-            body, section, main, #content { background: white !important; margin: 0 !important; padding: 0 !important; width: 100% !important; left: 0 !important; }
-            .detail-card { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
-            .badge, .address-box, .rincian-table th, div[style*="background"] { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            /* Kita set margin 0 di @page, tapi kita kasih padding di body */
+            /* Ini trik supaya header tidak terpotong printer */
+            @page {
+                size: landscape; 
+                margin: 0mm; 
+            }
+
+            body {
+                background: white !important;
+                /* Padding ini yang akan jadi margin aman, supaya header gak kepotong */
+                padding: 10mm 15mm !important; 
+                font-family: "Times New Roman", serif;
+                font-size: 10pt;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            /* Sembunyikan elemen Web */
+            #sidebar, nav, .head-title, .action-buttons, .breadcrumb, .btn, .web-invoice-header { 
+                display: none !important; 
+            }
+
+            /* Reset Container */
+            section, main, #content, .detail-card { 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                border: none !important; 
+                box-shadow: none !important; 
+                left: 0 !important;
+                position: relative !important;
+            }
+
+            /* ===== HEADER CETAK ===== */
+            .print-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: flex-start; /* Ubah jadi flex-start biar aman */
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+                width: 100%;
+            }
+            
+            .print-header .company-brand { flex: 1; }
+            .print-header .company-brand h1 { 
+                font-size: 20pt; 
+                font-weight: 900; 
+                margin: 0 0 5px 0; 
+                text-transform: uppercase; 
+                line-height: 1;
+            }
+            .print-header .company-brand p { font-size: 10pt; margin: 2px 0; }
+            
+            .print-header .invoice-tag { text-align: right; }
+            .print-header .invoice-tag h2 { font-size: 16pt; margin: 0; text-decoration: underline; }
+
+            /* Grid Info */
+            .info-grid {
+                display: flex !important;
+                width: 100%;
+                justify-content: space-between;
+                margin-bottom: 15px;
+                gap: 20px;
+                border: none;
+            }
+            .info-group { flex: 1; }
+            .info-group h4 { font-size: 9pt; font-weight: bold; text-decoration: underline; margin-bottom: 4px; color: #000 !important; text-transform: uppercase;}
+            .info-group p { font-size: 11pt; font-weight: bold; margin: 0; color: #000 !important; }
+            .info-group span { font-size: 10pt; color: #000 !important; }
+            .address-box { display: none; } 
+
+            /* Tabel */
+            .rincian-table { 
+                width: 100% !important;
+                border: 2px solid #000 !important; 
+                margin-bottom: 10px; 
+                font-size: 10pt; 
+            }
+            .rincian-table th { 
+                background: #ccc !important; 
+                padding: 5px 8px !important; 
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                font-weight: bold;
+            }
+            .rincian-table td { 
+                padding: 5px 8px !important; 
+                border: 1px solid #000 !important;
+                color: #000 !important;
+            }
+
+            /* Total */
+            .total-section { margin-top: 5px; width: 100%; display: flex; justify-content: flex-end; }
+            .total-box { width: 40%; }
+            .total-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 10pt; }
+            .total-row.final { font-size: 12pt; border-top: 2px solid #000 !important; padding-top: 2px; margin-top: 2px; font-weight: bold; }
+
+            /* Inventaris Box */
+            .inventaris-box { border: 1px dashed #000 !important; padding: 5px !important; background: none !important; margin-bottom: 10px; }
+            .inventaris-box h4 { color: #000 !important; margin: 0 0 2px 0 !important; }
+            .inventaris-box p { color: #000 !important; margin: 0 !important; }
+
+            /* Footer */
+            .print-footer {
+                display: flex !important;
+                justify-content: space-between;
+                margin-top: 30px;
+                width: 100%;
+            }
+            .signature-box { width: 200px; text-align: center; font-size: 10pt; }
+            .signature-line { margin-top: 50px; border-top: 1px solid #000; font-weight: bold; }
+            
+            .badge { border: none; padding: 0; color: #000 !important; background: none !important; font-weight: bold; }
         }
     </style>
 </head>
@@ -78,7 +202,21 @@
             </div>
 
             <div class="detail-card">
-                <div class="invoice-header">
+                
+                <div class="print-header">
+                    <div class="company-brand">
+                        <h1>RIZHAQI LAUNDRY</h1>
+                        <p>Jl. Taman Setia Budi Indah No. 49B, Medan</p>
+                        <p>HP: 0812-3456-7890</p>
+                    </div>
+                    <div class="invoice-tag">
+                        <h2>INVOICE</h2>
+                        <p>#{{ $transaksi->kode_invoice }}</p>
+                        <p style="font-size: 10pt;">Tgl: {{ date('d/m/Y', strtotime($transaksi->tgl_masuk)) }}</p>
+                    </div>
+                </div>
+
+                <div class="web-invoice-header">
                     <div class="invoice-title">
                         <h2>Rizhaqi Laundry</h2>
                         <p>Jalan Taman Setia Budi Indah No. 49B<br>Medan Sunggal, Sumatera Utara</p>
@@ -92,17 +230,18 @@
 
                 <div class="info-grid">
                     <div class="info-group">
-                        <h4>Pelanggan</h4>
+                        <h4>Data Pelanggan</h4>
                         <p>{{ $transaksi->pelanggan->nama }}</p>
-                        <span style="font-size: 14px; color: var(--text-secondary);">{{ $transaksi->pelanggan->telepon }}</span>
+                        <span style="display:block;">{{ $transaksi->pelanggan->telepon }}</span>
                         @if($transaksi->pelanggan->alamat)
                             <div class="address-box" style="margin-top: 8px;">
                                 {{ $transaksi->pelanggan->alamat }}
                             </div>
                         @endif
                     </div>
+                    
                     <div class="info-group" style="text-align: right;">
-                        <h4 style="margin-top: 20px;">Status Pembayaran</h4>
+                        <h4 style="margin-top: 0;">Status Pembayaran</h4>
                         @if($transaksi->status_bayar == 'lunas')
                             <span class="badge bg-green">LUNAS</span>
                         @elseif($transaksi->status_bayar == 'dp')
@@ -113,28 +252,28 @@
                     </div>
                 </div>
 
-                <h4 style="margin-bottom: 10px; color: var(--text-secondary);">Rincian Layanan</h4>
+                <h4 style="margin-bottom: 5px; color: var(--text-secondary); padding-bottom:5px;" class="layanan-title">Rincian Layanan</h4>
+                <style> @media print { .layanan-title { display: none; } } </style>
+                
                 <table class="rincian-table">
                     <thead>
                         <tr>
-                            <th>Deskripsi Layanan</th>
-                            <th>Harga Satuan</th>
-                            <th>Qty / Berat</th>
-                            <th style="text-align: right;">Subtotal</th>
+                            <th>Layanan</th>
+                            <th>Harga</th>
+                            <th style="width: 15%;">Qty</th>
+                            <th style="text-align: right;">Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- LOOPING DETAIL TRANSAKSI --}}
                         @foreach($transaksi->detailTransaksi as $item)
                             <tr>
                                 <td>
-                                    <strong>{{ $item->layanan->nama_layanan }}</strong><br>
-                                    <span style="font-size: 12px; color: #888;">{{ $item->layanan->kategori }}</span>
+                                    <strong>{{ $item->layanan->nama_layanan }}</strong>
+                                    <div style="font-size: 9pt; font-style:italic;">{{ $item->layanan->kategori }}</div>
                                 </td>
                                 <td>Rp {{ number_format($item->harga_saat_transaksi, 0, ',', '.') }}</td>
                                 <td>
-                                    {{ $item->jumlah }} 
-                                    {{ ucfirst($item->layanan->satuan ?? 'Pcs') }}
+                                    {{ $item->jumlah }} {{ ucfirst($item->layanan->satuan ?? 'Pcs') }}
                                 </td>
                                 <td class="price">
                                     Rp {{ number_format($item->harga_saat_transaksi * $item->jumlah, 0, ',', '.') }}
@@ -144,10 +283,9 @@
                     </tbody>
                 </table>
 
-                {{-- RINCIAN INVENTARIS (HANYA MUNCUL JIKA ADA) --}}
                 @if($transaksi->inventaris->count() > 0)
-                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffe0b2; margin-bottom: 20px;">
-                        <h4 style="font-size: 13px; color: #ef6c00; margin-bottom: 8px; font-weight: 700;">RINCIAN PAKAIAN (INVENTARIS):</h4>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid #ffe0b2; margin-bottom: 10px;" class="inventaris-box">
+                        <h4 style="font-size: 13px; color: #ef6c00; margin-bottom: 8px; font-weight: 700;">RINCIAN PAKAIAN:</h4>
                         <p style="font-size: 14px; margin: 0; color: #333;">
                             @foreach($transaksi->inventaris as $inv)
                                 {{ $inv->jumlah }} {{ $inv->nama_barang }}@if(!$loop->last), @endif
@@ -165,8 +303,8 @@
                         
                         @if($transaksi->jumlah_bayar > 0)
                             <div class="total-row">
-                                <span>Sudah Dibayar (DP/Lunas)</span>
-                                <span style="color: green;">- Rp {{ number_format($transaksi->jumlah_bayar, 0, ',', '.') }}</span>
+                                <span>Dibayar</span>
+                                <span>Rp {{ number_format($transaksi->jumlah_bayar, 0, ',', '.') }}</span>
                             </div>
                         @endif
 
@@ -178,10 +316,24 @@
                 </div>
                 
                 @if($transaksi->catatan)
-                    <div style="margin-top: 20px; font-size: 13px; color: #666; font-style: italic;">
+                    <div class="notes-print" style="margin-top:10px; border:1px dashed #000; padding:5px; font-size:10pt;">
                         <strong>Catatan:</strong> {{ $transaksi->catatan }}
                     </div>
                 @endif
+
+                <div class="print-footer">
+                    <div class="signature-box">
+                        <p>Penerima,</p>
+                        <div class="signature-line">{{ $transaksi->pelanggan->nama }}</div>
+                    </div>
+                    <div class="signature-box">
+                        <p>Hormat Kami,</p>
+                        <div class="signature-line">Rizhaqi Laundry</div>
+                    </div>
+                </div>
+                <div class="print-footer" style="margin-top: 10px; font-size: 9pt; justify-content: center; font-style: italic;">
+                    <p>Terima kasih atas kepercayaannya.</p>
+                </div>
 
                 <div class="action-buttons">
                     <a href="{{ route('admin.transaksi.index') }}" class="btn btn-back">

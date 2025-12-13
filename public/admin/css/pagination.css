@@ -1,29 +1,109 @@
+/* ========================================
+   PAGINATION STYLE - Google Arts Theme
+   ======================================== */
 
-	.pagination-container {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		display: flex;
-		justify-content: center;
-		padding: 12px;
-		background-color: transparent; /* tanpa latar belakang */
-		z-index: 999;
-		gap: 8px;
-	}
-	.pagination-container button {
-		padding: 6px 12px;
-		border: none;
-		background-color: #444;
-		color: white;
-		cursor: pointer;
-		border-radius: 4px;
-	}
-	.pagination-container button.active {
-		background-color: #2563eb;
-	}
-	.pagination-container button:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: 16px;
+}
 
+/* Info Text (Showing 1-10 of 50) */
+.pagination-info {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-family: var(--roboto);
+}
+
+/* Pagination Buttons Wrapper */
+.pagination-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Base Button Style */
+.pagination-wrapper a,
+.pagination-wrapper span {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-light);
+    background: var(--primary-white);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: var(--google-sans);
+}
+
+/* Active Page */
+.pagination-wrapper .active {
+    background: var(--accent-blue) !important;
+    color: white !important;
+    border-color: var(--accent-blue) !important;
+    box-shadow: var(--shadow-light);
+    cursor: default;
+}
+
+/* Hover Effect (except active & disabled) */
+.pagination-wrapper a:hover:not(.active):not(.disabled) {
+    background: var(--surface-white);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+/* Disabled State */
+.pagination-wrapper .disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Arrow Icons */
+.pagination-wrapper .bx {
+    font-size: 18px;
+}
+
+/* Dots (Ellipsis) */
+.pagination-wrapper .dots {
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: default;
+}
+
+/* Responsive */
+@media screen and (max-width: 576px) {
+    .pagination-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pagination-info {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .pagination-wrapper {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .pagination-wrapper a,
+    .pagination-wrapper span {
+        min-width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+}

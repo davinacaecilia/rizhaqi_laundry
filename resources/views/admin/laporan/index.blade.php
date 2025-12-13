@@ -52,6 +52,21 @@
             cursor: pointer; 
             margin-left: 0; 
         }
+        
+        /* TOMBOL EXCEL */
+        .btn-excel { 
+            background: #217346; 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 6px; 
+            border:none; 
+            cursor: pointer; 
+            margin-left: 0; 
+        }
+        
+        .btn-excel:hover {
+            background: #1a5c37;
+        }
 
         /* --- SEARCH BAR --- */
         .table-search-wrapper { 
@@ -87,14 +102,247 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
         /* ========================================= */
-        /* PERBAIKAN CSS CETAK (AGAR TIDAK KOSONG) */
+        /* ELEMEN KHUSUS PRINT (hidden di layar) */
+        /* ========================================= */
+        .print-header {
+            display: none;
+        }
+        
+        .print-footer {
+            display: none;
+        }
+        
+        /* ========================================= */
+        /* CSS KHUSUS UNTUK CETAK */
         /* ========================================= */
         @media print {
-            #sidebar, nav, .tabs-box, .filter-card, .breadcrumb, .btn-print, .head-title .btn-download { display: none !important; }
-            body, section, main, #content { width: 100% !important; margin: 0 !important; padding: 0 !important; left: 0 !important; position: relative !important; box-shadow: none !important; overflow: visible !important; }
-            .report-section { border: 1px solid #000 !important; margin-bottom: 20px !important; page-break-inside: avoid; }
-            .tab-content { display: none !important; }
-            .tab-content.active { display: block !important; }
+            /* Sembunyikan elemen yang tidak perlu */
+            #sidebar, nav, .tabs-box, .filter-card, .breadcrumb, 
+            .btn-print, .head-title .btn-download, .bx-search-toggle,
+            .head-title {
+                display: none !important;
+            }
+            
+            /* HILANGKAN SCROLLBAR */
+            body, html {
+                overflow: visible !important;
+                height: auto !important;
+            }
+            
+            * {
+                overflow: visible !important;
+            }
+            
+            /* Reset layout untuk print */
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                font-size: 12pt;
+            }
+            
+            #content {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                left: 0 !important;
+                position: relative !important;
+                overflow: visible !important;
+            }
+            
+            main {
+                padding: 20mm 15mm !important;
+                overflow: visible !important;
+            }
+            
+            /* ===== HEADER LAPORAN ===== */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 3px double #000;
+            }
+            
+            .print-header .company-name {
+                font-size: 20pt;
+                font-weight: bold;
+                color: #000;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+            }
+            
+            .print-header .company-info {
+                font-size: 10pt;
+                color: #333;
+                margin-bottom: 3px;
+            }
+            
+            .print-header .report-title {
+                font-size: 16pt;
+                font-weight: bold;
+                margin-top: 15px;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+                color: #000;
+            }
+            
+            .print-header .report-period {
+                font-size: 11pt;
+                color: #555;
+                font-style: italic;
+            }
+            
+            /* Tampilkan hanya tab aktif */
+            .tab-content {
+                display: none !important;
+            }
+            
+            .tab-content.active {
+                display: block !important;
+            }
+            
+            /* Layout untuk print */
+            .report-layout {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+            
+            .report-section {
+                border: 2px solid #000 !important;
+                margin-bottom: 25px !important;
+                padding: 15px !important;
+                page-break-inside: avoid;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+            
+            .report-section h3 {
+                font-size: 14pt !important;
+                font-weight: bold !important;
+                color: #000 !important;
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 8px !important;
+                margin-bottom: 15px !important;
+            }
+            
+            /* ===== TABLE STYLING ===== */
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+                font-size: 10pt !important;
+            }
+            
+            th {
+                background: #e0e0e0 !important;
+                color: #000 !important;
+                font-weight: bold !important;
+                border: 1px solid #000 !important;
+                padding: 8px 6px !important;
+                text-align: left !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            td {
+                border: 1px solid #666 !important;
+                padding: 6px !important;
+                color: #000 !important;
+            }
+            
+            /* Total row styling */
+            .row-total {
+                background: #d0d0d0 !important;
+                font-weight: bold !important;
+                border: 2px solid #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .row-total td {
+                padding: 10px 6px !important;
+                font-size: 11pt !important;
+                font-weight: bold !important;
+                border: 2px solid #000 !important;
+            }
+            
+            /* Warna text untuk print (hitam semua untuk printer friendly) */
+            .text-green {
+                color: #000 !important;
+            }
+            
+            .text-red {
+                color: #000 !important;
+            }
+            
+            .text-blue {
+                color: #000 !important;
+                font-weight: bold !important;
+            }
+            
+            /* No data message */
+            .no-data-msg {
+                text-align: center !important;
+                padding: 15px !important;
+                font-style: italic !important;
+                background: #f5f5f5 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            /* ===== FOOTER PRINT ===== */
+            .print-footer {
+                display: block !important;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #000;
+                page-break-inside: avoid;
+            }
+            
+            .signature-section {
+                display: flex !important;
+                justify-content: flex-end;
+                margin-top: 60px;
+                page-break-inside: avoid;
+            }
+            
+            .signature-box {
+                text-align: center;
+                width: 200px;
+            }
+            
+            .signature-line {
+                border-top: 1px solid #000;
+                margin-top: 80px;
+                padding-top: 5px;
+                font-weight: bold;
+            }
+            
+            .print-date {
+                text-align: right;
+                font-size: 9pt;
+                color: #000 !important;
+                margin-top: 10px;
+            }
+            
+            /* Page break control */
+            .report-section {
+                page-break-inside: avoid;
+            }
+            
+            /* Untuk laporan bulanan */
+            #tabelBulanan {
+                page-break-inside: auto;
+            }
+            
+            #tabelBulanan tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            
+            tfoot {
+                display: table-footer-group;
+            }
         }
     </style>
 </head>
@@ -106,6 +354,15 @@
         @include('partial.navbar')
 
         <main>
+            <!-- ===== HEADER PRINT (hanya muncul saat cetak) ===== -->
+            <div class="print-header">
+                <div class="company-name">RIZHAQI LAUNDRY</div>
+                <div class="company-info">Jalan Taman Setia Budi Indah No. 49B</div>
+                <div class="company-info">Medan Sunggal, Sumatera Utara</div>
+                <div class="report-title" id="printReportTitle">LAPORAN KEUANGAN</div>
+                <div class="report-period" id="printReportPeriod">Periode: -</div>
+            </div>
+            
             <div class="head-title">
                 <div class="left">
                     <h1>Laporan Keuangan</h1>
@@ -131,6 +388,7 @@
                         <input type="date" name="tanggal" value="{{ $tanggal }}" onchange="document.getElementById('formHarian').submit()" id="laporanDate" style="cursor: pointer;">
                     </form>
                     
+                    <button class="btn-excel" onclick="exportToExcel('harian')"><i class='bx bx-download'></i> Export Excel</button>
                     <button class="btn-print" onclick="window.print()"><i class='bx bx-printer'></i> Cetak</button>
                 </div>
 
@@ -235,6 +493,7 @@
                             </select>
                         </div>
                         <button class="btn-filter" id="btnTampilkanBulan"><i class='bx bx-search-alt'></i> Tampilkan</button>
+                        <button type="button" class="btn-excel" onclick="exportToExcel('bulanan')"><i class='bx bx-download'></i> Export Excel</button>
                         <button type="button" class="btn-print" onclick="window.print()" style="margin-left: auto;"><i class='bx bx-printer'></i> Cetak</button>
                     </form>
                 </div>
@@ -276,44 +535,27 @@
                 </div>
             </div>
 
+            <!-- ===== FOOTER PRINT (hanya muncul saat cetak) ===== -->
+            <div class="print-footer">
+                <div class="print-date">
+                    Dicetak pada: <span id="printDateTime"></span>
+                </div>
+                <div class="signature-section">
+                    <div class="signature-box" style="margin-left: auto; margin-right: 0;">
+                        <div>Medan, <span id="printDateLocation"></span></div>
+                        <div class="signature-line">Pemilik</div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // UI Toggle Search (Tidak wajib)
-            const toggleIcon = document.getElementById('tableSearchIcon');
-            const searchField = document.getElementById('laporanSearch');
-            if(toggleIcon && searchField) {
-                toggleIcon.addEventListener('click', function() {
-                    searchField.classList.toggle('show');
-                    if(searchField.classList.contains('show')) searchField.focus();
-                });
-            }
-
-            // Tab Switching (PENTING untuk Navigasi manual tanpa reload)
-            window.openTab = function(evt, tabName) {
-                var i, tabcontent, tablinks;
-                tabcontent = document.getElementsByClassName("tab-content");
-                for (i = 0; i < tabcontent.length; i++) {
-                    tabcontent[i].style.display = "none";
-                }
-                tablinks = document.getElementsByClassName("tab-btn");
-                for (i = 0; i < tablinks.length; i++) {
-                    tablinks[i].classList.remove("active");
-                    // Reset style manual
-                    tablinks[i].style.color = "#666"; 
-                    tablinks[i].style.borderBottomColor = "transparent";
-                }
-                document.getElementById(tabName).style.display = "block";
-                evt.currentTarget.classList.add("active");
-                // Set style aktif
-                evt.currentTarget.style.color = "var(--accent-blue)";
-                evt.currentTarget.style.borderBottomColor = "var(--accent-blue)";
-            };
-        });
-    </script>
+    <script src="{{ asset('admin/script/print-laporan.js') }}"></script>
+    
+    <!-- SheetJS Library untuk Export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>

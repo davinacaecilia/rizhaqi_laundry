@@ -557,3 +557,13 @@ footer {
 .harga-section {
   background-color: #f2f2f2; /* abu-abu muda */
 }
+.disabled-login {
+  background: #aaa;
+  color: var(--secondary);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: not-allowed;
+  opacity: 0.6;
+  user-select: none;
+}
+

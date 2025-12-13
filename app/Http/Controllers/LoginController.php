@@ -12,42 +12,46 @@ class LoginController extends Controller
     {
         return view('login');
     }
-
     public function submit(Request $request)
-    {
+{
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $user = Auth::user();
 
-            // Dapatkan user yang baru login
-            $user = Auth::user();
-
-            switch ($user->role) {
-                case 'admin':
-                case 'owner':
-                    return redirect()->route('admin.dashboard');
-                case 'pegawai':
-                    // Redirect Pegawai ke Dashboard Pegawai
-                    return redirect()->route('pegawai.dashboard');
-                default:
-                    return redirect('/');
-            }
+        // HANYA ROLE INI YANG BOLEH LOGIN
+        if (!in_array($user->role, ['admin', 'owner', 'pegawai'])) {
+            Auth::logout();
+            return back()->with('error', 'Akun tidak memiliki akses.');
         }
 
-        return back()->with('error', 'Email atau Password salah!');
+        // Redirect sesuai role
+        if (in_array($user->role, ['admin', 'owner'])) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role === 'pegawai') {
+            return redirect()->route('pegawai.dashboard');
+        }
     }
 
-    public function logout()
-    {
-        Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+    return back()->with('error', 'Email atau password salah.');
+}
 
-        return redirect()->to('/')->with('success', 'Anda berhasil logout!');
-    }
+   public function logout()
+{
+    Auth::logout();
+
+    request()->session()->forget('internal_login'); // ⬅️ PENTING
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect('/')->with('success', 'Anda berhasil logout!');
+}
+
 }

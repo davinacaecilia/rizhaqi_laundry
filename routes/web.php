@@ -17,8 +17,6 @@ use App\Http\Controllers\Pegawai\PegawaiDashboardController;
 use App\Http\Controllers\Pegawai\PegawaiTransaksiController;
 use App\Http\Controllers\Pegawai\PegawaiPelangganController;
 use App\Http\Controllers\Pegawai\PegawaiCucianController;
-
-
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

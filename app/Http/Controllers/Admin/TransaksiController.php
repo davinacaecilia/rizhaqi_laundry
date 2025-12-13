@@ -84,20 +84,41 @@ class TransaksiController extends Controller
 
     public function store(Request $request)
     {
-        // 1. VALIDASI
-        $request->validate([
-            'nama_pelanggan' => 'required|string',
-            'no_hp'          => 'required',
-            'layanan_id'     => 'required',
-            'berat'          => 'required|numeric|min:0.1',
-            'harga_satuan'   => 'required|numeric|min:0',
-            'tgl_selesai'    => 'required|date',
-            'status_bayar'   => 'required|in:belum,lunas,dp',
-        ]);
+        // === DEBUGGING: LOG DATA REQUEST ===
+        \Log::info('=== DATA REQUEST MASUK ===');
+        \Log::info('Semua Data:', $request->all());
+        \Log::info('Harga Satuan:', $request->harga_satuan);
+        \Log::info('Berat:', $request->berat);
+        \Log::info('Status Bayar:', $request->status_bayar);
+        
+        // 1. VALIDASI (DIPERBAIKI: min:1 untuk harga_satuan)
+        try {
+            $validated = $request->validate([
+                'nama_pelanggan' => 'required|string|max:100',
+                'no_hp'          => 'required|string|max:15',
+                'layanan_id'     => 'required|exists:layanan,id_layanan',
+                'berat'          => 'required|numeric|min:0.1',
+                'harga_satuan'   => 'required|numeric|min:1', // ← PERBAIKAN: min:1 (tidak boleh 0)
+                'tgl_selesai'    => 'required|date|after_or_equal:today',
+                'status_bayar'   => 'required|in:belum,lunas,dp',
+                'jumlah_dp'      => 'required_if:status_bayar,dp|nullable|numeric|min:1', // ← PERBAIKAN: Validasi DP
+            ]);
+            
+            \Log::info('✅ Validasi Berhasil');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('❌ Validasi Gagal:', $e->errors());
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput()
+                ->with('error', 'Data tidak valid! Periksa kembali form Anda.');
+        }
 
         DB::beginTransaction();
 
         try {
+            \Log::info('🔄 Mulai Transaksi Database...');
+            
             // 2. CEK / BUAT PELANGGAN
             $pelanggan = Pelanggan::where('nama', $request->nama_pelanggan)
                 ->orWhere('telepon', $request->no_hp)
@@ -109,13 +130,15 @@ class TransaksiController extends Controller
                     'telepon' => $request->no_hp,
                     'alamat'  => $request->alamat
                 ]);
+                \Log::info('✅ Pelanggan Baru Dibuat:', ['id' => $pelanggan->id_pelanggan]);
             } else {
                 if($request->filled('alamat')) {
                     $pelanggan->update(['alamat' => $request->alamat]);
                 }
+                \Log::info('✅ Pelanggan Existing:', ['id' => $pelanggan->id_pelanggan]);
             }
 
-            // 3. SIMPAN HEADER TRANSAKSI (VERSI TANPA KOLOM TOTAL BIAYA)
+            // 3. SIMPAN HEADER TRANSAKSI
             $transaksi = Transaksi::create([
                 'kode_invoice'   => 'AUTO', 
                 'id_pelanggan'   => $pelanggan->id_pelanggan,
@@ -123,23 +146,33 @@ class TransaksiController extends Controller
                 'tgl_masuk'      => Carbon::now(),
                 'tgl_selesai'    => $request->tgl_selesai,
                 'berat'          => $request->berat,
-                
-                // 'total_biaya' => 0,  <-- INI DIHAPUS, JANGAN ADA LAGI
-                // 'jumlah_bayar' => 0, <-- INI JUGA BOLEH DIHAPUS (Default DB biasanya 0)
-                // Tapi kalau di migration kamu jumlah_bayar tidak ada default, biarkan 0:
                 'jumlah_bayar'   => 0,
-                
                 'status_bayar'   => 'belum',
                 'status_pesanan' => 'diterima',
                 'catatan'        => $request->catatan,
             ]);
 
-            // Refresh untuk dapat ID UUID & Kode Invoice
             $transaksi->refresh(); 
+            \Log::info('✅ Transaksi Header Dibuat:', ['invoice' => $transaksi->kode_invoice]);
 
-            // 4. SIMPAN DETAIL UTAMA
+            // 4. SIMPAN DETAIL LAYANAN UTAMA
             $layananDb = Layanan::find($request->layanan_id);
-            $hargaFinal = ($layananDb->is_flexible == 1) ? $request->harga_satuan : $layananDb->harga_satuan;
+            
+            // PERBAIKAN: Validasi harga untuk flexible pricing
+            if ($layananDb->is_flexible == 1) {
+                $hargaMin = $layananDb->harga_satuan;
+                $hargaMax = $layananDb->harga_maksimum;
+                $hargaInput = $request->harga_satuan;
+                
+                // Cek apakah harga dalam rentang yang valid
+                if ($hargaInput < $hargaMin || $hargaInput > $hargaMax) {
+                    throw new \Exception("Harga tidak valid! Harus antara Rp " . number_format($hargaMin) . " - Rp " . number_format($hargaMax));
+                }
+                
+                $hargaFinal = $hargaInput;
+            } else {
+                $hargaFinal = $layananDb->harga_satuan;
+            }
 
             DetailTransaksi::create([
                 'id_transaksi'         => $transaksi->id_transaksi,
@@ -147,33 +180,44 @@ class TransaksiController extends Controller
                 'jumlah'               => $request->berat,
                 'harga_saat_transaksi' => $hargaFinal,
             ]);
+            
+            \Log::info('✅ Detail Layanan Utama Disimpan:', [
+                'layanan' => $layananDb->nama_layanan,
+                'harga' => $hargaFinal,
+                'jumlah' => $request->berat
+            ]);
 
-            // 5. SIMPAN DETAIL ADDON
+            // 5. SIMPAN DETAIL ADDON (DIPERBAIKI: Cek qty > 0)
             $listAddons = ['ekspress', 'hanger', 'plastik', 'hanger_plastik'];
             foreach ($listAddons as $key) {
-                if ($request->has("addon_$key")) {
-                    $keyword = str_replace('_', ' ', $key);
-                    $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
+                // PERBAIKAN: Cek checkbox DAN qty > 0
+                if ($request->has("addon_$key") && $request->filled("qty_$key")) {
+                    $qty = $request->input("qty_$key", 0);
                     
-                    if ($addonDb) {
-                        $qty = $request->input("qty_$key", 0);
-                        if ($qty > 0) {
+                    if ($qty > 0) {
+                        $keyword = str_replace('_', ' ', $key);
+                        $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
+                        
+                        if ($addonDb) {
                             DetailTransaksi::create([
                                 'id_transaksi'         => $transaksi->id_transaksi,
                                 'id_layanan'           => $addonDb->id_layanan,
                                 'jumlah'               => $qty,
                                 'harga_saat_transaksi' => $addonDb->harga_satuan,
                             ]);
+                            
+                            \Log::info("✅ Addon '{$addonDb->nama_layanan}' Disimpan: {$qty} x Rp " . number_format($addonDb->harga_satuan));
                         }
                     }
                 }
             }
 
             // 6. SIMPAN INVENTARIS
-            if ($request->has('toggleDetail')) {
+            if ($request->has('toggleDetail') && $request->toggleDetail == 'on') {
                 $bajuOps = ['qty_baju', 'qty_kaos', 'qty_celana_panjang', 'qty_celana_pendek', 'qty_jilbab', 'qty_jaket', 'qty_kaos_kaki', 'qty_sarung', 'qty_lainnya'];
+                
                 foreach ($bajuOps as $field) {
-                    $qty = $request->input($field);
+                    $qty = $request->input($field, 0);
                     if ($qty > 0) {
                         $namaBarang = ucwords(str_replace(['qty_', '_'], ['', ' '], $field));
                         TransaksiInventaris::create([
@@ -183,45 +227,65 @@ class TransaksiController extends Controller
                         ]);
                     }
                 }
+                \Log::info('✅ Inventaris Pakaian Disimpan');
             }
 
             // 7. PROSES PEMBAYARAN
             if ($request->status_bayar != 'belum') {
                 
+                // Hitung total dari database
+                $totalTagihan = DB::select("SELECT fn_hitung_total_transaksi(?) as total", [$transaksi->id_transaksi])[0]->total;
+                \Log::info('💰 Total Tagihan dari DB:', ['total' => $totalTagihan]);
+                
                 $uangBayar = 0;
 
-                // KARENA KOLOM TOTAL HILANG, KITA TANYA FUNCTION DATABASE
-                // "Eh DB, tolong hitungin total tagihan transaksi ini sekarang"
-                $totalTagihan = DB::select("SELECT fn_hitung_total_transaksi(?) as total", [$transaksi->id_transaksi])[0]->total;
-
                 if ($request->status_bayar == 'lunas') {
-                    $uangBayar = $totalTagihan; // Bayar sesuai hitungan DB
+                    $uangBayar = $totalTagihan;
                 } elseif ($request->status_bayar == 'dp') {
                     $uangBayar = $request->jumlah_dp;
+                    
+                    // PERBAIKAN: Validasi DP tidak boleh lebih dari total
+                    if ($uangBayar > $totalTagihan) {
+                        throw new \Exception("Jumlah DP (Rp " . number_format($uangBayar) . ") tidak boleh lebih dari total tagihan (Rp " . number_format($totalTagihan) . ")");
+                    }
                 }
 
                 if ($uangBayar > 0) {
-                    // Panggil Procedure Input Pembayaran
                     DB::statement("CALL sp_input_pembayaran(?, ?, ?, ?)", [
                         $transaksi->id_transaksi,
                         Auth::id() ?? 1,
                         $uangBayar,
                         $request->status_bayar == 'lunas' ? 'Lunas Awal' : 'DP Awal'
                     ]);
+                    
+                    \Log::info('✅ Pembayaran Dicatat:', [
+                        'status' => $request->status_bayar,
+                        'jumlah' => $uangBayar
+                    ]);
                 }
             }
 
             DB::commit();
+            \Log::info('✅ TRANSAKSI BERHASIL DISIMPAN!', ['invoice' => $transaksi->kode_invoice]);
 
-            // Refresh lagi buat pesan sukses
             $transaksi->refresh();
 
             return redirect()->route('admin.transaksi.index')
-                            ->with('success', 'Order berhasil! Invoice: ' . $transaksi->kode_invoice);
+                            ->with('success', 'Order berhasil dibuat! Invoice: ' . $transaksi->kode_invoice);
 
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage())->withInput();
+            
+            \Log::error('❌ ERROR SAAT MENYIMPAN:', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
@@ -233,7 +297,7 @@ class TransaksiController extends Controller
             'no_hp'          => 'required',
             'layanan_id'     => 'required',
             'berat'          => 'required|numeric|min:0.1',
-            'harga_satuan'   => 'required|numeric|min:0',
+            'harga_satuan'   => 'required|numeric|min:1', // ← PERBAIKAN
             'tgl_selesai'    => 'required|date',
             'status_bayar'   => 'required|in:belum,lunas,dp',
         ]);
@@ -250,17 +314,15 @@ class TransaksiController extends Controller
                 'alamat'  => $request->alamat
             ]);
 
-            // 3. UPDATE HEADER TRANSAKSI (Tanpa kolom total_biaya & jumlah_bayar)
-            // Kita hanya update data administrasi. Keuangan biar DB yang urus.
+            // 3. UPDATE HEADER TRANSAKSI
             $transaksi->update([
                 'tgl_selesai' => $request->tgl_selesai,
                 'berat'       => $request->berat,
-                'status_bayar'=> $request->status_bayar, // Ini sementara, nanti divalidasi ulang di bawah
+                'status_bayar'=> $request->status_bayar,
                 'catatan'     => $request->catatan,
             ]);
 
             // 4. RESET & UPDATE DETAIL LAYANAN UTAMA
-            // Hapus detail lama, ganti baru
             $transaksi->detailTransaksi()->delete();
             
             $layananDb = Layanan::find($request->layanan_id);
@@ -273,16 +335,17 @@ class TransaksiController extends Controller
                 'harga_saat_transaksi' => $hargaFinal,
             ]);
 
-            // 5. UPDATE ADDONS
+            // 5. UPDATE ADDONS (DIPERBAIKI)
             $listAddons = ['ekspress', 'hanger', 'plastik', 'hanger_plastik'];
             foreach ($listAddons as $key) {
-                if ($request->has("addon_$key")) { // Cek name="addon_..."
-                    $keyword = str_replace('_', ' ', $key);
-                    $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
+                if ($request->has("addon_$key") && $request->filled("qty_$key")) {
+                    $qty = $request->input("qty_$key", 0);
                     
-                    if ($addonDb) {
-                        $qty = $request->input("qty_$key", 0);
-                        if ($qty > 0) {
+                    if ($qty > 0) {
+                        $keyword = str_replace('_', ' ', $key);
+                        $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
+                        
+                        if ($addonDb) {
                             DetailTransaksi::create([
                                 'id_transaksi'         => $transaksi->id_transaksi,
                                 'id_layanan'           => $addonDb->id_layanan,
@@ -295,7 +358,6 @@ class TransaksiController extends Controller
             }
 
             // 6. UPDATE INVENTARIS
-            // Hapus lama, simpan baru (Logika tanpa wajib centang toggle)
             $transaksi->inventaris()->delete(); 
             $bajuOps = ['qty_baju', 'qty_kaos', 'qty_celana_panjang', 'qty_celana_pendek', 'qty_jilbab', 'qty_jaket', 'qty_kaos_kaki', 'qty_sarung', 'qty_lainnya'];
             foreach ($bajuOps as $field) {
@@ -310,15 +372,10 @@ class TransaksiController extends Controller
                 }
             }
 
-            // 7. LOGIKA KEUANGAN PASCA-EDIT (PENTING!)
-            // Karena order berubah (berat naik/turun), total tagihan pasti berubah.
-            // Kita harus cek apakah uang yang sudah masuk masih cukup?
-            
-            // Hitung Total Tagihan Baru dari Database
+            // 7. LOGIKA KEUANGAN PASCA-EDIT
             $totalBaru = DB::select("SELECT fn_hitung_total_transaksi(?) as total", [$transaksi->id_transaksi])[0]->total;
-            $sudahBayar = $transaksi->jumlah_bayar; // Uang yang sudah ada di kasir
+            $sudahBayar = $transaksi->jumlah_bayar;
 
-            // Case A: Jika User pilih "LUNAS" di form, tapi uang kurang -> Panggil Procedure Pelunasan
             if ($request->status_bayar == 'lunas') {
                 $kurang = $totalBaru - $sudahBayar;
                 if ($kurang > 0) {
@@ -329,10 +386,7 @@ class TransaksiController extends Controller
                         'Pelunasan (Update Order)'
                     ]);
                 }
-            } 
-            // Case B: Jika User tidak pilih Lunas, biarkan sistem cek statusnya otomatis
-            // (Misal: Awalnya Lunas 50rb, diedit jadi 100rb -> Status harus turun jadi DP)
-            else {
+            } else {
                 if ($sudahBayar >= $totalBaru) {
                     $transaksi->update(['status_bayar' => 'lunas']);
                 } else {
@@ -353,32 +407,20 @@ class TransaksiController extends Controller
     public function status()
     {
         $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'pembayaran', 'inventaris'])
-            // 1. Ambil kolom asli
             ->select('transaksi.*')
-            
-            // 2. AMBIL TOTAL BIAYA (Virtual Column)
             ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
-            
-            // 3. AMBIL SISA TAGIHAN (Virtual Column)
-            // Biar kita gak perlu hitung manual (total - bayar) di view
             ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
             ->orderBy('updated_at', 'desc')
             ->get();
 
-        // 2. AMBIL JUMLAH STATUS (PANGGIL PROCEDURE)
-        // Hasilnya berupa array object: [{'status_kategori': 'dicuci', 'total': 5}, ...]
         $rawCounts = DB::select("CALL sp_get_status_counts()");
 
-        // 3. Siapkan Template Default (Supaya view tidak error jika ada status kosong)
         $counts = [
             'diterima' => 0, 'dicuci' => 0, 'dikeringkan' => 0, 
             'disetrika' => 0, 'packing' => 0, 'siap' => 0, 'selesai' => 0
         ];
 
-        // 4. Masukkan Data dari Database ke Template
         foreach ($rawCounts as $row) {
-            // Karena procedure sudah merapikan nama (lowercase & normalize),
-            // kita tinggal pakai langsung sebagai key array.
             if (isset($counts[$row->status_kategori])) {
                 $counts[$row->status_kategori] = $row->total;
             }
@@ -389,21 +431,18 @@ class TransaksiController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        // PERBAIKAN: Validasi harus menerima 'siap diambil' (pakai spasi)
         $request->validate([
             'status' => 'required|in:dicuci,dikeringkan,disetrika,packing,siap diambil,selesai'
         ]);
 
         try {
             if ($request->status == 'selesai') {
-                // ... logic selesai (sama) ...
                 DB::statement("CALL sp_ambil_cucian(?, ?)", [$id, Auth::id() ?? 1]);
                 $msg = 'Order berhasil diselesaikan.';
             } else {
-                // ... logic status lain ...
                 DB::statement("CALL sp_update_status_transaksi(?, ?, ?)", [
                     $id,
-                    $request->status, // Ini akan mengirim 'siap diambil' ke DB
+                    $request->status,
                     Auth::id() ?? 1
                 ]);
                 $msg = 'Status order berhasil diperbarui.';
@@ -414,9 +453,7 @@ class TransaksiController extends Controller
         } catch (\Exception $e) {
             $pesan = $e->getMessage();
             
-            // Bersihkan pesan error SQL biar enak dibaca user
             if (str_contains($pesan, 'GAGAL:')) {
-                // Ambil teks setelah kata GAGAL:
                 $pesan = substr($pesan, strpos($pesan, 'GAGAL:')); 
             } else if (str_contains($pesan, 'Security Alert:')) {
                 $pesan = substr($pesan, strpos($pesan, 'Security Alert:'));
@@ -457,16 +494,9 @@ class TransaksiController extends Controller
     public function show($id)
     {
         $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'pembayaran', 'inventaris'])
-            // 1. Ambil kolom asli
             ->select('transaksi.*')
-            
-            // 2. AMBIL TOTAL BIAYA (Virtual Column)
             ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
-            
-            // 3. AMBIL SISA TAGIHAN (Virtual Column)
-            // Biar kita gak perlu hitung manual (total - bayar) di view
             ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
-            
             ->findOrFail($id);
 
         return view('admin.transaksi.show', compact('transaksi'));
@@ -504,13 +534,11 @@ class TransaksiController extends Controller
 
     public function destroy($id)
     {
-        // Cari transaksi
         $transaksi = Transaksi::findOrFail($id);
 
-        // Ubah status pesanan jadi 'dibatalkan'
-        // Ubah juga status bayar jadi 'batal' (opsional, biar jelas di laporan keuangan)
         $transaksi->update([
-            'status_pesanan' => 'batal'
+            'status_pesanan' => 'dibatalkan',
+            'status_bayar'   => 'batal' 
         ]);
 
         return redirect()->back()->with('success', 'Transaksi berhasil dibatalkan (Status: Dibatalkan)');

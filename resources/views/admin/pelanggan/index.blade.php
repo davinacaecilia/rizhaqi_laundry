@@ -201,6 +201,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+        
 
                         {{-- Box jika database kosong --}}
                         @if($pelanggan->count() === 0)
@@ -211,6 +212,9 @@
                         </div>
                         @endif
                     </div>
+
+                    <!-- {{-- 🟢 PAGINATION COMPONENT --}}
+                    @include('partial.pagination', ['data' => $pelanggan]) -->
                 </div>
             </div>
 

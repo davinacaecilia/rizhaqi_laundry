@@ -49,30 +49,29 @@
             background-color: rgba(26, 115, 232, 0.04);
         }
 
-        .table-search-input {
-            width: 0;
-            padding: 0;
-            border: none;
-            transition: width 0.3s ease, padding 0.3s ease, border 0.3s ease;
-            box-sizing: border-box;
-            background: var(--surface-white);
-            color: var(--text-primary);
-            font-size: 14px;
-            border-radius: 20px;
-            margin-left: auto;
-            outline: none;
-            height: 40px;
+        /* --- LAYOUT HEADER --- */
+        .table-data .order .head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .table-data .order .head h3 {
+            margin-right: auto; 
         }
 
-        .table-search-input.show {
-            width: 200px;
+        .filter-input {
             padding: 8px 12px;
             border: 1px solid var(--border-light);
-        }
-
-        .table-search-input.show:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            background: #fff;
+            color: var(--text-primary);
+            cursor: pointer;
+            height: 40px;
         }
     </style>
 </head>
@@ -100,7 +99,7 @@
                     <div class="head">
                         <h3>Log Aktivitas</h3>
 
-                        
+                        <input type="date" id="dateFilter" class="filter-input" title="Filter Tanggal">
                     </div>
 
                     <div class="table-container">
@@ -131,7 +130,9 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
+                        
+                        </div>
+                        <!-- @include('partial.pagination', ['data' => $logs]) -->
                 </div>
             </div>
 
@@ -140,35 +141,7 @@
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>
-    <script src="{{ asset('admin/script/chart.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-
-    <script>
-    const searchBtn = document.getElementById('tableSearchBtn');
-    const searchInput = document.getElementById('tableSearchInput');
-    const noData = document.getElementById('noData');
-
-    searchBtn.addEventListener('click', () => {
-        searchInput.classList.toggle('show');
-        if (searchInput.classList.contains('show')) searchInput.focus();
-    });
-
-    searchInput.addEventListener('input', () => {
-        const filter = searchInput.value.toLowerCase();
-        const rows = document.querySelectorAll('.table-container tbody tr');
-
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            const rowText = row.innerText.toLowerCase();
-            const match = rowText.includes(filter);
-            row.style.display = match ? '' : 'none';
-            if (match) visibleCount++;
-        });
-
-        noData.style.display = (visibleCount === 0) ? "block" : "none";
-    });
-    </script>
 
 </body>
 </html>

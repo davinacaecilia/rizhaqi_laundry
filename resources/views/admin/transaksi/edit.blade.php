@@ -8,12 +8,19 @@
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/form-transaksi.css') }}" />
 
-    <title>Edit Order ({{ $transaksi->kode_invoice }}) - Rizhaqi Laundry</title>
+    <title>Edit Order ({{ $transaksi->kode_invoice }}) - Rizhaqi Laundry Admin</title>
     
     <style>
+        /* CSS TAMBAHAN: HILANGKAN PANAH DI INPUT NUMBER */
         input[type=number]::-webkit-outer-spin-button,
-        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* Style buat input harga kalau dilock/unlock */
         .locked-input { background-color: #e9ecef; cursor: not-allowed; }
         .unlocked-input { background-color: #fff; border: 1px solid #007bff; }
     </style>
@@ -40,19 +47,26 @@
             </div>
 
             <div class="form-card">
-                {{-- PERBAIKAN: Form Action mengarah ke route update yang benar --}}
+                {{-- FORM ACTION MENGARAH KE UPDATE --}}
                 <form id="formTransaksi" action="{{ route('admin.transaksi.update', $transaksi->id_transaksi) }}" method="POST">
                     @csrf
                     @method('PUT')
 
                     <div class="form-group">
                         <label for="pelanggan">Nama Pelanggan</label>
+                        {{-- Isi Value dengan data lama --}}
                         <input type="text" list="customer_list" id="pelanggan" name="nama_pelanggan" 
                                value="{{ $transaksi->pelanggan->nama }}" 
-                               placeholder="Ketik nama pelanggan..." autocomplete="off" required>
+                               placeholder="Ketik nama pelanggan..." autocomplete="off" required oninput="autofillPelanggan()">
+                        
                         <datalist id="customer_list">
+                            {{-- DATA PELANGGAN DARI DB --}}
                             @foreach($pelanggan as $cust)
-                                <option value="{{ $cust->nama }}">{{ $cust->telepon }}</option>
+                                <option value="{{ $cust->nama }}" 
+                                        data-hp="{{ $cust->telepon }}" 
+                                        data-alamat="{{ $cust->alamat ?? '' }}">
+                                    {{ $cust->telepon }}
+                                </option>
                             @endforeach
                         </datalist>
                     </div>
@@ -71,8 +85,8 @@
 
                     <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 20px 0;">
 
+                    {{-- PERSIAPAN DATA LAMA UNTUK LOGIC LAYANAN --}}
                     @php
-                        // Ambil data lama
                         $mainDetail = $transaksi->detailTransaksi->first(); 
                         $kategoriLama = $mainDetail && $mainDetail->layanan ? $mainDetail->layanan->kategori : '';
                         $layananLamaId = $mainDetail ? $mainDetail->id_layanan : '';
@@ -81,9 +95,9 @@
 
                     <div class="form-group">
                         <label for="kategori_id">Kategori Layanan</label>
-                        {{-- PERBAIKAN: ID DIUBAH JADI kategori_id AGAR SESUAI DENGAN JS --}}
-                        <select id="kategori_id" class="form-control" onchange="updateLayananDropdown()">
+                        <select id="kategori_id" name="kategori_id" required onchange="updateLayananDropdown()">
                             <option value="">-- Pilih Kategori --</option>
+                            {{-- LOOPING KATEGORI DARI DB --}}
                             @foreach($kategori as $kat)
                                 <option value="{{ $kat->kategori }}" {{ $kategoriLama == $kat->kategori ? 'selected' : '' }}>
                                     {{ $kat->kategori }}
@@ -94,17 +108,19 @@
 
                     <div class="form-group">
                         <label for="layanan_id">Jenis Layanan</label>
-                        <select id="layanan_id" name="layanan_id" required disabled onchange="setHargaOtomatis()">
+                        {{-- Hapus disabled karena di edit mode data sudah ada --}}
+                        <select id="layanan_id" name="layanan_id" required onchange="setHargaOtomatis()">
                             <option value="" data-harga="0">-- Pilih Kategori Terlebih Dahulu --</option>
                             
-                            {{-- Render SEMUA layanan (disembunyikan JS nanti) --}}
+                            {{-- LOAD SEMUA LAYANAN TAPI DISEMBUNYIKAN JS DULU --}}
                             @foreach($layanan as $item)
                                 <option value="{{ $item->id_layanan }}" 
                                         data-kategori="{{ $item->kategori }}"
                                         data-tipe="{{ $item->is_flexible ? 'range' : 'fixed' }}"
                                         data-harga="{{ $item->harga_satuan }}"
                                         data-min="{{ $item->harga_min }}"
-                                        data-max="{{ $item->harga_max }}">
+                                        data-max="{{ $item->harga_max }}"
+                                        {{ $layananLamaId == $item->id_layanan ? 'selected' : '' }}>
                                     {{ $item->nama_layanan }}
                                 </option>
                             @endforeach
@@ -124,66 +140,70 @@
                     <div class="form-group">
                         <label>Layanan Tambahan (Add On)</label>
                         <div class="addon-container">
+                            {{-- LOGIC PHP: Cek apakah addon ada di transaksi lama --}}
                             @php
-                                // Helper function buat cek addon lama
-                                function getAddonData($keyword, $trx) {
+                                function cekAddon($key, $trx) {
                                     foreach($trx->detailTransaksi as $dt) {
-                                        if($dt->layanan && stripos($dt->layanan->nama_layanan, $keyword) !== false) {
+                                        // Cari addon berdasarkan nama (case insensitive)
+                                        if($dt->layanan && stripos($dt->layanan->nama_layanan, $key) !== false) {
                                             return ['checked' => true, 'qty' => $dt->jumlah];
                                         }
                                     }
                                     return ['checked' => false, 'qty' => ''];
                                 }
-                                $eks = getAddonData('Ekspress', $transaksi);
-                                $han = getAddonData('Hanger', $transaksi);
-                                $pla = getAddonData('Plastik', $transaksi);
-                                $hp  = getAddonData('Hanger + Plastik', $transaksi);
+                                $eks = cekAddon('Ekspress', $transaksi);
+                                $han = cekAddon('Hanger', $transaksi);
+                                $pla = cekAddon('Plastik', $transaksi);
+                                $hp  = cekAddon('Hanger + Plastik', $transaksi);
                             @endphp
 
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')" {{ $eks['checked'] ? 'checked' : '' }}>
+                                    <input type="checkbox" id="addon_ekspress" name="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')" {{ $eks['checked'] ? 'checked' : '' }}>
                                     <span>Layanan Ekspress (+Rp 5.000/kg)</span>
                                 </label>
-                                <input type="number" id="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1" value="{{ $eks['qty'] }}" style="{{ $eks['checked'] ? 'display:block' : 'display:none' }}">
+                                <input type="number" id="qty_ekspress" name="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1" value="{{ $eks['qty'] }}" style="{{ $eks['checked'] ? 'display:block' : 'display:none' }}">
                             </div>
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger" data-harga="3000" onchange="toggleAddonQty(this, 'qty_hanger')" {{ $han['checked'] ? 'checked' : '' }}>
+                                    <input type="checkbox" id="addon_hanger" name="addon_hanger" data-harga="3000" onchange="toggleAddonQty(this, 'qty_hanger')" {{ $han['checked'] ? 'checked' : '' }}>
                                     <span>Hanger (+Rp 3.000/pcs)</span>
                                 </label>
-                                <input type="number" id="qty_hanger" class="addon-qty" placeholder="Pcs" min="1" value="{{ $han['qty'] }}" oninput="hitungTotal()" style="{{ $han['checked'] ? 'display:block' : 'display:none' }}">
+                                <input type="number" id="qty_hanger" name="qty_hanger" class="addon-qty" placeholder="Pcs" min="1" value="{{ $han['qty'] }}" oninput="hitungTotal()" style="{{ $han['checked'] ? 'display:block' : 'display:none' }}">
                             </div>
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_plastik" data-harga="3000" onchange="toggleAddonQty(this, 'qty_plastik')" {{ $pla['checked'] ? 'checked' : '' }}>
+                                    <input type="checkbox" id="addon_plastik" name="addon_plastik" data-harga="3000" onchange="toggleAddonQty(this, 'qty_plastik')" {{ $pla['checked'] ? 'checked' : '' }}>
                                     <span>Plastik (+Rp 3.000/pcs)</span>
                                 </label>
-                                <input type="number" id="qty_plastik" class="addon-qty" placeholder="Pcs" min="1" value="{{ $pla['qty'] }}" oninput="hitungTotal()" style="{{ $pla['checked'] ? 'display:block' : 'display:none' }}">
+                                <input type="number" id="qty_plastik" name="qty_plastik" class="addon-qty" placeholder="Pcs" min="1" value="{{ $pla['qty'] }}" oninput="hitungTotal()" style="{{ $pla['checked'] ? 'display:block' : 'display:none' }}">
                             </div>
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger_plastik" data-harga="5000" onchange="toggleAddonQty(this, 'qty_hanger_plastik')" {{ $hp['checked'] ? 'checked' : '' }}>
+                                    <input type="checkbox" id="addon_hanger_plastik" name="addon_hanger_plastik" data-harga="5000" onchange="toggleAddonQty(this, 'qty_hanger_plastik')" {{ $hp['checked'] ? 'checked' : '' }}>
                                     <span>Hanger + Plastik (+Rp 5.000/pcs)</span>
                                 </label>
-                                <input type="number" id="qty_hanger_plastik" class="addon-qty" placeholder="Pcs" min="1" value="{{ $hp['qty'] }}" oninput="hitungTotal()" style="{{ $hp['checked'] ? 'display:block' : 'display:none' }}">
+                                <input type="number" id="qty_hanger_plastik" name="qty_hanger_plastik" class="addon-qty" placeholder="Pcs" min="1" value="{{ $hp['qty'] }}" oninput="hitungTotal()" style="{{ $hp['checked'] ? 'display:block' : 'display:none' }}">
                             </div>
                         </div>
                     </div>
 
                     <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 20px 0;">
 
+                    {{-- Data Inventaris Lama --}}
                     @php
                         $inv = $transaksi->inventaris->pluck('jumlah', 'nama_barang')->toArray();
-                        $hasDetail = count($inv) > 0;
+                        $hasInv = count($inv) > 0;
                     @endphp
+
                     <div class="form-group">
                         <label class="toggle-detail-wrapper">
-                            <input type="checkbox" id="toggleDetail" onchange="toggleDetailSection()" {{ $hasDetail ? 'checked' : '' }}>
+                            <input type="checkbox" id="toggleDetail" name="toggleDetail" onchange="toggleDetailSection()" {{ $hasInv ? 'checked' : '' }}>
                             <span><i class='bx bx-list-plus'></i> Isi Rincian Pakaian? (Inventaris)</span>
                         </label>
-                        
-                        <div id="detail-pakaian-section" style="{{ $hasDetail ? 'display:block' : 'display:none' }}">
+                        <small style="display:block; margin-top:5px; color:var(--text-tertiary);">Data ini hanya untuk catatan nota (tidak mempengaruhi harga kiloan).</small>
+
+                        <div id="detail-pakaian-section" style="{{ $hasInv ? 'display:block' : 'display:none' }}">
                             <div class="clothing-grid">
                                 <div>
                                     <div class="clothing-item"><label>Kemeja/Baju</label> <input type="number" min="0" class="qty-input" name="qty_baju" value="{{ $inv['Baju'] ?? 0 }}"></div>
@@ -206,12 +226,13 @@
                         <div class="form-group">
                             <label for="berat">Berat (Kg) / Jumlah (Pcs)</label>
                             <input type="number" id="berat" name="berat" value="{{ $transaksi->berat }}" step="1" min="1" required style="font-weight: bold;" oninput="hitungTotal()">
+                            <small style="color: var(--text-secondary);">Masukkan angka bulat (tanpa koma).</small>
                         </div>
 
                         <div class="form-group">
                             <label for="total_biaya">Estimasi Total Biaya (Rp)</label>
-                            <input type="text" id="total_biaya_tampil" value="Rp " readonly>
-                            <input type="hidden" id="total_biaya" name="total_biaya" value="">
+                            <input type="text" id="total_biaya_tampil" value="Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}" readonly>
+                            <input type="hidden" id="total_biaya" name="total_biaya" value="{{ $transaksi->total_biaya }}">
                         </div>
                     </div>
 
@@ -225,8 +246,8 @@
                     <div class="form-group">
                         <label for="status_bayar">Status Pembayaran</label>
                         <select id="status_bayar" name="status_bayar" required onchange="toggleInputDP()">
-                            <option value="belum" {{ $transaksi->status_bayar == 'belum' ? 'selected' : '' }}>Belum Bayar</option>
-                            <option value="lunas" {{ $transaksi->status_bayar == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                            <option value="belum" {{ $transaksi->status_bayar == 'belum' ? 'selected' : '' }}>Belum Bayar (Bayar Nanti)</option>
+                            <option value="lunas" {{ $transaksi->status_bayar == 'lunas' ? 'selected' : '' }}>Lunas (Bayar Sekarang)</option>
                             <option value="dp"    {{ $transaksi->status_bayar == 'dp' ? 'selected' : '' }}>DP (Uang Muka)</option>
                         </select>
                     </div>
@@ -238,7 +259,7 @@
 
                     <div class="form-group">
                         <label for="catatan">Catatan Khusus (Opsional)</label>
-                        <textarea id="catatan" name="catatan" rows="2">{{ $transaksi->catatan }}</textarea>
+                        <textarea id="catatan" name="catatan" placeholder="Contoh: Jangan pakai pewangi..." rows="2">{{ $transaksi->catatan }}</textarea>
                     </div>
 
                     <div class="form-actions">
@@ -254,12 +275,96 @@
         </main>
     </section>
 
-<script src="{{ asset('admin/script/script.js') }}"></script>
+    <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
 
     <script>
-        // FUNGSI UTAMA: Mengatur Status Input Harga (Dipanggil saat dropdown berubah)
+        // === VARIABEL GLOBAL UNTUK MENYIMPAN OPSI LAYANAN LENGKAP ===
+        let allLayananOptions = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Simpan semua opsi layanan ke memory sebelum di-filter
+            const layananSelect = document.getElementById('layanan_id');
+            if(layananSelect) {
+                const options = Array.from(layananSelect.options);
+                allLayananOptions = options.slice(1).map(opt => ({
+                    value: opt.value,
+                    text: opt.text,
+                    kategori: opt.getAttribute('data-kategori'),
+                    harga: opt.getAttribute('data-harga'),
+                    tipe: opt.getAttribute('data-tipe'),
+                    min: opt.getAttribute('data-min'),
+                    max: opt.getAttribute('data-max'),
+                    selected: opt.selected // Simpan status terpilih dari PHP
+                }));
+            }
+
+            // 2. Jalankan Filter Awal (Agar dropdown layanan sesuai kategori yang terpilih di PHP)
+            updateLayananDropdown();
+
+            // 3. Set Status Harga (Agar input harga unlock/lock sesuai data lama)
+            setHargaOtomatis();
+        });
+
+        // === FUNGSI TAMBAHAN: AUTOFILL PELANGGAN (SAMA SEPERTI CREATE) ===
+        function autofillPelanggan() {
+            const inputVal = document.getElementById('pelanggan').value;
+            const list = document.getElementById('customer_list');
+            const options = list.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === inputVal) {
+                    const hp = options[i].getAttribute('data-hp');
+                    const almt = options[i].getAttribute('data-alamat');
+                    
+                    document.getElementById('no_hp').value = hp;
+                    document.getElementById('alamat').value = almt;
+                    break;
+                }
+            }
+        }
+
+        // === FUNGSI UTAMA (SAMA SEPERTI CREATE, DENGAN SEDIKIT PENYESUAIAN EDIT) ===
+        function updateLayananDropdown() {
+            const kategoriSelect = document.getElementById('kategori_id');
+            const layananSelect = document.getElementById('layanan_id');
+            const selectedKategori = kategoriSelect.value;
+            
+            // Simpan ID yang sedang dipilih (dari PHP atau user)
+            const currentSelectedID = "{{ $layananLamaId }}"; 
+
+            // Reset dropdown
+            layananSelect.innerHTML = '<option value="" data-harga="0">-- Pilih Layanan --</option>';
+
+            if (selectedKategori === "") {
+                layananSelect.disabled = true;
+                return;
+            }
+
+            layananSelect.disabled = false;
+            
+            // Filter opsi dari memory
+            const filteredOptions = allLayananOptions.filter(opt => opt.kategori === selectedKategori);
+
+            filteredOptions.forEach(opt => {
+                const newOption = document.createElement('option');
+                newOption.value = opt.value;
+                newOption.text = opt.text;
+                newOption.setAttribute('data-kategori', opt.kategori);
+                newOption.setAttribute('data-harga', opt.harga);
+                newOption.setAttribute('data-tipe', opt.tipe);
+                newOption.setAttribute('data-min', opt.min);
+                newOption.setAttribute('data-max', opt.max);
+                
+                // Cek apakah opsi ini adalah layanan lama? Jika ya, select kembali
+                if (opt.value == currentSelectedID) {
+                    newOption.selected = true;
+                }
+                
+                layananSelect.add(newOption);
+            });
+        }
+
         function setHargaOtomatis() {
             const select = document.getElementById('layanan_id');
             const inputHarga = document.getElementById('harga_satuan');
@@ -268,62 +373,119 @@
             if (!select || !inputHarga) return;
 
             const selectedOption = select.options[select.selectedIndex];
+            if (!selectedOption || selectedOption.value === "") return;
+
             const tipe = selectedOption.getAttribute('data-tipe');
             const harga = selectedOption.getAttribute('data-harga');
             const min = selectedOption.getAttribute('data-min');
             const max = selectedOption.getAttribute('data-max');
 
-            // Reset dulu class dan atribut
             inputHarga.classList.remove('locked-input', 'unlocked-input');
             infoRange.style.display = 'none';
 
             if (tipe === 'range') {
-                // KASUS 1: HARGA RENTANG (BISA DIEDIT)
                 inputHarga.readOnly = false;
-                inputHarga.value = ""; // Kosongkan biar user isi sendiri (atau isi min kalau mau)
-                inputHarga.placeholder = `Min: ${formatRupiah(min)}`;
-                
-                // Ubah style jadi putih & kursor teks
                 inputHarga.style.backgroundColor = "#fff";
                 inputHarga.style.cursor = "text"; 
                 inputHarga.classList.add('unlocked-input');
-
-                // Tampilkan info range
+                
                 infoRange.style.display = 'block';
                 infoRange.textContent = `*Harga Fleksibel: Rp ${formatRupiah(min)} - Rp ${formatRupiah(max)}`;
+
+                // PENTING: Jangan reset harga jadi 0 jika sudah ada nilai dari DB!
+                if(inputHarga.value == 0 || inputHarga.value == "") {
+                     inputHarga.placeholder = `Min: ${formatRupiah(min)}`;
+                }
+
             } else {
-                // KASUS 2: HARGA FIX (TERKUNCI)
                 inputHarga.readOnly = true;
-                inputHarga.value = harga;
+                inputHarga.value = harga; 
                 
-                // Ubah style jadi abu-abu & kursor not-allowed
                 inputHarga.style.backgroundColor = "#e9ecef";
                 inputHarga.style.cursor = "not-allowed";
                 inputHarga.classList.add('locked-input');
             }
             
-            hitungTotal(); // Hitung ulang total biaya
+            hitungTotal(); 
         }
 
-        // Helper format rupiah sederhana
+        function hitungTotal() {
+            const elBerat = document.getElementById('berat');
+            const elHarga = document.getElementById('harga_satuan');
+            
+            const berat = elBerat && elBerat.value ? parseFloat(elBerat.value) : 0;
+            const hargaSatuan = elHarga && elHarga.value ? parseFloat(elHarga.value) : 0;
+            
+            let subTotal = hargaSatuan * berat;
+
+            let totalAddon = 0;
+            
+            const addons = [
+                {chk: 'addon_ekspress', qty: 'qty_ekspress'},
+                {chk: 'addon_hanger', qty: 'qty_hanger'},
+                {chk: 'addon_plastik', qty: 'qty_plastik'},
+                {chk: 'addon_hanger_plastik', qty: 'qty_hanger_plastik'}
+            ];
+
+            addons.forEach(item => {
+                const checkbox = document.getElementById(item.chk);
+                const inputQty = document.getElementById(item.qty);
+                
+                if(checkbox && checkbox.checked) {
+                    const hargaAddon = parseFloat(checkbox.getAttribute('data-harga')) || 0;
+                    const jumlah = parseFloat(inputQty.value) || 0;
+                    totalAddon += (hargaAddon * jumlah);
+                }
+            });
+
+            const grandTotal = subTotal + totalAddon;
+
+            document.getElementById('total_biaya_tampil').value = "Rp " + new Intl.NumberFormat('id-ID').format(grandTotal);
+            document.getElementById('total_biaya').value = grandTotal;
+        }
+
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID').format(angka);
         }
 
-        // Event Listener saat halaman dimuat (Khusus Edit)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Jalankan sekali saat load agar status awal benar
-            const select = document.getElementById('layanan_id');
-            if(select && !select.disabled && select.value !== "") {
-                setHargaOtomatis();
-                
-                // Khusus Edit: Kembalikan nilai harga lama jika ada
-                @if(isset($hargaLama))
-                    const inputHarga = document.getElementById('harga_satuan');
-                    if(inputHarga) inputHarga.value = "{{ $hargaLama }}";
-                @endif
+        function toggleAddonQty(checkbox, inputId) {
+            const inputQty = document.getElementById(inputId);
+            const beratUtama = document.getElementById('berat').value;
+
+            if(checkbox.checked) {
+                inputQty.style.display = 'block';
+                if(inputQty.value == "" || inputQty.value == 0) {
+                     inputQty.value = beratUtama ? beratUtama : 1;
+                }
+            } else {
+                inputQty.style.display = 'none';
+                inputQty.value = 0; 
             }
-        });
+            hitungTotal();
+        }
+
+        function toggleDetailSection() {
+            const checkBox = document.getElementById('toggleDetail');
+            const section = document.getElementById('detail-pakaian-section');
+            if(checkBox && section) section.style.display = checkBox.checked ? "block" : "none";
+        }
+
+        function toggleInputDP() {
+            const status = document.getElementById('status_bayar').value;
+            const containerDP = document.getElementById('container_input_dp');
+            const inputDP = document.getElementById('jumlah_dp');
+            if(status === 'dp') {
+                containerDP.style.display = 'block';
+                inputDP.required = true;
+            } else {
+                containerDP.style.display = 'none';
+                inputDP.required = false;
+            }
+        }
+
+        function prosesSimpan() {
+            document.getElementById('formTransaksi').submit(); 
+        }
     </script>
 </body>
 </html>

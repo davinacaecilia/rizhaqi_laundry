@@ -22,7 +22,7 @@
         .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
 
-        /* --- FILTER CARD (MODIFIKASI POSISI) --- */
+        /* --- FILTER CARD --- */
         .filter-card { 
             background: var(--primary-white); 
             padding: 20px; 
@@ -32,7 +32,7 @@
             margin-bottom: 24px; 
             display: flex; 
             align-items: center; 
-            gap: 10px; /* Jarak antar elemen */
+            gap: 10px; 
             flex-wrap: wrap; 
         }
         
@@ -50,16 +50,14 @@
             border-radius: 6px; 
             border:none; 
             cursor: pointer; 
-            /* Margin-left auto dihapus agar nempel sama search */
             margin-left: 0; 
         }
 
-        /* --- SEARCH BAR (DORONG KE KANAN) --- */
+        /* --- SEARCH BAR --- */
         .table-search-wrapper { 
             position: relative; 
             display: flex; 
             align-items: center; 
-            /* INI KUNCINYA: Dorong Search & Print ke kanan mentok */
             margin-left: auto; 
         }
         
@@ -88,6 +86,9 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* ========================================= */
+        /* PERBAIKAN CSS CETAK (AGAR TIDAK KOSONG) */
+        /* ========================================= */
         @media print {
             #sidebar, nav, .tabs-box, .filter-card, .breadcrumb, .btn-print, .head-title .btn-download { display: none !important; }
             body, section, main, #content { width: 100% !important; margin: 0 !important; padding: 0 !important; left: 0 !important; position: relative !important; box-shadow: none !important; overflow: visible !important; }
@@ -116,32 +117,24 @@
                 </div>
             </div>
 
+            {{-- LOGIC TAB (PHP) --}}
             <div class="tabs-box">
-                <button class="tab-btn active" onclick="openTab(event, 'tab-harian')">Laporan Harian (Detail)</button>
-                <button class="tab-btn" onclick="openTab(event, 'tab-bulanan')">Rekap Bulanan (Summary)</button>
+                <button class="tab-btn {{ $activeTab == 'harian' ? 'active' : '' }}" onclick="openTab(event, 'tab-harian')" style="{{ $activeTab == 'harian' ? 'color: var(--accent-blue); border-bottom-color: var(--accent-blue);' : '' }}">Laporan Harian (Detail)</button>
+                <button class="tab-btn {{ $activeTab == 'bulanan' ? 'active' : '' }}" onclick="openTab(event, 'tab-bulanan')" style="{{ $activeTab == 'bulanan' ? 'color: var(--accent-blue); border-bottom-color: var(--accent-blue);' : '' }}">Rekap Bulanan (Summary)</button>
             </div>
 
-            <!-- === TAB HARIAN === -->
-            <div id="tab-harian" class="tab-content active">
+            <div id="tab-harian" class="tab-content {{ $activeTab == 'harian' ? 'active' : '' }}" style="display: {{ $activeTab == 'harian' ? 'block' : 'none' }};">
                 <div class="filter-card">
-                    <!-- 1. Filter Tanggal (Di Kiri) -->
-                    <div class="filter-group">
+                    <form action="{{ route('admin.laporan.index') }}" method="GET" class="filter-group" id="formHarian">
+                        <input type="hidden" name="tab" value="harian">
                         <label>Lihat Tanggal:</label>
-                        <input type="date" id="laporanDate" style="cursor: pointer;">
-                    </div>
-
-                    <!-- 2. Search Bar (Di Kanan - didorong margin-left: auto) -->
-                    <div class="table-search-wrapper">
-                        <input type="text" id="laporanSearch" class="table-search-input" placeholder="Cari data...">
-                        <i class='bx bx-search bx-search-toggle' id="tableSearchIcon"></i>
-                    </div>
+                        <input type="date" name="tanggal" value="{{ $tanggal }}" onchange="document.getElementById('formHarian').submit()" id="laporanDate" style="cursor: pointer;">
+                    </form>
                     
-                    <!-- 3. Tombol Cetak (Di Kanan - sebelah search) -->
                     <button class="btn-print" onclick="window.print()"><i class='bx bx-printer'></i> Cetak</button>
                 </div>
 
                 <div class="report-layout">
-                    <!-- Tabel Kiri (Pemasukan) -->
                     <div class="report-section table-container">
                         <h3><i class='bx bx-basket'></i> Laporan Cucian Masuk</h3>
                         <table class="data-table" id="tablePemasukan">
@@ -155,25 +148,28 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- Data Hari Ini --}}
-                                <tr class="data-row"><td>TRX-001</td><td>Pak Rahmat</td><td class="tgl-row">{{ date('Y-m-d') }}</td><td class="val-berat">4.5 Kg</td><td class="text-right val-total">45000</td></tr>
-                                <tr class="data-row"><td>TRX-002</td><td>Ani Wijaya</td><td class="tgl-row">{{ date('Y-m-d') }}</td><td class="val-berat">15.0 Kg</td><td class="text-right val-total">150000</td></tr>
-                                {{-- Data Kemarin --}}
-                                <tr class="data-row"><td>TRX-003</td><td>Citra Lestari</td><td class="tgl-row">{{ date('Y-m-d', strtotime('-1 days')) }}</td><td class="val-berat">2.0 Kg</td><td class="text-right val-total">20000</td></tr>
-                                {{-- Data Bulan Lalu --}}
-                                <tr class="data-row"><td>TRX-004</td><td>Hotel Indah</td><td class="tgl-row">2025-11-01</td><td class="val-berat">20.0 Kg</td><td class="text-right val-total">200000</td></tr>
+                                @forelse($dataCucian as $item)
+                                <tr class="data-row">
+                                    <td>{{ $item->kode_invoice }}</td>
+                                    <td>{{ $item->nama_pelanggan }}</td>
+                                    <td class="tgl-row">{{ date('d-m-Y', strtotime($item->tgl_masuk)) }}</td>
+                                    <td class="val-berat">{{ number_format($item->berat, 0, ',', '.') }} Kg</td>
+                                    <td class="text-right val-total">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="5" class="no-data-msg">Tidak ada cucian masuk.</td></tr>
+                                @endforelse
                             </tbody>
                             <tfoot>
                                 <tr class="row-total">
                                     <td colspan="3">TOTAL</td>
-                                    <td id="totalBerat">0 Kg</td>
-                                    <td class="text-right text-blue" id="totalKiri">Rp 0</td>
+                                    <td id="totalBerat">{{ number_format($dataCucian->sum('berat'), 0, ',', '.') }} Kg</td>
+                                    <td class="text-right text-blue" id="totalKiri">Rp {{ number_format($dataCucian->sum('total_harga'), 0, ',', '.') }}</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
 
-                    <!-- Tabel Kanan (Arus Kas) -->
                     <div class="report-section table-container">
                         <h3><i class='bx bx-wallet'></i> Arus Kas (Cashflow)</h3>
                         <table class="data-table" id="tableArusKas">
@@ -186,16 +182,28 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- Data Hari Ini --}}
-                                <tr class="data-row"><td>Pelunasan Rahmat</td><td class="tgl-row">{{ date('Y-m-d') }}</td><td class="text-right text-green val-masuk">45000</td><td class="text-right val-keluar">0</td></tr>
-                                <tr class="data-row"><td>DP Ani Wijaya</td><td class="tgl-row">{{ date('Y-m-d') }}</td><td class="text-right text-green val-masuk">75000</td><td class="text-right val-keluar">0</td></tr>
-                                {{-- Data Kemarin --}}
-                                <tr class="data-row"><td>Beli Deterjen</td><td class="tgl-row">{{ date('Y-m-d', strtotime('-1 days')) }}</td><td class="text-right val-masuk">0</td><td class="text-right text-red val-keluar">50000</td></tr>
+                                @forelse($arusKas as $kas)
+                                <tr class="data-row">
+                                    <td>{{ $kas->keterangan }}</td>
+                                    <td class="tgl-row">{{ date('d-m-Y', strtotime($kas->tanggal)) }}</td>
+                                    <td class="text-right {{ $kas->masuk > 0 ? 'text-green' : '' }} val-masuk">
+                                        {{ $kas->masuk > 0 ? number_format($kas->masuk, 0, ',', '.') : '-' }}
+                                    </td>
+                                    <td class="text-right {{ $kas->keluar > 0 ? 'text-red' : '' }} val-keluar">
+                                        {{ $kas->keluar > 0 ? number_format($kas->keluar, 0, ',', '.') : '-' }}
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr><td colspan="4" class="no-data-msg">Belum ada transaksi kas.</td></tr>
+                                @endforelse
                             </tbody>
                             <tfoot>
                                 <tr class="row-total">
-                                    <td colspan="2">SISA KAS</td>
-                                    <td colspan="2" class="text-right text-green" id="totalKanan">Rp 0</td>
+                                    <td colspan="2">SISA KAS (NET)</td>
+                                    @php $sisaKas = $arusKas->sum('masuk') - $arusKas->sum('keluar'); @endphp
+                                    <td colspan="2" class="text-right {{ $sisaKas >= 0 ? 'text-green' : 'text-red' }}" id="totalKanan">
+                                        Rp {{ number_format($sisaKas, 0, ',', '.') }}
+                                    </td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -203,40 +211,36 @@
                 </div>
             </div>
 
-            <!-- === TAB BULANAN === -->
-            <div id="tab-bulanan" class="tab-content">
+            <div id="tab-bulanan" class="tab-content {{ $activeTab == 'bulanan' ? 'active' : '' }}" style="display: {{ $activeTab == 'bulanan' ? 'block' : 'none' }};">
                 <div class="filter-card">
-                    <div class="filter-group">
-                        <label>Bulan:</label>
-                        <select id="filterBulan">
-                            <option value="01">Januari</option>
-                            <option value="02">Februari</option>
-                            <option value="03">Maret</option>
-                            <option value="04">April</option>
-                            <option value="05">Mei</option>
-                            <option value="06">Juni</option>
-                            <option value="07">Juli</option>
-                            <option value="08">Agustus</option>
-                            <option value="09">September</option>
-                            <option value="10">Oktober</option>
-                            <option value="11" selected>November</option>
-                            <option value="12">Desember</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>Tahun:</label>
-                        <select id="filterTahun" style="min-width: 100px;">
-                            <option value="2024">2024</option>
-                            <option value="2025" selected>2025</option>
-                            <option value="2026">2026</option>
-                        </select>
-                    </div>
-                    <button class="btn-filter" id="btnTampilkanBulan"><i class='bx bx-search-alt'></i> Tampilkan</button>
-                    <button class="btn-print" onclick="window.print()"><i class='bx bx-printer'></i> Cetak</button>
+                    <form action="{{ route('admin.laporan.index') }}" method="GET" style="display:flex; gap:10px; align-items:center; width:100%;">
+                        <input type="hidden" name="tab" value="bulanan">
+                        
+                        <div class="filter-group">
+                            <label>Bulan:</label>
+                            <select name="bulan" id="filterBulan">
+                                @for($i=1; $i<=12; $i++)
+                                    <option value="{{ sprintf('%02d', $i) }}" {{ $bulan == sprintf('%02d', $i) ? 'selected' : '' }}>
+                                        {{ date('F', mktime(0, 0, 0, $i, 10)) }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Tahun:</label>
+                            <select name="tahun" id="filterTahun" style="min-width: 100px;">
+                                @for($y=date('Y'); $y>=2023; $y--)
+                                    <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <button class="btn-filter" id="btnTampilkanBulan"><i class='bx bx-search-alt'></i> Tampilkan</button>
+                        <button type="button" class="btn-print" onclick="window.print()" style="margin-left: auto;"><i class='bx bx-printer'></i> Cetak</button>
+                    </form>
                 </div>
 
                 <div class="report-section">
-                    <h3><i class='bx bx-calendar'></i> Rekapitulasi Pendapatan</h3>
+                    <h3><i class='bx bx-calendar'></i> Rekapitulasi Pendapatan: {{ date('F Y', mktime(0, 0, 0, $bulan, 10, $tahun)) }}</h3>
                     <table id="tabelBulanan">
                         <thead>
                             <tr>
@@ -247,17 +251,25 @@
                             </tr>
                         </thead>
                         <tbody id="tbodyBulanan">
-                            <tr class="row-bulan" data-bulan="11"><td class="text-center">01 Nov</td><td class="text-right text-green val-masuk">450000</td><td class="text-right text-red val-keluar">50000</td><td class="text-right text-blue">400000</td></tr>
-                            <tr class="row-bulan" data-bulan="11"><td class="text-center">02 Nov</td><td class="text-right text-green val-masuk">600000</td><td class="text-right text-red val-keluar">0</td><td class="text-right text-blue">600000</td></tr>
-                            <tr class="row-bulan" data-bulan="11"><td class="text-center">03 Nov</td><td class="text-right text-green val-masuk">550000</td><td class="text-right text-red val-keluar">250000</td><td class="text-right text-blue">300000</td></tr>
-                            <tr class="row-bulan" data-bulan="12" style="display:none;"><td class="text-center">01 Des</td><td class="text-right text-green val-masuk">800000</td><td class="text-right text-red val-keluar">100000</td><td class="text-right text-blue">700000</td></tr>
+                            @forelse($rekapBulanan as $rekap)
+                            <tr class="row-bulan">
+                                <td class="text-center">{{ date('d M', strtotime($rekap->tanggal)) }}</td>
+                                <td class="text-right text-green val-masuk">{{ number_format($rekap->total_masuk, 0, ',', '.') }}</td>
+                                <td class="text-right text-red val-keluar">{{ number_format($rekap->total_keluar, 0, ',', '.') }}</td>
+                                <td class="text-right text-blue">{{ number_format($rekap->bersih, 0, ',', '.') }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="no-data-msg">Belum ada data rekapitulasi untuk bulan ini.</td>
+                            </tr>
+                            @endforelse
                         </tbody>
                         <tfoot>
                             <tr class="row-total" style="font-size: 16px; background: #f0f0f0; border-top: 3px double #aaa;">
                                 <td class="text-center">GRAND TOTAL</td>
-                                <td class="text-right text-green" id="grandMasuk">Rp 0</td>
-                                <td class="text-right text-red" id="grandKeluar">Rp 0</td>
-                                <td class="text-right text-blue" id="grandBersih" style="font-size: 18px;">Rp 0</td>
+                                <td class="text-right text-green" id="grandMasuk">Rp {{ number_format($rekapBulanan->sum('total_masuk'), 0, ',', '.') }}</td>
+                                <td class="text-right text-red" id="grandKeluar">Rp {{ number_format($rekapBulanan->sum('total_keluar'), 0, ',', '.') }}</td>
+                                <td class="text-right text-blue" id="grandBersih" style="font-size: 18px;">Rp {{ number_format($rekapBulanan->sum('bersih'), 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -267,10 +279,41 @@
         </main>
     </section>
 
-    <!-- SCRIPT JS -->
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    <script src="{{ asset('admin/script/laporan.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // UI Toggle Search (Tidak wajib)
+            const toggleIcon = document.getElementById('tableSearchIcon');
+            const searchField = document.getElementById('laporanSearch');
+            if(toggleIcon && searchField) {
+                toggleIcon.addEventListener('click', function() {
+                    searchField.classList.toggle('show');
+                    if(searchField.classList.contains('show')) searchField.focus();
+                });
+            }
 
+            // Tab Switching (PENTING untuk Navigasi manual tanpa reload)
+            window.openTab = function(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tab-btn");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].classList.remove("active");
+                    // Reset style manual
+                    tablinks[i].style.color = "#666"; 
+                    tablinks[i].style.borderBottomColor = "transparent";
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.classList.add("active");
+                // Set style aktif
+                evt.currentTarget.style.color = "var(--accent-blue)";
+                evt.currentTarget.style.borderBottomColor = "var(--accent-blue)";
+            };
+        });
+    </script>
 </body>
 </html>

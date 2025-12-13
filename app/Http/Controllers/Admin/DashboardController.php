@@ -32,7 +32,7 @@ class DashboardController extends Controller
         // 3. Hitung Berat (Menggunakan Stored Function SQL)
         // Kita pakai 'get_total_berat_hari_ini' karena itu yang ada di database lokalmu saat ini
         // Punya temanmu 'fn_...' nanti kita sesuaikan belakangan kalau perlu
-        $queryBerat = DB::select("SELECT get_total_berat_hari_ini() AS total");
+        $queryBerat = DB::select("SELECT fn_total_berat_hari_ini() AS total");
         $beratHariIni = $queryBerat[0]->total ?? 0;
 
         // 4. Kirim semua variabel ke View

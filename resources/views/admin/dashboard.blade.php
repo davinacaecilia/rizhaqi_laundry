@@ -81,7 +81,6 @@
                         <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                             <div>
                                 <h2>Aktivitas Terbaru</h2>
-                                <p>5 Log aktivitas sistem terakhir</p>
                             </div>
                             <a href="{{ route('admin.log.index') }}" style="font-size: 12px; color: var(--accent-blue); text-decoration: none;">
                                 Lihat Semua <i class='bx bx-right-arrow-alt'></i>

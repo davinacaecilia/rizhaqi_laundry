@@ -58,29 +58,33 @@ class TransaksiController extends Controller
     }
 
     public function create()
-    {
-        $pelanggan = Pelanggan::orderBy('nama', 'asc')->get();
-        $layanan = Layanan::all();
+{
+    $pelanggan = Pelanggan::orderBy('nama', 'asc')->get();
+    $layanan = Layanan::all();
 
-        // Sorting Kategori
-        $kategori = Layanan::select('kategori')
-            ->where('kategori', '!=', 'ADD ON')
-            ->distinct()
-            ->get()
-            ->sortBy(function ($item) {
-                $urutan = [
-                    'REGULAR SERVICES' => 1,
-                    'PACKAGE SERVICES' => 2,
-                    'KARPET' => 3,
-                    'DISCOUNT JUMAT BERKAH' => 4,
-                    'DISCOUNT SELASA CERIA' => 5,
-                    'CUCI SATUAN' => 6
-                ];
-                return $urutan[$item->kategori] ?? 99;
-            });
+    // AMBIL DATA KHUSUS ADD ON DARI DB
+    $addOns = Layanan::where('kategori', 'ADD ON')->get(); // <--- TAMBAHAN INI
 
-        return view('admin.transaksi.create', compact('pelanggan', 'layanan', 'kategori'));
-    }
+    // Sorting Kategori (Kode lama Anda tetap aman)
+    $kategori = Layanan::select('kategori')
+        ->where('kategori', '!=', 'ADD ON')
+        ->distinct()
+        ->get()
+        ->sortBy(function ($item) {
+            $urutan = [
+                'REGULAR SERVICES' => 1,
+                'PACKAGE SERVICES' => 2,
+                'KARPET' => 3,
+                'DISCOUNT JUMAT BERKAH' => 4,
+                'DISCOUNT SELASA CERIA' => 5,
+                'CUCI SATUAN' => 6
+            ];
+            return $urutan[$item->kategori] ?? 99;
+        });
+
+    // Jangan lupa kirim 'addOns' di compact
+    return view('admin.transaksi.create', compact('pelanggan', 'layanan', 'kategori', 'addOns'));
+}
 
     public function store(Request $request)
     {
@@ -149,22 +153,25 @@ class TransaksiController extends Controller
             ]);
 
             // 5. SIMPAN DETAIL ADDON
-            $listAddons = ['ekspress', 'hanger', 'plastik', 'hanger_plastik'];
-            foreach ($listAddons as $key) {
-                if ($request->has("addon_$key")) {
-                    $keyword = str_replace('_', ' ', $key);
-                    $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
+            // 5. SIMPAN DETAIL ADDON (VERSI DINAMIS)
+            // Ambil lagi daftar Add On dari database untuk dicek satu-satu
+            $dbAddons = Layanan::where('kategori', 'ADD ON')->get();
 
-                    if ($addonDb) {
-                        $qty = $request->input("qty_$key", 0);
-                        if ($qty > 0) {
-                            DetailTransaksi::create([
-                                'id_transaksi' => $transaksi->id_transaksi,
-                                'id_layanan' => $addonDb->id_layanan,
-                                'jumlah' => $qty,
-                                'harga_saat_transaksi' => $addonDb->harga_satuan,
-                            ]);
-                        }
+            foreach ($dbAddons as $add) {
+                // Cek apakah di form ada input bernama 'addon_[id_layanan]'
+                // Contoh: addon_15, addon_16
+                if ($request->has('addon_' . $add->id_layanan)) {
+                    
+                    // Ambil quantity-nya
+                    $qty = $request->input('qty_' . $add->id_layanan, 0);
+
+                    if ($qty > 0) {
+                        DetailTransaksi::create([
+                            'id_transaksi' => $transaksi->id_transaksi,
+                            'id_layanan' => $add->id_layanan, // Langsung pakai ID dari DB
+                            'jumlah' => $qty,
+                            'harga_saat_transaksi' => $add->harga_satuan,
+                        ]);
                     }
                 }
             }
@@ -310,22 +317,24 @@ class TransaksiController extends Controller
             ]);
 
             // 3. Simpan Addons (Sama persis logika Create)
-            $listAddons = ['ekspress', 'hanger', 'plastik', 'hanger_plastik'];
-            foreach ($listAddons as $key) {
-                if ($request->has("addon_$key")) {
-                    $keyword = str_replace('_', ' ', $key); // misal: hanger_plastik -> hanger plastik
-                    $addonDb = Layanan::where('nama_layanan', 'LIKE', "%$keyword%")->first();
+            // 3. Simpan Addons (VERSI DINAMIS - LOOPING DB)
+            // Ambil daftar layanan kategori ADD ON dari database
+            $dbAddons = Layanan::where('kategori', 'ADD ON')->get();
 
-                    if ($addonDb) {
-                        $qty = $request->input("qty_$key", 0);
-                        if ($qty > 0) {
-                            DetailTransaksi::create([
-                                'id_transaksi' => $transaksi->id_transaksi,
-                                'id_layanan' => $addonDb->id_layanan,
-                                'jumlah' => $qty,
-                                'harga_saat_transaksi' => $addonDb->harga_satuan,
-                            ]);
-                        }
+            foreach ($dbAddons as $add) {
+                // Cek apakah di form edit ada input bernama 'addon_[ID]'
+                if ($request->has('addon_' . $add->id_layanan)) {
+                    
+                    // Ambil quantity dari input 'qty_[ID]'
+                    $qty = $request->input('qty_' . $add->id_layanan, 0);
+
+                    if ($qty > 0) {
+                        DetailTransaksi::create([
+                            'id_transaksi' => $transaksi->id_transaksi,
+                            'id_layanan'   => $add->id_layanan, // Pakai ID langsung
+                            'jumlah'       => $qty,
+                            'harga_saat_transaksi' => $add->harga_satuan,
+                        ]);
                     }
                 }
             }

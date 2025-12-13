@@ -187,7 +187,8 @@
                                                 <span style="color: #2E7D32; font-size: 13px; font-weight: 600;"><i class='bx bx-check-double'></i> Transaksi Selesai</span>
                                             @else
                                                 <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
-                                                    @csrf @method('PUT')
+                                                    @csrf 
+                                                    @method('PUT')
                                                     <input type="hidden" name="status" value="{{ $nextStatus }}">
                                                     <button type="submit" class="btn-status {{ $btnClass }}"
                                                         onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">

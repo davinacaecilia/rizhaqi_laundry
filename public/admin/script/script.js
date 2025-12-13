@@ -157,6 +157,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     textStatus = cells[3].textContent.toLowerCase();
                 }
 
+                
+                // --- TAMBAHAN UNTUK LOG AKTIVITAS (4 KOLOM) ---
+                else if (cells.length === 4) {
+                    // [0]User, [1]Aksi, [2]Keterangan, [3]Waktu
+                    textPencarian = cells[2].textContent.toLowerCase(); // Cari berdasarkan Keterangan
+                    textTanggal = cells[3].textContent.trim(); // Waktu ada di kolom ke-4
+                }
+
                 // --- LOGIKA PENCOCOKAN ---
                 const matchName = textPencarian.includes(nameValue);
 

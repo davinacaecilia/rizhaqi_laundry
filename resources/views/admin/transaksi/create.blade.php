@@ -52,11 +52,17 @@
 
                     <div class="form-group">
                         <label for="pelanggan">Nama Pelanggan</label>
-                        <input type="text" list="customer_list" id="pelanggan" name="nama_pelanggan" placeholder="Ketik nama pelanggan..." autocomplete="off" required>
+                        <input type="text" list="customer_list" id="pelanggan" name="nama_pelanggan" placeholder="Ketik nama pelanggan..." autocomplete="off" required oninput="autofillPelanggan()">
+                        
                         <datalist id="customer_list">
                             {{-- DATA PELANGGAN DARI DB --}}
                             @foreach($pelanggan as $cust)
-                                <option value="{{ $cust->nama }}">{{ $cust->telepon }}</option>
+                                {{-- PERUBAHAN DI SINI: Menambahkan data-hp dan data-alamat --}}
+                                <option value="{{ $cust->nama }}" 
+                                        data-hp="{{ $cust->telepon }}" 
+                                        data-alamat="{{ $cust->alamat ?? '' }}">
+                                    {{ $cust->telepon }}
+                                </option>
                             @endforeach
                         </datalist>
                     </div>
@@ -231,5 +237,89 @@
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
     <script src="{{ asset('admin/script/form-transaksi.js') }}"></script>
 
+    <script>
+        // === FUNGSI TAMBAHAN: AUTOFILL PELANGGAN ===
+        function autofillPelanggan() {
+            const inputVal = document.getElementById('pelanggan').value;
+            const list = document.getElementById('customer_list');
+            const options = list.options;
+            
+            // Loop semua opsi untuk cari yang namanya cocok
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === inputVal) {
+                    // Ambil data dari atribut data-hp dan data-alamat
+                    const hp = options[i].getAttribute('data-hp');
+                    const almt = options[i].getAttribute('data-alamat');
+                    
+                    // Isi ke input field
+                    document.getElementById('no_hp').value = hp;
+                    document.getElementById('alamat').value = almt;
+                    break;
+                }
+            }
+        }
+        // ===========================================
+
+        // FUNGSI UTAMA YANG LAMA TETAP DI SINI
+        function setHargaOtomatis() {
+            const select = document.getElementById('layanan_id');
+            const inputHarga = document.getElementById('harga_satuan');
+            const infoRange = document.getElementById('info_range');
+            
+            if (!select || !inputHarga) return;
+
+            const selectedOption = select.options[select.selectedIndex];
+            const tipe = selectedOption.getAttribute('data-tipe');
+            const harga = selectedOption.getAttribute('data-harga');
+            const min = selectedOption.getAttribute('data-min');
+            const max = selectedOption.getAttribute('data-max');
+
+            // Reset dulu class dan atribut
+            inputHarga.classList.remove('locked-input', 'unlocked-input');
+            infoRange.style.display = 'none';
+
+            if (tipe === 'range') {
+                // KASUS 1: HARGA RENTANG (BISA DIEDIT)
+                inputHarga.readOnly = false;
+                inputHarga.value = ""; 
+                inputHarga.placeholder = `Min: ${formatRupiah(min)}`;
+                
+                inputHarga.style.backgroundColor = "#fff";
+                inputHarga.style.cursor = "text"; 
+                inputHarga.classList.add('unlocked-input');
+
+                infoRange.style.display = 'block';
+                infoRange.textContent = `*Harga Fleksibel: Rp ${formatRupiah(min)} - Rp ${formatRupiah(max)}`;
+            } else {
+                // KASUS 2: HARGA FIX (TERKUNCI)
+                inputHarga.readOnly = true;
+                inputHarga.value = harga;
+                
+                inputHarga.style.backgroundColor = "#e9ecef";
+                inputHarga.style.cursor = "not-allowed";
+                inputHarga.classList.add('locked-input');
+            }
+            
+            hitungTotal(); 
+        }
+
+        // Helper format rupiah sederhana
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        // Event Listener saat halaman dimuat (Khusus Edit)
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('layanan_id');
+            if(select && !select.disabled && select.value !== "") {
+                setHargaOtomatis();
+                
+                @if(isset($hargaLama))
+                    const inputHarga = document.getElementById('harga_satuan');
+                    if(inputHarga) inputHarga.value = "{{ $hargaLama }}";
+                @endif
+            }
+        });
+    </script>
 </body>
 </html>

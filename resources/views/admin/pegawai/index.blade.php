@@ -192,10 +192,11 @@
                         <li><a class="active" href="{{ route('admin.pegawai.index') }}">Data Pegawai</a></li>
                     </ul>
                 </div>
-
+                @if(auth()->user()->role === 'owner')
                 <a href="{{ route('admin.pegawai.create') }}" class="btn-download">
                     <i class='bx bx-user-plus'></i> Tambah Pegawai
                 </a>
+                @endif
             </div>
 
             <div class="table-data">
@@ -216,7 +217,9 @@
                                     <th>Email (Username)</th>
                                     <th>Role / Jabatan</th>
                                     <th>Status Akun</th>
+                                    @if(auth()->user()->role === 'owner')
                                     <th>Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -243,6 +246,7 @@
                                                 {{ $user->is_active ? 'Aktif' : 'Non-Aktif' }}
                                             </span>
                                         </td>
+                                        @if(auth()->user()->role === 'owner')
                                         <td>
                                             <div class="btn-action-group">
 
@@ -281,6 +285,7 @@
 
                                             </div>
                                         </td>
+                                        @endif                                   
                                     </tr>
 
                                 @endforeach
@@ -292,8 +297,6 @@
 
         </main>
     </section>
-
-    <div id="pagination" class="pagination-container"></div>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>

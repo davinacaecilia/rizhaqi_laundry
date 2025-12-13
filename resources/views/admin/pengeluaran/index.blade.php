@@ -273,7 +273,6 @@
         </main>
     </section>
 
-    <div id="pagination" class="pagination-container"></div>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>

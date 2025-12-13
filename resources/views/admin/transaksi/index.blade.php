@@ -134,13 +134,18 @@
                                         
                                         {{-- KOLOM KE-5 (Index 4) DI BACA OLEH JS BUAT FILTER STATUS --}}
                                         <td>
-                                            @if($item->status_bayar == 'lunas')
-                                                <span class="badge-bayar bayar-lunas">LUNAS</span>
-                                            @elseif($item->status_bayar == 'dp')
-                                                <span class="badge-bayar bayar-dp">DP (Rp {{ number_format($item->jumlah_bayar, 0, ',', '.') }})</span>
+                                            @if ($item->status_pesanan != 'batal')
+                                                @if($item->status_bayar == 'lunas')
+                                                    <span class="badge-bayar bayar-lunas">LUNAS</span>
+                                                @elseif($item->status_bayar == 'dp')
+                                                    <span class="badge-bayar bayar-dp">DP (Rp {{ number_format($item->jumlah_bayar, 0, ',', '.') }})</span>
+                                                @else
+                                                    <span class="badge-bayar bayar-belum">BELUM BAYAR</span>
+                                                @endif
                                             @else
-                                                <span class="badge-bayar bayar-belum">BELUM BAYAR</span>
+                                                <span class="badge-bayar bayar-belum">DIBATALKAN</span>
                                             @endif
+                                            
                                         </td>
                                         
                                         <td>Rp {{ number_format($item->total_biaya, 0, ',', '.') }}</td>
@@ -151,27 +156,61 @@
                                                     <i class='bx bx-show'></i>
                                                 </a>
 
-                                                <a href="{{ route('admin.transaksi.edit', $item->id_transaksi) }}" class="btn-detail edit" title="Edit Data">
-                                                    <i class='bx bx-edit'></i>
-                                                </a>
+                                                @if($item->status_pesanan == 'diterima')
+                                                    <a href="{{ route('admin.transaksi.edit', $item->id_transaksi) }}" class="btn-detail edit" title="Edit Data">
+                                                        <i class='bx bx-edit'></i>
+                                                    </a>
+                                                @else
+                                                    <a href="#" class="btn-detail edit disabled" title="Edit Data" style="opacity: 0.5; cursor: not-allowed;">
+                                                        <i class='bx bx-edit'></i>
+                                                    </a>
+                                                @endif
 
+                                                @if($item->status_bayar != 'lunas' && $item->status_pesanan != 'batal')
+    
+                                                    <form action="{{ route('admin.transaksi.bayarCepat', $item->id_transaksi) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        {{-- Kirim nominal pelunasan otomatis (Sisa Tagihan) --}}
+                                                        <input type="hidden" name="nominal_bayar" value="{{ $item->sisa_tagihan }}">
+                                                        
+                                                        <button type="submit" 
+                                                                class="btn-detail edit" 
+                                                                title="Lunaskan Tagihan (Rp {{ number_format($item->sisa_tagihan, 0, ',', '.') }})"
+                                                                onclick="return confirm('Apakah Anda yakin ingin melunaskan tagihan sebesar Rp {{ number_format($item->sisa_tagihan, 0, ',', '.') }}?')">
+                                                            <i class='bx bx-wallet'></i> Lunaskan
+                                                        </button>
+                                                    </form>
+
+                                                @else
+                                                    {{-- TOMBOL DISABLED --}}
+                                                    <button type="button" class="btn-detail edit disabled" title="Sudah Lunas/Batal" style="opacity: 0.5; cursor: not-allowed;">
+                                                        <i class='bx bx-check-double'></i> Lunaskan
+                                                    </button>
+                                                @endif
+                                                
+                                                @if(auth()->user()->role === 'owner')
                                                 <form action="{{ route('admin.transaksi.destroy', $item->id_transaksi) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin hapus transaksi ini?')" title="Hapus">
-                                                        <i class='bx bx-trash'></i>
-                                                    </button>
+                                                    
+                                                    {{-- LOGIKA TOMBOL: Kalau sudah batal/selesai, tombol mati --}}
+                                                    @if(in_array($item->status_pesanan, ['batal', 'selesai']))
+                                                        <button type="button" class="btn-detail delete disabled" title="Sudah Selesai/Batal" style="opacity: 0.5; cursor: not-allowed;">
+                                                            <i class='bx bx-x-circle'></i> {{-- Ganti ikon jadi X --}}
+                                                        </button>
+                                                    @else
+                                                        <button type="submit" class="btn-detail delete" onclick="return confirm('Yakin ingin MEMBATALKAN transaksi ini? Data tidak akan bisa diubah lagi.')" title="Batalkan Transaksi">
+                                                            <i class='bx bx-x-circle'></i> {{-- Ganti ikon jadi X biar beda sama trash --}}
+                                                        </button>
+                                                    @endif
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
-                    
-                    <div style="margin-top: 20px;">
-                        {{ $transaksi->links() }}
                     </div>
                 </div>
             </div>

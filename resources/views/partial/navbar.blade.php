@@ -1,8 +1,5 @@
-<!-- NAVBAR -->
 <nav>
     <i class='bx bx-menu'></i>
-    <!-- Link kategori dan form pencarian -->
-
     <input type="checkbox" id="switch-mode" hidden>
     <label for="switch-mode" class="switch-mode"></label>
 
@@ -11,18 +8,30 @@
         <span class="num">8</span>
     </a>
 
-    {{-- Bagian Profil Pengguna (Front-End Design Only) --}}
+    {{-- Bagian Profil Pengguna (DINAMIS - BACKEND CONNECTED) --}}
     <div class="profile-info">
-        <span class="user-name">John</span> {{-- Nama pengguna statis --}}
-        <span class="user-role">(admin)</span> {{-- Level pengguna statis (contoh) --}}
+        
+        {{-- 1. Menampilkan Nama User yang Login --}}
+        {{-- auth()->user()->nama : Mengambil kolom 'nama' dari tabel users --}}
+        <span class="user-name">
+            {{ auth()->user()->nama ?? 'Guest' }}
+        </span> 
+
+        {{-- 2. Menampilkan Role (Admin/Owner/Pegawai) --}}
+        {{-- ucfirst() bikin huruf depan jadi kapital --}}
+        <span class="user-role">
+            ({{ ucfirst(auth()->user()->role ?? 'user') }})
+        </span> 
+
         <a href="#" class="profile-image">
-            <img src="https://placehold.co/32x32/cccccc/333333?text=PJ" alt="User Profile"> {{-- Gambar profil statis --}}
+            {{-- 3. Gambar Profil Otomatis Berdasarkan Inisial Nama --}}
+            {{-- Kita pakai layanan UI Avatars biar gak repot upload foto --}}
+            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->nama ?? 'Guest') }}&background=random&color=fff&size=128" 
+                alt="User Profile"> 
         </a>
     </div>
 
 </nav>
-<!-- NAVBAR -->
-
 <style>
     .profile-info {
         display: flex;

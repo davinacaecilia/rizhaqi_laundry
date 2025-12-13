@@ -64,7 +64,7 @@ return new class extends Migration
             $table->float('berat')->default(0); 
             $table->integer('jumlah_bayar')->default(0);
             $table->enum('status_bayar', ['belum', 'dp', 'lunas'])->default('belum');
-            $table->enum('status_pesanan', ['diterima', 'dicuci', 'dikeringkan', 'disetrika', 'packing', 'siap diambil', 'selesai'])->default('diterima');
+            $table->enum('status_pesanan', ['diterima', 'dicuci', 'dikeringkan', 'disetrika', 'packing', 'siap diambil', 'selesai', 'batal'])->default('diterima');
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
@@ -107,16 +107,11 @@ return new class extends Migration
         Schema::create('pengeluaran', function (Blueprint $table) {
             // 1. Primary Key (UUID)
             $table->uuid('id_pengeluaran')->primary();
-            $table->uuid('id_user'); 
+            $table->foreignUuid('id_user')->constrained('users', 'id_user');
             $table->string('keterangan', 255);
             $table->integer('jumlah');
             $table->date('tanggal');      
             $table->timestamps();
-
-            $table->foreign('id_user')
-                ->references('id_user')->on('users')
-                ->onDelete('restrict')
-                ->name('fk_pengeluaran_user');
         });
 
         // 10. TABEL LAPORAN HARIAN PEGAWAI (PK: UUID)

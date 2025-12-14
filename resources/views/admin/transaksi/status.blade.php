@@ -119,7 +119,7 @@
                             {{-- STATUS PILLS (handled by custom JS below) --}}
                             <div class="status-pills-container">
                                 @php $currentStatus = request('status', 'all'); @endphp
-                                <span class="filter-pill {{ $currentStatus == 'all' ? 'active' : '' }}" data-status="all">Semua</span>
+                                <!-- <span class="filter-pill {{ $currentStatus == 'all' ? 'active' : '' }}" data-status="all">Semua</span> -->
                                 <span class="filter-pill {{ $currentStatus == 'diterima' ? 'active' : '' }}" data-status="diterima">Diterima</span>
                                 <span class="filter-pill {{ $currentStatus == 'dicuci' ? 'active' : '' }}" data-status="dicuci">Dicuci</span>
                                 <span class="filter-pill {{ $currentStatus == 'dikeringkan' ? 'active' : '' }}" data-status="dikeringkan">Dikeringkan</span>

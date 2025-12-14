@@ -151,7 +151,6 @@
                 </ul>
             </li>
 
-<<<<<<< HEAD
             {{-- MENU LAPORAN (DROPDOWN BARU) --}}
             <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }} has-dropdown">
                 <a href="#" class="dropdown-toggle">
@@ -169,7 +168,7 @@
                     
                     {{-- Laporan Pegawai (Menu Baru) --}}
                     <li class="{{ Request::routeIs('admin.laporan.pegawai') ? 'active' : '' }}">
-                        <a href="{{ route('admin.laporan.pegawai') }}">
+                        <a href="{{ route('admin.laporan.kinerja') }}">
                             <i class='bx bx-user-check'></i> <span class="text">Laporan Pegawai</span>
                         </a>
                     </li>

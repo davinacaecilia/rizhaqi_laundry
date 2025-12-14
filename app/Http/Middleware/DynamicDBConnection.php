@@ -26,8 +26,10 @@ class DynamicDBConnection
 
             switch ($role) {
                 case 'owner':
-                case 'admin':
                     Config::set('database.default', 'mysql');
+                    break;
+                case 'admin':
+                    Config::set('database.default', 'admin_mysql');
                     break;
                 case 'pegawai':
                     Config::set('database.default', 'pegawai_mysql');

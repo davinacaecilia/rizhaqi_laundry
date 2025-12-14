@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
 
                 } elseif ($user->role === 'pegawai') {
                     // PEGAWAI: Tugas Setrika (Status 'dikeringkan')
-                    $notifData = Transaksi::where('status_pesanan', 'dikeringkan')
+                    $notifData = Transaksi::where('status_pesanan', 'disetrika')
                         ->orderBy('updated_at', 'desc')
                         ->get();
                         

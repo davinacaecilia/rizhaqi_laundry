@@ -38,12 +38,6 @@ class LogAktivitasController extends Controller
             $query->whereDate('waktu', $request->date);
         }
 
-        // 3. PAGINATION (DIKOMEN DULU SEPERTI REQUEST ANDA)
-        // $logs = $query->paginate(20);
-        // $logs->appends($request->all());
-
-        // 4. SHOW ALL (WAJIB DITAMBAHKAN SEBAGAI GANTINYA)
-        // Kalau baris ini tidak ada, variable $logs tidak dikenali
         $logs = $query->get();
 
         // 5. Kirim ke View

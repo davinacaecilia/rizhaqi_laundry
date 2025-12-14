@@ -4,15 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class LaporanHarianPegawai extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     // Nama tabel di database (jika tidak mengikuti konvensi jamak: laporan_harian_pegawai)
     protected $table = 'laporan_harian_pegawai';
 
     // Kolom-kolom yang boleh diisi (opsional, tergantung kebutuhan)
+    protected $primaryKey = 'id_laporan';
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'id_transaksi',
         'id_user',

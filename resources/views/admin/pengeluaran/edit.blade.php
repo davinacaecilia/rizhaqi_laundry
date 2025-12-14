@@ -120,7 +120,7 @@
 
             <div class="form-card">
                 <!-- Method PUT untuk Update -->
-                <form id="formPengeluaran" action="{{ route('admin.pengeluaran.update', 1) }}" method="POST">
+                <form id="formPengeluaran" action="{{ route('admin.pengeluaran.update', $data->id_pengeluaran) }}" method="POST">
                     @csrf
                     @method('PUT')
 

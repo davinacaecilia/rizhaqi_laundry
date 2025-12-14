@@ -73,6 +73,8 @@ class LayananController extends Controller
                 'harga_max' => 'required|numeric|gt:harga_min', // Max harus > Min
             ]);
 
+            $data['is_flexible'] = 1;
+
             $data['harga_min'] = $request->harga_min; // Disimpan sebagai harga dasar
             $data['harga_max'] = $request->harga_max; // Disimpan sebagai batas atas
         } else {
@@ -144,12 +146,16 @@ class LayananController extends Controller
                 'harga_min' => 'required|numeric|min:0',
                 'harga_max' => 'required|numeric|gt:harga_min',
             ]);
+
+            $data['is_flexible'] = 1;
             $data['harga_min'] = $request->harga_min;
             $data['harga_max'] = $request->harga_max;
         } else {
             $request->validate([
                 'harga_tetap' => 'required|numeric|min:0',
             ]);
+
+            $data['is_flexible'] = 0;
             $data['harga_satuan'] = $request->harga_tetap;
             $data['harga_min'] = null; // Pastikan null agar dianggap harga tetap
             $data['harga_max'] = null; // Pastikan null agar dianggap harga tetap

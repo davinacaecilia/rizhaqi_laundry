@@ -78,6 +78,5 @@ class LaporanController extends Controller
             'grandTotalBerat',
             'grandTotalTugas'
         ));
->>>>>>> 2df83f4394ec46d724f2249de77a520240f74e9c
     }
 }

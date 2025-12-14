@@ -119,7 +119,7 @@
                             {{-- STATUS PILLS (handled by custom JS below) --}}
                             <div class="status-pills-container">
                                 @php $currentStatus = request('status', 'all'); @endphp
-                                <span class="filter-pill {{ $currentStatus == 'all' ? 'active' : '' }}" data-status="all">Semua</span>
+                                <!-- <span class="filter-pill {{ $currentStatus == 'all' ? 'active' : '' }}" data-status="all">Semua</span> -->
                                 <span class="filter-pill {{ $currentStatus == 'diterima' ? 'active' : '' }}" data-status="diterima">Diterima</span>
                                 <span class="filter-pill {{ $currentStatus == 'dicuci' ? 'active' : '' }}" data-status="dicuci">Dicuci</span>
                                 <span class="filter-pill {{ $currentStatus == 'dikeringkan' ? 'active' : '' }}" data-status="dikeringkan">Dikeringkan</span>
@@ -144,64 +144,89 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($transaksi as $item)
-                                    @php
-                                        // LOGIK WARNA BADGE
-                                        $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
-                                        $badgeClass = 'st-diterima';
+                            @foreach ($transaksi as $item)
+                                @php
+                                    // 1. LOGIK WARNA BADGE (Sama seperti sebelumnya)
+                                    $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
+                                    $badgeClass = 'st-diterima';
 
-                                        $mapStatus = [
-                                            'diterima' => 'st-diterima', 'dicuci' => 'st-dicuci',
-                                            'dikeringkan' => 'st-dikeringkan', 'disetrika' => 'st-disetrika',
-                                            'packing' => 'st-packing', 'siap diambil' => 'st-siap',
-                                            'selesai' => 'st-selesai', 'batal' => 'st-dibatalkan'
-                                        ];
-                                        if(isset($mapStatus[$rawStatus])) $badgeClass = $mapStatus[$rawStatus];
+                                    $mapStatus = [
+                                        'diterima' => 'st-diterima', 'dicuci' => 'st-dicuci',
+                                        'dikeringkan' => 'st-dikeringkan', 'disetrika' => 'st-disetrika',
+                                        'packing' => 'st-packing', 'siap diambil' => 'st-siap',
+                                        'selesai' => 'st-selesai', 'batal' => 'st-dibatalkan'
+                                    ];
+                                    if(isset($mapStatus[$rawStatus])) $badgeClass = $mapStatus[$rawStatus];
 
-                                        // LOGIK TOMBOL
-                                        $btnClass = 'btn-blue'; $btnText = 'Mulai Cuci'; $btnIcon = 'bx-water'; $nextStatus = 'dicuci';
-                                        $isCancelled = ($rawStatus == 'batal');
-                                        $isFinished = ($rawStatus == 'selesai');
+                                    // 2. LOGIK STATUS SELANJUTNYA
+                                    $btnClass = 'btn-blue'; $btnText = 'Mulai Cuci'; $btnIcon = 'bx-water'; $nextStatus = 'dicuci';
+                                    $isCancelled = ($rawStatus == 'batal');
+                                    $isFinished = ($rawStatus == 'selesai');
 
-                                        switch($rawStatus) {
-                                            case 'diterima': $nextStatus = 'dicuci'; $btnText = 'Mulai Cuci'; $btnClass = 'btn-blue'; $btnIcon = 'bx-water'; break;
-                                            case 'dicuci': $nextStatus = 'dikeringkan'; $btnText = 'Ke Pengeringan'; $btnClass = 'btn-orange'; $btnIcon = 'bx-wind'; break;
-                                            case 'dikeringkan': $nextStatus = 'disetrika'; $btnText = 'Mulai Setrika'; $btnClass = 'btn-purple'; $btnIcon = 'bxs-t-shirt'; break;
-                                            case 'disetrika': $nextStatus = 'packing'; $btnText = 'Mulai Packing'; $btnClass = 'btn-teal'; $btnIcon = 'bx-box'; break;
-                                            case 'packing': $nextStatus = 'siap diambil'; $btnText = 'Tandai Siap Ambil'; $btnClass = 'btn-green'; $btnIcon = 'bx-check-circle'; break;
-                                            case 'siap diambil': $nextStatus = 'selesai'; $btnText = 'Serahkan (Selesai)'; $btnClass = 'btn-dark'; $btnIcon = 'bx-package'; break;
-                                        }
-                                    @endphp
+                                    switch($rawStatus) {
+                                        case 'diterima': $nextStatus = 'dicuci'; $btnText = 'Mulai Cuci'; $btnClass = 'btn-blue'; $btnIcon = 'bx-water'; break;
+                                        case 'dicuci': $nextStatus = 'dikeringkan'; $btnText = 'Ke Pengeringan'; $btnClass = 'btn-orange'; $btnIcon = 'bx-wind'; break;
+                                        case 'dikeringkan': $nextStatus = 'disetrika'; $btnText = 'Mulai Setrika'; $btnClass = 'btn-purple'; $btnIcon = 'bxs-t-shirt'; break;
+                                        case 'disetrika': $nextStatus = 'packing'; $btnText = 'Mulai Packing'; $btnClass = 'btn-teal'; $btnIcon = 'bx-box'; break;
+                                        case 'packing': $nextStatus = 'siap diambil'; $btnText = 'Tandai Siap Ambil'; $btnClass = 'btn-green'; $btnIcon = 'bx-check-circle'; break;
+                                        case 'siap diambil': $nextStatus = 'selesai'; $btnText = 'Serahkan (Selesai)'; $btnClass = 'btn-dark'; $btnIcon = 'bx-package'; break;
+                                    }
 
-                                    <tr>
-                                        <td><strong>{{ $item->kode_invoice }}</strong></td>
-                                        <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
-                                        <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td>
-                                        <td>
-                                            <span class="status-badge {{ $badgeClass }}">{{ ucwords($rawStatus) }}</span>
-                                        </td>
-                                        <td>
-                                            @if($isCancelled)
-                                                <span style="color: #C62828; font-size: 13px; font-weight: 600;"><i class='bx bx-x-circle'></i> Order Dibatalkan</span>
-                                            @elseif($isFinished)
-                                                <span style="color: #2E7D32; font-size: 13px; font-weight: 600;"><i class='bx bx-check-double'></i> Transaksi Selesai</span>
-                                            @else
-                                                <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
-                                                    @csrf 
-                                                    @method('PUT')
-                                                    <input type="hidden" name="status" value="{{ $nextStatus }}">
-                                                    <button type="submit" class="btn-status {{ $btnClass }}"
-                                                        onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">
-                                                        <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
+                                    // 3. LOGIK PEMBATASAN (UPDATED)
+                                    // Ambil role user yang sedang login
+                                    $role = auth()->user()->role; 
+
+                                    // Logika: 
+                                    // Jika user BUKAN 'pegawai' (berarti Admin atau Owner)
+                                    // DAN status sedang 'disetrika'
+                                    // MAKA tombol akan dikunci/dibatasi.
+                                    $isRestricted = ($role !== 'pegawai' && $rawStatus == 'disetrika');
+                                @endphp
+
+                                <tr>
+                                    <td><strong>{{ $item->kode_invoice }}</strong></td>
+                                    <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
+                                    <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td>
+                                    <td>
+                                        <span class="status-badge {{ $badgeClass }}">{{ ucwords($rawStatus) }}</span>
+                                    </td>
+                                    <td>
+                                        @if($isCancelled)
+                                            <span style="color: #C62828; font-size: 13px; font-weight: 600;">
+                                                <i class='bx bx-x-circle'></i> Order Dibatalkan
+                                            </span>
+
+                                        @elseif($isFinished)
+                                            <span style="color: #2E7D32; font-size: 13px; font-weight: 600;">
+                                                <i class='bx bx-check-double'></i> Transaksi Selesai
+                                            </span>
+
+                                        @elseif($isRestricted)
+                                            {{-- TAMPILAN UNTUK ADMIN & OWNER (Saat status Disetrika) --}}
+                                            <span style="color: #FF9800; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; background: #FFF3E0; padding: 6px 12px; border-radius: 6px;">
+                                                <i class='bx bx-time-five'></i> Menunggu Pegawai (Packing)
+                                            </span>
+
+                                        @else
+                                            {{-- TAMPILAN UNTUK PEGAWAI (Atau status selain Disetrika) --}}
+                                            <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
+                                                @csrf 
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="{{ $nextStatus }}">
+                                                <button type="submit" class="btn-status {{ $btnClass }}"
+                                                    onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">
+                                                    <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                         </table>
                     </div>
+
+                
                 </div>
             </div>
         </main>

@@ -40,11 +40,10 @@ class UserController extends Controller
     public function checkStatus(Request $request)
     {
         $kode = $request->input('kode');
-
         $transaksi = DB::connection('public_access')
-            ->table('transaksi')
-            ->where('kode_invoice', $kode)
-            ->first();
+                    ->table('transaksi')
+                    ->where('kode_invoice', $kode)
+                    ->first();
 
         $status_display = 'Kode pesanan tidak ditemukan.';
         $raw_status = null;

@@ -10,6 +10,7 @@ class PelangganController extends Controller
 {
     public function index()
     {
+
         $pelanggan = Pelanggan::latest()->get();
         return view('admin.pelanggan.index', compact('pelanggan'));
     }

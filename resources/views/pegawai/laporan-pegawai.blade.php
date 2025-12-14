@@ -128,11 +128,6 @@
             <div class="head">
                 <h3>Detail Pekerjaan</h3>
 
-                <div class="search-wrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Cari nama pelanggan/invoice...">
-                    <i class='bx bx-search' id="searchBtn"></i>
-                </div>
-
                 {{-- FORM FILTER TANGGAL --}}
                 <form action="{{ route('pegawai.laporan') }}" method="GET" style="margin: 0;">
                     <input type="date" id="dateFilter" name="date"

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LaporanHarianPegawai;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LaporanPegawaiController extends Controller
 {
@@ -13,35 +15,29 @@ class LaporanPegawaiController extends Controller
     {
         $currentUserId = Auth::id();
 
-        if (!$currentUserId) {
-            return redirect('/login')->with('error', 'Anda harus login untuk mengakses laporan.');
-        }
+        // 1. SET DEFAULT TANGGAL (HARI INI)
+        // Jika user tidak memilih tanggal (null), kita isi otomatis dengan hari ini.
+        $dateFilter = $request->input('date') ?? Carbon::today()->format('Y-m-d');
 
-        $dateFilter = $request->input('date');
+        // 2. PANGGIL STORED PROCEDURE
+        // Kita kirim ID User dan Tanggal ke Database
+        $laporan = DB::select("CALL sp_get_laporan_harian_pegawai(?, ?)", [
+            $currentUserId,
+            $dateFilter
+        ]);
 
-        $query = LaporanHarianPegawai::with([
-                'transaksi.pelanggan',
-                'pegawai'
-            ])
-            ->where('id_user', $currentUserId);
+        // 3. OLAH DATA (ARRAY -> COLLECTION)
+        // Ubah jadi Collection agar bisa pakai fitur .sum(), .isEmpty() di Blade
+        $laporanCollection = collect($laporan);
 
-        if ($dateFilter) {
-            $query->whereDate('tgl_dikerjakan', $dateFilter);
-        }
+        // Hitung Total Berat
+        $totalBeratDikerjakan = $laporanCollection->sum('berat');
 
-        $laporan = $query->orderBy('tgl_dikerjakan', 'desc')
-                         ->orderBy('created_at', 'desc')
-                         ->get();
-
-        // Total berat dari transaksi
-        $totalBeratDikerjakan = $laporan->sum(function ($item) {
-            return $item->transaksi->berat ?? 0;
-        });
-
-        return view('pegawai.laporan-pegawai', compact(
-            'laporan',
-            'dateFilter',
-            'totalBeratDikerjakan'
-        ));
+        // 4. KIRIM KE VIEW
+        return view('pegawai.laporan-pegawai', [
+            'laporan' => $laporanCollection,
+            'dateFilter' => $dateFilter, // Kirim balik tanggalnya agar input date terisi
+            'totalBeratDikerjakan' => $totalBeratDikerjakan
+        ]);
     }
 }

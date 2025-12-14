@@ -157,15 +157,14 @@
                 @if ($laporan->isNotEmpty())
                     <tbody>
                     @foreach ($laporan as $item)
-                        <tr
-                            data-search="{{ strtolower($item->transaksi->kode_invoice ?? 'n/a') }} {{ strtolower($item->transaksi->pelanggan->nama ?? 'umum') }}">
+                        <tr data-search="{{ strtolower($item->kode_invoice) }} {{ strtolower($item->nama_pelanggan) ?? 'umum' }}">
 
                             <td>
-                                <strong>{{ $item->transaksi->kode_invoice ?? 'N/A' }}</strong>
+                                <strong>{{ $item->kode_invoice }}</strong>
                             </td>
 
                             <td>
-                                {{ $item->transaksi->pelanggan->nama ?? 'Umum' }}
+                                {{ $item->nama_pelanggan ?? 'Umum' }}
                             </td>
 
                             <td>
@@ -173,7 +172,7 @@
                             </td>
 
                             <td>
-                                {{ number_format($item->transaksi?->berat ?? 0, 2) }} Kg
+                                {{ number_format($item->berat, 2) }} Kg
                             </td>
                         </tr>
                     @endforeach
@@ -213,7 +212,7 @@
                                 background-color: #f2f7ff;
                                 color: var(--accent-blue);
                             ">
-                                {{ number_format($totalBeratDikerjakan ?? 0, 2) }} Kg
+                                {{ number_format($totalBeratDikerjakan, 2) }} Kg
                             </td>
                         </tr>
                     </tfoot>
@@ -229,7 +228,7 @@
                 ">
                     <i class='bx bx-folder-open' style="font-size: 80px; color: #bdbdbd;"></i>
                     <h3 style="margin-top: 10px; font-size: 20px; color: #333; font-weight: 600;">
-                        Belum ada pekerjaan yang Anda selesaikan di tanggal ini.
+                        Belum ada pekerjaan yang Anda selesaikan di tanggal {{ \Carbon\Carbon::parse($dateFilter)->isoFormat('D MMMM YYYY') }}.
                     </h3>
                 </div>
             @endif

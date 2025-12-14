@@ -292,6 +292,7 @@
                                     <th>Kode Invoice</th>
                                     <th>Nama Pelanggan</th>
                                     <th>Tanggal Masuk</th>
+                                    <th>Berat (Kg)</th>
                                     <th>Status Sekarang</th>
                                     <th style="width: 200px;">Aksi / Keterangan</th>
                                 </tr>
@@ -302,6 +303,7 @@
                                         <td><strong>{{ $item->kode_invoice }}</strong></td>
                                         <td>{{ optional($item->pelanggan)->nama ?? 'Umum' }}</td>
                                         <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td>
+                                        <td>{{ number_format($item->berat, 2) }} Kg</td>
                                         <td>
                                             @if($item->status_pesanan == 'disetrika')
                                                 <span class="status-badge st-disetrika">Disetrika</span>

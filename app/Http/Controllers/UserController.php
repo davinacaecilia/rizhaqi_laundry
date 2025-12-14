@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Transaksi;
 use Illuminate\Support\Facades\DB;
+use App\Models\Layanan;
 
 class UserController extends Controller
 {
     // Halaman Home
     public function home()
     {
-        return view('home');
+        $layanan = Layanan::on('public_access') // Gunakan koneksi terbatas
+            ->where('kategori', '!=', 'ADD ON') // Tidak perlu tampilkan Add On
+            ->orderBy('kategori', 'asc')
+            ->orderBy('nama_layanan', 'asc')
+            ->get();
+
+        // Kelompokkan layanan berdasarkan kategori
+        $layanan_by_kategori = $layanan->groupBy('kategori');
+
+        return view('home', compact('layanan_by_kategori'));
     }
 
     // Halaman Daftar Harga

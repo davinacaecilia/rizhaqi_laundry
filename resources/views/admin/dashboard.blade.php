@@ -172,7 +172,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="padding: 10px 8px;">
-                                                    @if($item->status_pembayaran == 'lunas')
+                                                    @if($item->status_bayar == 'lunas')
                                                         <span style="background: #E8F5E9; color: #2E7D32; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">Lunas</span>
                                                     @else
                                                         <span style="background: #FFEBEE; color: #C62828; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">Belum Lunas</span>

@@ -34,9 +34,6 @@ class DynamicDBConnection
                 case 'pegawai':
                     Config::set('database.default', 'pegawai_mysql');
                     break;
-                case 'user':
-                    Config::set('database.default', 'user_mysql');
-                    break;
                 default:
                     Config::set('database.default', 'mysql');
                     break;

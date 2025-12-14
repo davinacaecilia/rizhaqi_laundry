@@ -59,7 +59,6 @@ class PegawaiTransaksiController extends Controller
             'status_pesanan' => 'packing'
         ]);
 
-        // ✅ BUAT LAPORAN (ANTI DUPLIKAT)
         LaporanHarianPegawai::firstOrCreate(
             [
                 'id_transaksi' => $trx->id_transaksi, // kunci unik

@@ -211,41 +211,5 @@
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // SEARCH & DATE SUDAH DIHANDLE script.js (karena ID nya tableSearchInput & dateFilter)
-
-            // CUSTOM LOGIC UNTUK PILLS (KLIK = RELOAD URL)
-            const pills = document.querySelectorAll('.filter-pill');
-
-            pills.forEach(pill => {
-                pill.addEventListener('click', function() {
-                    const status = this.getAttribute('data-status');
-
-                    // Gunakan URLSearchParams untuk update parameter 'status'
-                    const url = new URL(window.location.href);
-                    if(status === 'all') {
-                        url.searchParams.delete('status');
-                    } else {
-                        url.searchParams.set('status', status);
-                    }
-
-                    // Reset ke page 1
-                    url.searchParams.set('page', 1);
-
-                    // Reload
-                    window.location.href = url.toString();
-                });
-            });
-
-            // UI Tweak untuk search bar
-            const searchIcon = document.getElementById('tableSearchIcon');
-            const searchInput = document.getElementById('tableSearchInput');
-            searchIcon.addEventListener('click', function() {
-                searchInput.classList.toggle('show');
-                if(searchInput.classList.contains('show')) searchInput.focus();
-            });
-        });
-    </script>
 </body>
 </html>

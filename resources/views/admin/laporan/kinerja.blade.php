@@ -121,9 +121,6 @@
                     <label>Pilih Tanggal</label>
                     <input type="date" name="tanggal" value="{{ $tanggal }}" required onchange="this.form.submit()">
                 </div>
-                <button type="submit" class="btn-filter">
-                    <i class='bx bx-search-alt'></i> Cek Data
-                </button>
             </form>
 
             <div class="summary-container">

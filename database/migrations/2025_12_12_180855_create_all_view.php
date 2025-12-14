@@ -62,6 +62,23 @@ return new class extends Migration
             FROM v_arus_kas
             GROUP BY tanggal
         ");
+
+        DB::statement("DROP VIEW IF EXISTS v_kinerja_pegawai");
+        DB::statement("
+            CREATE VIEW v_kinerja_pegawai AS
+            SELECT 
+                u.id_user AS id_user,      
+                u.nama AS nama_pegawai,
+                u.email AS email_pegawai,
+                l.tgl_dikerjakan,
+                COUNT(l.id_laporan) AS total_tugas,
+                SUM(t.berat) AS total_berat
+            FROM users u
+            JOIN laporan_harian_pegawai l ON u.id_user = l.id_user  -- PERBAIKAN 2: Join ke u.id_user
+            JOIN transaksi t ON l.id_transaksi = t.id_transaksi
+            WHERE u.role = 'pegawai'
+            GROUP BY u.id_user, u.nama, u.email, l.tgl_dikerjakan   -- PERBAIKAN 3: Group by u.id_user
+        ");
     }
 
     public function down(): void
@@ -69,5 +86,6 @@ return new class extends Migration
         DB::unprepared("DROP VIEW IF EXISTS v_rekap_keuangan");
         DB::unprepared("DROP VIEW IF EXISTS v_arus_kas");
         DB::unprepared("DROP VIEW IF EXISTS v_laporan_harian");
+        DB::statement("DROP VIEW IF EXISTS v_kinerja_pegawai");
     }
 };

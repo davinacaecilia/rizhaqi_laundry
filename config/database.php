@@ -141,19 +141,17 @@ return [
             'strict' => true,
             'engine' => null,
         ],
-
-        'user_mysql' => [
+        
+        'public_access' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USER_USERNAME', 'forge'), // Ambil dari DB_USER_USERNAME
-            'password' => env('DB_USER_PASSWORD', ''),      // Ambil dari DB_USER_PASSWORD
+            'database' => env('DB_DATABASE', 'db_rizhaqi_laundry'),
+            'username' => 'public_user_db', // <-- User DB baru, sangat dibatasi
+            'password' => 'public_pass',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
             'strict' => true,
-            'engine' => null,
         ],
     ],
 

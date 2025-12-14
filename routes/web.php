@@ -52,6 +52,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 
     Route::resource('pengeluaran', PengeluaranController::class);
+
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log.index');
 });
 

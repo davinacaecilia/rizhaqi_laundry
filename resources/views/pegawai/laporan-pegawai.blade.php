@@ -80,6 +80,26 @@
             font-size: 13px;
         }
 
+        .summary-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 20px;
+        }
+
+        .summary-box p {
+            font-size: 16px;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .summary-box strong {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+
 
     </style>
 </head>
@@ -92,51 +112,111 @@
         <main>
 
         <div class="head-title">
-                        <div class="left">
-                            <h1>Laporan Harian Pegawai</h1>
-                            <ul class="breadcrumb">
-                                <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
-                                <li><i class='bx bx-chevron-right' ></i></li>
-                                <li><a class="active" href="{{ route('pegawai.laporan') }}">Laporan Harian Pegawai</a></li>
-                            </ul>
-                        </div>
+            <div class="left">
+                <h1>Laporan Harian Pegawai</h1>
+                <ul class="breadcrumb">
+                    <li><a href="{{ url('admin/dashboard') }}">Dashboard</a></li>
+                    <li><i class='bx bx-chevron-right' ></i></li>
+                    <li><a class="active" href="{{ route('pegawai.laporan') }}">Laporan Harian Pegawai</a></li>
+                </ul>
+            </div>
+        </div>
 
         <div class="table-data">
         <div class="order">
 
             <div class="head">
-                <h3>Laporan Harian Pegawai</h3>
+                <h3>Detail Pekerjaan</h3>
 
                 <div class="search-wrapper">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Cari nama pegawai...">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari nama pelanggan/invoice...">
                     <i class='bx bx-search' id="searchBtn"></i>
                 </div>
 
-                <input type="date" id="dateFilter" class="filter-date">
+                {{-- FORM FILTER TANGGAL --}}
+                <form action="{{ route('pegawai.laporan') }}" method="GET" style="margin: 0;">
+                    <input type="date" id="dateFilter" name="date"
+                        class="filter-date"
+                        {{-- Gunakan null coalescing operator (??) untuk memastikan value kosong jika tidak ada filter --}}
+                        value="{{ $dateFilter ?? '' }}"
+                        onchange="this.form.submit()">
+                </form>
             </div>
 
             <div class="table-container">
-            {{-- TABLE INI AKAN SELALU ADA (HANYA UNTUK JUDUL KOLOM) --}}
             <table>
                 <thead>
                     <tr>
-                        <th>Nama Pegawai</th>
+                        <th>Kode Invoice</th>
+                        <th>Nama Pelanggan</th>
                         <th>Tanggal Dikerjakan</th>
-                        <th>Total Berat (Kg)</th>
+                        <th>Berat Dikerjakan (Kg)</th>
                     </tr>
                 </thead>
 
                 @if ($laporan->isNotEmpty())
-                    {{-- HANYA TAMPILKAN TBODY JIKA ADA DATA --}}
                     <tbody>
-                        @foreach ($laporan as $item)
-                            <tr data-date="{{ $item->tgl_dikerjakan }}">
-                                <td>{{ $item->nama_pegawai }}</td>
-                                <td>{{ \Carbon\Carbon::parse($item->tgl_dikerjakan)->isoFormat('DD MMM YYYY') }}</td>
-                                <td>{{ number_format($item->total_berat, 2) }} Kg</td>
-                            </tr>
-                        @endforeach
+                    @foreach ($laporan as $item)
+                        <tr
+                            data-search="{{ strtolower($item->transaksi->kode_invoice ?? 'n/a') }} {{ strtolower($item->transaksi->pelanggan->nama ?? 'umum') }}">
+
+                            <td>
+                                <strong>{{ $item->transaksi->kode_invoice ?? 'N/A' }}</strong>
+                            </td>
+
+                            <td>
+                                {{ $item->transaksi->pelanggan->nama ?? 'Umum' }}
+                            </td>
+
+                            <td>
+                                {{ \Carbon\Carbon::parse($item->tgl_dikerjakan)->isoFormat('DD MMM YYYY') }}
+                            </td>
+
+                            <td>
+                                {{ number_format($item->transaksi?->berat ?? 0, 2) }} Kg
+                            </td>
+                        </tr>
+                    @endforeach
                     </tbody>
+
+                    <tfoot>
+                        <tr>
+                            {{-- 1. SEL KOSONG (Kolom Kode Invoice) --}}
+                            <td style="
+                                background-color: #ffffffff;
+                                font-weight: 700;
+                                color: var(--accent-blue);
+                            ">
+
+                            {{-- 2. SEL KOSONG (Kolom Nama Pelanggan) --}}
+                            <td style="
+                                background-color: #ffffffff;
+                                font-weight: 700;
+                                color: var(--accent-blue);
+                            ">
+                            </td>
+
+                            {{-- 3. TEKS TOTAL (Di bawah Kolom Tanggal Dikerjakan) --}}
+                            <td style="
+                                text-align: left;
+                                font-weight: 700;
+                                background-color: #f2f7ff;
+                                color: var(--accent-blue);
+                            ">
+                                TOTAL
+                            </td>
+
+                            {{-- 4. NILAI TOTAL (Di bawah Kolom Berat Dikerjakan) --}}
+                            <td style="
+                                text-align: left;
+                                font-weight: 700;
+                                background-color: #f2f7ff;
+                                color: var(--accent-blue);
+                            ">
+                                {{ number_format($totalBeratDikerjakan ?? 0, 2) }} Kg
+                            </td>
+                        </tr>
+                    </tfoot>
                 @endif
             </table>
 
@@ -146,11 +226,10 @@
                     text-align: center;
                     padding: 80px 0; /* Padding agar di tengah vertikal */
                     width: 100%;
-                    /* Penting: Pastikan tidak ada border atau shadow yang diwarisi dari class lain */
                 ">
                     <i class='bx bx-folder-open' style="font-size: 80px; color: #bdbdbd;"></i>
                     <h3 style="margin-top: 10px; font-size: 20px; color: #333; font-weight: 600;">
-                        Belum ada data laporan harian.
+                        Belum ada pekerjaan yang Anda selesaikan di tanggal ini.
                     </h3>
                 </div>
             @endif
@@ -165,15 +244,17 @@
         <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const searchBtn   = document.getElementById('searchBtn');
+            const searchBtn   = document.getElementById('searchBtn');
             const searchInput = document.getElementById('searchInput');
-            const dateFilter  = document.getElementById('dateFilter');
-            const rows        = document.querySelectorAll('tbody tr');
+            // Hapus const dateFilter dan logic filter tanggal JS karena sekarang menggunakan filter PHP/Laravel
+            const rows        = document.querySelectorAll('tbody tr');
 
             // toggle search
             searchBtn.onclick = () => {
                 searchInput.classList.toggle('show');
-                searchInput.focus();
+                if (searchInput.classList.contains('show')) {
+                    searchInput.focus();
+                }
             };
 
             // search nama
@@ -181,24 +262,16 @@
                 const keyword = searchInput.value.toLowerCase();
 
                 rows.forEach(row => {
-                    row.style.display = row.innerText.toLowerCase().includes(keyword)
-                        ? ''
-                        : 'none';
+                    // Cek data-search yang berisi nama dan kode invoice
+                    const rowSearchText = row.getAttribute('data-search');
+
+                    row.style.display = rowSearchText.includes(keyword)
+                         ? ''
+                         : 'none';
                 });
             });
 
-            // filter tanggal
-            dateFilter.addEventListener('input', () => {
-                const date = dateFilter.value;
-
-                rows.forEach(row => {
-                    if (!date) {
-                        row.style.display = '';
-                        return;
-                    }
-                    row.style.display = row.dataset.date === date ? '' : 'none';
-                });
-            });
+            // LOGIC FILTER TANGGAL JS DIHAPUS karena sudah ditangani oleh Laravel (onchange="this.form.submit()")
 
         });
         </script>

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/pagination.css') }}" />
     <title>Status Order - Rizhaqi Laundry Admin</title>
-    
+
     <style>
         /* CSS LAMA ANDA TETAP (TIDAK BERUBAH) */
         .table-container table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-light); }
@@ -17,7 +17,7 @@
         .table-container tbody tr:hover { background-color: rgba(26, 115, 232, 0.04); }
         .btn-status { padding: 8px 16px; border-radius: 6px; color: white; font-weight: 500; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
         .btn-status:hover { opacity: 0.9; transform: translateY(-1px); }
-        
+
         /* WARNA TOMBOL & BADGE */
         .btn-blue { background-color: var(--accent-blue); }
         .btn-orange { background-color: #FF9800; }
@@ -59,7 +59,7 @@
         .status-summary li .bx { width: 36px; height: 36px; border-radius: 8px; font-size: 20px; display: flex; align-items: center; justify-content: center; }
         .status-summary li .info h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1; }
         .status-summary li .info p { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
-        
+
         /* WARNA SUMMARY ICON */
         .bg-diterima { background: #EEEEEE; color: #616161; }
         .bg-dicuci { background: #E3F2FD; color: #1976D2; }
@@ -102,7 +102,7 @@
 
             <div class="table-data">
                 <div class="order">
-                    
+
                     <div class="head">
                         <div class="filter-row">
                             <h3 class="filter-title">Update Status (Real-time)</h3>
@@ -131,14 +131,14 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr style="background-color: #f2f2f2;">
                                     <th>Kode Invoice</th>
                                     <th>Nama Pelanggan</th>
-                                    <th>Tanggal Masuk</th> 
+                                    <th>Tanggal Masuk</th>
                                     <th>Status Sekarang</th>
                                     <th>Aksi Selanjutnya</th>
                                 </tr>
@@ -149,7 +149,7 @@
                                         // LOGIK WARNA BADGE
                                         $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
                                         $badgeClass = 'st-diterima';
-                                        
+
                                         $mapStatus = [
                                             'diterima' => 'st-diterima', 'dicuci' => 'st-dicuci',
                                             'dikeringkan' => 'st-dikeringkan', 'disetrika' => 'st-disetrika',
@@ -176,7 +176,7 @@
                                     <tr>
                                         <td><strong>{{ $item->kode_invoice }}</strong></td>
                                         <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
-                                        <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td> 
+                                        <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td>
                                         <td>
                                             <span class="status-badge {{ $badgeClass }}">{{ ucwords($rawStatus) }}</span>
                                         </td>
@@ -190,7 +190,7 @@
                                                     @csrf 
                                                     @method('PUT')
                                                     <input type="hidden" name="status" value="{{ $nextStatus }}">
-                                                    <button type="submit" class="btn-status {{ $btnClass }}" 
+                                                    <button type="submit" class="btn-status {{ $btnClass }}"
                                                         onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">
                                                         <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
                                                     </button>
@@ -202,8 +202,6 @@
                             </tbody>
                         </table>
                     </div>
-
-
                 </div>
             </div>
         </main>
@@ -211,6 +209,43 @@
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-    
+    <script src="{{ asset('admin/script/pagination.js') }}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // SEARCH & DATE SUDAH DIHANDLE script.js (karena ID nya tableSearchInput & dateFilter)
+
+            // CUSTOM LOGIC UNTUK PILLS (KLIK = RELOAD URL)
+            const pills = document.querySelectorAll('.filter-pill');
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', function() {
+                    const status = this.getAttribute('data-status');
+
+                    // Gunakan URLSearchParams untuk update parameter 'status'
+                    const url = new URL(window.location.href);
+                    if(status === 'all') {
+                        url.searchParams.delete('status');
+                    } else {
+                        url.searchParams.set('status', status);
+                    }
+
+                    // Reset ke page 1
+                    url.searchParams.set('page', 1);
+
+                    // Reload
+                    window.location.href = url.toString();
+                });
+            });
+
+            // UI Tweak untuk search bar
+            const searchIcon = document.getElementById('tableSearchIcon');
+            const searchInput = document.getElementById('tableSearchInput');
+            searchIcon.addEventListener('click', function() {
+                searchInput.classList.toggle('show');
+                if(searchInput.classList.contains('show')) searchInput.focus();
+            });
+        });
+    </script>
 </body>
 </html>

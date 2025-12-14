@@ -41,28 +41,40 @@ class PegawaiTransaksiController extends Controller
         // Asumsi nama view yang benar adalah 'pegawai.transaksi.status'
         return view('pegawai.transaksi.status', compact('transaksi', 'counts'));
     }
-    
+
     public function updateStatus($id)
     {
         $trx = Transaksi::findOrFail($id);
 
         // Hanya izinkan update dari 'disetrika' ke 'packing'
-        if ($trx->status_pesanan == 'disetrika') {
-            $trx->status_pesanan = 'packing';
-            $trx->save();
-
-            LaporanHarianPegawai::create([
-                'id_user'        => Auth::id(),           // Siapa yang klik (Pegawai)
-                'id_transaksi'   => $trx->id_transaksi,   // Transaksi mana
-                'tgl_dikerjakan' => now(),                // Kapan dikerjakan
-            ]);
-
-            // Opsional: Tambah ke Log Pegawai disini
-
-            return redirect()->back()->with('success', 'Status pesanan ' . $trx->kode_invoice . ' berhasil diperbarui ke Packing.');
+        if ($trx->status_pesanan !== 'disetrika') {
+            return redirect()->back()->with(
+                'error',
+                'Status pesanan ' . $trx->kode_invoice . ' tidak dapat diubah (Status saat ini: ' . $trx->status_pesanan . ').'
+            );
         }
 
-        return redirect()->back()->with('error', 'Status pesanan ' . $trx->kode_invoice . ' tidak dapat diubah (Status saat ini: ' . $trx->status_pesanan . ').');
+        // Update status transaksi
+        $trx->update([
+            'status_pesanan' => 'packing'
+        ]);
+
+        // ✅ BUAT LAPORAN (ANTI DUPLIKAT)
+        LaporanHarianPegawai::firstOrCreate(
+            [
+                'id_transaksi' => $trx->id_transaksi, // kunci unik
+            ],
+            [
+                'id_user'        => Auth::id(),
+                'tgl_dikerjakan' => now(),
+            ]
+        );
+
+        return redirect()->back()->with(
+            'success',
+            'Status pesanan ' . $trx->kode_invoice . ' berhasil diperbarui ke Packing.'
+        );
     }
+
 }
 

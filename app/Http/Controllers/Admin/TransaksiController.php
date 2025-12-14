@@ -622,6 +622,7 @@ class TransaksiController extends Controller
 
         // Cari transaksi
         $transaksi = Transaksi::findOrFail($id);
+
         $transaksi->update([
             'status_pesanan' => 'batal'
         ]);

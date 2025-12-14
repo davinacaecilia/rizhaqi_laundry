@@ -153,9 +153,15 @@
                 </ul>
             </li>
 
-            <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }}">
+            <li class="{{ Request::is('admin/laporan') ? 'active' : '' }}">
                 <a href="{{ route('admin.laporan.index') }}"> <i class='bx bxs-report'></i>
                     <span class="text">Laporan Keuangan</span>
+                </a>
+            </li>
+            
+            <li class="{{ Request::is('admin/laporan/kinerja') ? 'active' : '' }}">
+                <a href="{{ route('admin.laporan.kinerja') }}"> <i class='bx bxs-report'></i>
+                    <span class="text">Laporan Pegawai</span>
                 </a>
             </li>
 

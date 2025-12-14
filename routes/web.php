@@ -50,6 +50,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,owner'])
     Route::resource('alat', AlatController::class);
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/kinerja', [LaporanController::class, 'kinerjaPegawai'])->name('laporan.kinerja');
 
     Route::resource('pengeluaran', PengeluaranController::class);
 

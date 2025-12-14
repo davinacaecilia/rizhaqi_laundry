@@ -161,6 +161,28 @@ return new class extends Migration
                 GROUP BY status_kategori;
             END
         ");
+
+        DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_laporan_harian_pegawai");
+        DB::unprepared("
+            CREATE PROCEDURE sp_get_laporan_harian_pegawai(
+                IN p_id_user CHAR(36) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                IN p_tgl_filter DATE
+            )
+            BEGIN
+                SELECT 
+                    l.id_laporan,
+                    l.tgl_dikerjakan,
+                    t.kode_invoice,
+                    t.berat,
+                    p.nama AS nama_pelanggan
+                FROM laporan_harian_pegawai l
+                JOIN transaksi t ON l.id_transaksi = t.id_transaksi
+                LEFT JOIN pelanggan p ON t.id_pelanggan = p.id_pelanggan
+                WHERE l.id_user = p_id_user
+                AND (p_tgl_filter IS NULL OR DATE(l.tgl_dikerjakan) = p_tgl_filter)
+                ORDER BY l.tgl_dikerjakan DESC, l.created_at DESC;
+            END
+        ");
     }
 
     public function down(): void
@@ -169,5 +191,6 @@ return new class extends Migration
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_ambil_cucian");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_update_status_transaksi");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_status_counts");
+        DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_laporan_harian_pegawai");
     }
 };

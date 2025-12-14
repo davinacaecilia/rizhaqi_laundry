@@ -162,28 +162,25 @@ return new class extends Migration
             END
         ");
 
-        // ==============================================================================
-        // 3. PROCEDURE: PEMBATALAN TRANSAKSI (Rollback Stok/Log)
-        // ==============================================================================
-        // Manfaat: Mencatat alasan pembatalan dengan rapi.
-        DB::unprepared("DROP PROCEDURE IF EXISTS sp_batalkan_transaksi");
+        DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_laporan_harian_pegawai");
         DB::unprepared("
-            CREATE PROCEDURE sp_batalkan_transaksi(
-                IN p_id_transaksi CHAR(36),
-                IN p_id_user CHAR(36),
-                IN p_alasan TEXT
+            CREATE PROCEDURE sp_get_laporan_harian_pegawai(
+                IN p_id_user CHAR(36) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                IN p_tgl_filter DATE
             )
             BEGIN
-                -- Update status jadi 'batal'
-                UPDATE transaksi 
-                SET status_pesanan = 'batal', 
-                    catatan = CONCAT(catatan, ' [DIBATALKAN: ', p_alasan, ']'),
-                    updated_at = NOW()
-                WHERE id_transaksi = p_id_transaksi;
-
-                -- Insert Log Manual (Karena trigger update biasa pesannya standar)
-                INSERT INTO log (id_log, id_user, aksi, keterangan, waktu)
-                VALUES (UUID(), p_id_user, 'CANCEL ORDER', CONCAT('Transaksi dibatalkan. Alasan: ', p_alasan), NOW());
+                SELECT 
+                    l.id_laporan,
+                    l.tgl_dikerjakan,
+                    t.kode_invoice,
+                    t.berat,
+                    p.nama AS nama_pelanggan
+                FROM laporan_harian_pegawai l
+                JOIN transaksi t ON l.id_transaksi = t.id_transaksi
+                LEFT JOIN pelanggan p ON t.id_pelanggan = p.id_pelanggan
+                WHERE l.id_user = p_id_user
+                AND (p_tgl_filter IS NULL OR DATE(l.tgl_dikerjakan) = p_tgl_filter)
+                ORDER BY l.tgl_dikerjakan DESC, l.created_at DESC;
             END
         ");
     }
@@ -194,6 +191,6 @@ return new class extends Migration
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_ambil_cucian");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_update_status_transaksi");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_status_counts");
-        DB::unprepared("DROP PROCEDURE IF EXISTS sp_batalkan_transaksi");
+        DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_laporan_harian_pegawai");
     }
 };

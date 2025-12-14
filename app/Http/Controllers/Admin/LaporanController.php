@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Models\LaporanHarianPegawai;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
@@ -44,34 +47,37 @@ class LaporanController extends Controller
         ));
     }
 
-    // =========================================================================
-    // 2. LAPORAN KINERJA PEGAWAI (BARU)
-    // =========================================================================
-    public function laporanPegawai(Request $request)
+    public function kinerjaPegawai(Request $request)
     {
-        // 1. Ambil tanggal dari input user, default hari ini
-        $tanggal = $request->input('date', date('Y-m-d'));
+        // 1. Filter Satu Tanggal (Default: Hari Ini)
+        $tanggal = $request->input('tanggal', Carbon::today()->format('Y-m-d'));
 
-        // 2. Query Data Kinerja Pegawai
-        // - Mengambil dari tabel transaksi
-        // - Join ke tabel users
-        // - Filter Tanggal Transaksi
-        // - Filter User Role = 'pegawai' (Owner tidak masuk)
-        // - Sum Berat
-        
-        $laporan = DB::table('transaksi')
-            ->join('users', 'transaksi.id_user', '=', 'users.id_user')
+        // 2. Query ke Database View
+        // Kita filter whereDate 'tgl_dikerjakan' sama dengan tanggal yang dipilih
+        $laporanKinerja = DB::table('v_kinerja_pegawai')
             ->select(
-                'users.nama as nama_pegawai',
-                'users.email as email_pegawai',
-                DB::raw('SUM(transaksi.berat) as total_berat')
+                'id_user',
+                'nama_pegawai',
+                // Kita tetap pakai SUM untuk jaga-jaga jika ada multiple entries, 
+                // meski harusnya per hari cuma 1 row per user di View.
+                DB::raw('SUM(total_tugas) as kinerja_count'),
+                DB::raw('SUM(total_berat) as kinerja_berat')
             )
-            ->whereDate('transaksi.tgl_masuk', $tanggal)  // Menggunakan tgl_masuk transaksi
-            ->where('users.role', 'pegawai')              // <--- FILTER PENTING: HANYA PEGAWAI
-            ->groupBy('users.id_user', 'users.nama', 'users.email')
-            ->orderBy('total_berat', 'desc')
+            ->whereDate('tgl_dikerjakan', $tanggal) 
+            ->groupBy('id_user', 'nama_pegawai')
+            ->orderByDesc('kinerja_berat')
             ->get();
 
-        return view('admin.laporan.laporan-pegawai', compact('laporan', 'tanggal'));
+        // 3. Hitung Grand Total Hari Itu
+        $grandTotalBerat = $laporanKinerja->sum('kinerja_berat');
+        $grandTotalTugas = $laporanKinerja->sum('kinerja_count');
+
+        return view('admin.laporan.kinerja', compact(
+            'laporanKinerja', 
+            'tanggal', 
+            'grandTotalBerat',
+            'grandTotalTugas'
+        ));
+>>>>>>> 2df83f4394ec46d724f2249de77a520240f74e9c
     }
 }

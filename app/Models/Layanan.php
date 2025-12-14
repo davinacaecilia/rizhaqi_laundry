@@ -20,7 +20,9 @@ class Layanan extends Model
         'nama_layanan',
         'satuan',         // 'kg', 'pcs', 'm2'
         'harga_satuan',   // Harga Min/Tetap
-        'harga_maksimum'  // Harga Max (Nullable)
+        'is_flexible',
+        'harga_min',
+        'harga_max'  // Harga Max (Nullable)
     ];
 
     // --- AKSESOR TAMBAHAN (FITUR KEREN) ---

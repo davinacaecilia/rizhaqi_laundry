@@ -49,7 +49,7 @@ return [
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
+            'username' => env('DB_USERNAME', 'owner'),
             'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
@@ -113,13 +113,14 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-        'user_mysql' => [
+        'admin_mysql' => [ // <-- Koneksi baru untuk role 'admin'
             'driver' => 'mysql',
+            'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USER_USERNAME', 'forge'), // Ambil dari DB_USER_USERNAME
-            'password' => env('DB_USER_PASSWORD', ''),      // Ambil dari DB_USER_PASSWORD
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_ADMIN_USERNAME', 'admin'),
+            'password' => env('DB_ADMIN_PASSWORD', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
@@ -134,6 +135,20 @@ return [
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_PEGAWAI_USERNAME', 'forge'),
             'password' => env('DB_PEGAWAI_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
+        'user_mysql' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USER_USERNAME', 'forge'), // Ambil dari DB_USER_USERNAME
+            'password' => env('DB_USER_PASSWORD', ''),      // Ambil dari DB_USER_PASSWORD
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',

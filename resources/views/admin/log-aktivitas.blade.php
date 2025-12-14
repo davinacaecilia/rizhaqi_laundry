@@ -76,7 +76,6 @@
     </style>
 </head>
 <body>
-
     @include('partial.sidebar')
 
     <section id="content">
@@ -132,7 +131,7 @@
                         </table>
                         
                         </div>
-                        {{-- @include('partial.pagination', ['data' => $logs]) --}}
+                        
                 </div>
             </div>
 
@@ -140,7 +139,6 @@
     </section>
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
-    <script src="{{ asset('admin/script/pagination.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
 </body>

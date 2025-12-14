@@ -187,7 +187,8 @@
                                                         <i class='bx bx-check-double'></i> Lunaskan
                                                     </button>
                                                 @endif
-
+                                                
+                                                @if(auth()->user()->role === 'owner')
                                                 <form action="{{ route('admin.transaksi.destroy', $item->id_transaksi) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
@@ -203,6 +204,7 @@
                                                         </button>
                                                     @endif
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

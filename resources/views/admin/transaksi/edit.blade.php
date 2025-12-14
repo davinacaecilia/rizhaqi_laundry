@@ -140,52 +140,59 @@
                     <div class="form-group">
                         <label>Layanan Tambahan (Add On)</label>
                         <div class="addon-container">
-                            {{-- LOGIC PHP: Cek apakah addon ada di transaksi lama --}}
-                            @php
-                                function cekAddon($key, $trx) {
-                                    foreach($trx->detailTransaksi as $dt) {
-                                        // Cari addon berdasarkan nama (case insensitive)
-                                        if($dt->layanan && stripos($dt->layanan->nama_layanan, $key) !== false) {
-                                            return ['checked' => true, 'qty' => $dt->jumlah];
-                                        }
+                        {{-- LOGIC PHP: Helper function untuk cek status Addon Lama --}}
+                        @php
+                            // Ambil semua Add On yang tersedia di Master Data (Kategori 'ADD ON')
+                            $masterAddons = \App\Models\Layanan::where('kategori', 'ADD ON')->get();
+
+                            // Helper function sederhana untuk cek apakah Add On ini ada di transaksi yg sedang diedit
+                            function getAddonStatus($idLayanan, $transaksi) {
+                                foreach($transaksi->detailTransaksi as $dt) {
+                                    if($dt->id_layanan == $idLayanan) {
+                                        return ['checked' => true, 'qty' => $dt->jumlah];
                                     }
-                                    return ['checked' => false, 'qty' => ''];
                                 }
-                                $eks = cekAddon('Ekspress', $transaksi);
-                                $han = cekAddon('Hanger', $transaksi);
-                                $pla = cekAddon('Plastik', $transaksi);
-                                $hp  = cekAddon('Hanger + Plastik', $transaksi);
+                                return ['checked' => false, 'qty' => 0];
+                            }
+                        @endphp
+
+                        {{-- LOOPING DINAMIS (SAMA SEPERTI CREATE, TAPI ADA CHECKED) --}}
+                        @foreach($masterAddons as $add)
+                            @php
+                                $status = getAddonStatus($add->id_layanan, $transaksi);
+                                $isEkspress = stripos($add->nama_layanan, 'Ekspress') !== false;
                             @endphp
 
                             <div class="addon-row">
                                 <label class="addon-label">
-                                    <input type="checkbox" id="addon_ekspress" name="addon_ekspress" data-harga="5000" onchange="toggleAddonQty(this, 'qty_ekspress')" {{ $eks['checked'] ? 'checked' : '' }}>
-                                    <span>Layanan Ekspress (+Rp 5.000/kg)</span>
+                                    <input type="checkbox" 
+                                        class="addon-checkbox" {{-- WAJIB ADA CLASS INI --}}
+                                        id="addon_{{ $add->id_layanan }}" 
+                                        name="addon_{{ $add->id_layanan }}" 
+                                        data-harga="{{ $add->harga_satuan }}" 
+                                        data-jenis="{{ $isEkspress ? 'Ekspress' : 'biasa' }}"
+                                        onchange="toggleAddonQty(this, 'qty_{{ $add->id_layanan }}')"
+                                        {{ $status['checked'] ? 'checked' : '' }}> {{-- Cek Centang dari DB --}}
+                                    
+                                    <span>{{ $add->nama_layanan }} (+Rp {{ number_format($add->harga_satuan, 0, ',', '.') }}/{{ $add->satuan }})</span>
                                 </label>
-                                <input type="number" id="qty_ekspress" name="qty_ekspress" class="addon-qty" placeholder="Kg" readonly step="1" value="{{ $eks['qty'] }}" style="{{ $eks['checked'] ? 'display:block' : 'display:none' }}">
+                                
+                                <input type="number" 
+                                    id="qty_{{ $add->id_layanan }}" 
+                                    name="qty_{{ $add->id_layanan }}" 
+                                    class="addon-qty" 
+                                    placeholder="Qty" 
+                                    step="1" 
+                                    min="1" 
+                                    value="{{ $status['checked'] ? $status['qty'] : '' }}" 
+                                    style="{{ $status['checked'] ? 'display:block' : 'display:none' }}"
+                                    {{-- Jika Ekspress, kunci inputnya (readonly) --}}
+                                    {{ $isEkspress ? 'readonly' : '' }}
+                                    oninput="hitungTotal()">
                             </div>
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger" name="addon_hanger" data-harga="3000" onchange="toggleAddonQty(this, 'qty_hanger')" {{ $han['checked'] ? 'checked' : '' }}>
-                                    <span>Hanger (+Rp 3.000/pcs)</span>
-                                </label>
-                                <input type="number" id="qty_hanger" name="qty_hanger" class="addon-qty" placeholder="Pcs" min="1" value="{{ $han['qty'] }}" oninput="hitungTotal()" style="{{ $han['checked'] ? 'display:block' : 'display:none' }}">
-                            </div>
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_plastik" name="addon_plastik" data-harga="3000" onchange="toggleAddonQty(this, 'qty_plastik')" {{ $pla['checked'] ? 'checked' : '' }}>
-                                    <span>Plastik (+Rp 3.000/pcs)</span>
-                                </label>
-                                <input type="number" id="qty_plastik" name="qty_plastik" class="addon-qty" placeholder="Pcs" min="1" value="{{ $pla['qty'] }}" oninput="hitungTotal()" style="{{ $pla['checked'] ? 'display:block' : 'display:none' }}">
-                            </div>
-                            <div class="addon-row">
-                                <label class="addon-label">
-                                    <input type="checkbox" id="addon_hanger_plastik" name="addon_hanger_plastik" data-harga="5000" onchange="toggleAddonQty(this, 'qty_hanger_plastik')" {{ $hp['checked'] ? 'checked' : '' }}>
-                                    <span>Hanger + Plastik (+Rp 5.000/pcs)</span>
-                                </label>
-                                <input type="number" id="qty_hanger_plastik" name="qty_hanger_plastik" class="addon-qty" placeholder="Pcs" min="1" value="{{ $hp['qty'] }}" oninput="hitungTotal()" style="{{ $hp['checked'] ? 'display:block' : 'display:none' }}">
-                            </div>
-                        </div>
+                        @endforeach
+
+                    </div>
                     </div>
 
                     <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 20px 0;">
@@ -279,11 +286,10 @@
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
 
     <script>
-        // === VARIABEL GLOBAL UNTUK MENYIMPAN OPSI LAYANAN LENGKAP ===
         let allLayananOptions = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Simpan semua opsi layanan ke memory sebelum di-filter
+            // 1. Simpan opsi layanan ke memory
             const layananSelect = document.getElementById('layanan_id');
             if(layananSelect) {
                 const options = Array.from(layananSelect.options);
@@ -295,45 +301,56 @@
                     tipe: opt.getAttribute('data-tipe'),
                     min: opt.getAttribute('data-min'),
                     max: opt.getAttribute('data-max'),
-                    selected: opt.selected // Simpan status terpilih dari PHP
+                    selected: opt.selected 
                 }));
             }
 
-            // 2. Jalankan Filter Awal (Agar dropdown layanan sesuai kategori yang terpilih di PHP)
+            // 2. Jalankan Filter Awal
             updateLayananDropdown();
 
-            // 3. Set Status Harga (Agar input harga unlock/lock sesuai data lama)
+            // 3. Set Status Harga (Reset harga ke default dulu)
             setHargaOtomatis();
+
+            // ============================================================
+            // FIX 1: KEMBALIKAN HARGA UTAMA DARI DATABASE
+            // ============================================================
+            const inputHarga = document.getElementById('harga_satuan');
+            const hargaDatabase = "{{ $hargaLama }}"; // Ambil dari PHP
+            
+            if(inputHarga && hargaDatabase) {
+                inputHarga.value = hargaDatabase; // Paksa isi ulang dengan harga asli
+            }
+
+            // ============================================================
+            // FIX 2: INISIALISASI ADD ON YANG SUDAH DICENTANG
+            // ============================================================
+            // Kita harus memanggil fungsi toggle satu per satu agar logika
+            // "Ekspress = Readonly & Ikut Berat" berjalan.
+            const allChecks = document.querySelectorAll('.addon-checkbox');
+            allChecks.forEach(chk => {
+                if(chk.checked) {
+                    const targetId = chk.id.replace('addon_', 'qty_');
+                    // Panggil fungsi toggle untuk memastikan display block & readonly tersetting
+                    toggleAddonQty(chk, targetId);
+                }
+            });
+
+            // ============================================================
+            // FIX 3: HITUNG TOTAL AKHIR
+            // ============================================================
+            hitungTotal(); 
         });
 
-        // === FUNGSI TAMBAHAN: AUTOFILL PELANGGAN (SAMA SEPERTI CREATE) ===
-        function autofillPelanggan() {
-            const inputVal = document.getElementById('pelanggan').value;
-            const list = document.getElementById('customer_list');
-            const options = list.options;
-            
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].value === inputVal) {
-                    const hp = options[i].getAttribute('data-hp');
-                    const almt = options[i].getAttribute('data-alamat');
-                    
-                    document.getElementById('no_hp').value = hp;
-                    document.getElementById('alamat').value = almt;
-                    break;
-                }
-            }
-        }
+        // === FUNGSI LOGIKA (SAMA DENGAN CREATE) ===
 
-        // === FUNGSI UTAMA (SAMA SEPERTI CREATE, DENGAN SEDIKIT PENYESUAIAN EDIT) ===
         function updateLayananDropdown() {
             const kategoriSelect = document.getElementById('kategori_id');
             const layananSelect = document.getElementById('layanan_id');
             const selectedKategori = kategoriSelect.value;
             
-            // Simpan ID yang sedang dipilih (dari PHP atau user)
+            // Simpan ID yang sedang dipilih (dari PHP)
             const currentSelectedID = "{{ $layananLamaId }}"; 
 
-            // Reset dropdown
             layananSelect.innerHTML = '<option value="" data-harga="0">-- Pilih Layanan --</option>';
 
             if (selectedKategori === "") {
@@ -343,7 +360,6 @@
 
             layananSelect.disabled = false;
             
-            // Filter opsi dari memory
             const filteredOptions = allLayananOptions.filter(opt => opt.kategori === selectedKategori);
 
             filteredOptions.forEach(opt => {
@@ -356,7 +372,7 @@
                 newOption.setAttribute('data-min', opt.min);
                 newOption.setAttribute('data-max', opt.max);
                 
-                // Cek apakah opsi ini adalah layanan lama? Jika ya, select kembali
+                // Jika ID sama dengan database, set selected
                 if (opt.value == currentSelectedID) {
                     newOption.selected = true;
                 }
@@ -381,28 +397,27 @@
             const max = selectedOption.getAttribute('data-max');
 
             inputHarga.classList.remove('locked-input', 'unlocked-input');
-            infoRange.style.display = 'none';
+            if(infoRange) infoRange.style.display = 'none';
 
             if (tipe === 'range') {
                 inputHarga.readOnly = false;
                 inputHarga.style.backgroundColor = "#fff";
-                inputHarga.style.cursor = "text"; 
                 inputHarga.classList.add('unlocked-input');
                 
-                infoRange.style.display = 'block';
-                infoRange.textContent = `*Harga Fleksibel: Rp ${formatRupiah(min)} - Rp ${formatRupiah(max)}`;
+                if(infoRange) {
+                    infoRange.style.display = 'block';
+                    infoRange.textContent = `*Harga Fleksibel: Rp ${formatRupiah(min)} - Rp ${formatRupiah(max)}`;
+                }
 
-                // PENTING: Jangan reset harga jadi 0 jika sudah ada nilai dari DB!
+                // Hanya reset ke min jika input kosong (cegah overwrite data DB saat load)
                 if(inputHarga.value == 0 || inputHarga.value == "") {
-                     inputHarga.placeholder = `Min: ${formatRupiah(min)}`;
+                     inputHarga.value = min;
                 }
 
             } else {
                 inputHarga.readOnly = true;
                 inputHarga.value = harga; 
-                
                 inputHarga.style.backgroundColor = "#e9ecef";
-                inputHarga.style.cursor = "not-allowed";
                 inputHarga.classList.add('locked-input');
             }
             
@@ -410,58 +425,104 @@
         }
 
         function hitungTotal() {
+            // 1. Ambil Harga & Berat
             const elBerat = document.getElementById('berat');
             const elHarga = document.getElementById('harga_satuan');
             
             const berat = elBerat && elBerat.value ? parseFloat(elBerat.value) : 0;
             const hargaSatuan = elHarga && elHarga.value ? parseFloat(elHarga.value) : 0;
             
-            let subTotal = hargaSatuan * berat;
-
-            let totalAddon = 0;
-            
-            const addons = [
-                {chk: 'addon_ekspress', qty: 'qty_ekspress'},
-                {chk: 'addon_hanger', qty: 'qty_hanger'},
-                {chk: 'addon_plastik', qty: 'qty_plastik'},
-                {chk: 'addon_hanger_plastik', qty: 'qty_hanger_plastik'}
-            ];
-
-            addons.forEach(item => {
-                const checkbox = document.getElementById(item.chk);
-                const inputQty = document.getElementById(item.qty);
-                
-                if(checkbox && checkbox.checked) {
-                    const hargaAddon = parseFloat(checkbox.getAttribute('data-harga')) || 0;
-                    const jumlah = parseFloat(inputQty.value) || 0;
-                    totalAddon += (hargaAddon * jumlah);
+            // 2. Logic Sync Ekspress (Update qty ekspress jika berat berubah)
+            const allChecks = document.querySelectorAll('.addon-checkbox');
+            allChecks.forEach(chk => {
+                if (chk.getAttribute('data-jenis') === 'Ekspress' && chk.checked) {
+                    const targetId = chk.id.replace('addon_', 'qty_');
+                    const qtyInput = document.getElementById(targetId);
+                    if (qtyInput) {
+                        qtyInput.value = berat > 0 ? berat : 1;
+                        qtyInput.readOnly = true; 
+                    }
                 }
             });
 
+            // 3. Subtotal
+            let subTotal = hargaSatuan * berat;
+
+            // 4. Hitung Addon (Looping)
+            let totalAddon = 0;
+            
+            allChecks.forEach(chk => {
+                if(chk.checked) {
+                    const h = parseFloat(chk.getAttribute('data-harga')) || 0;
+                    const targetId = chk.id.replace('addon_', 'qty_');
+                    const qtyInput = document.getElementById(targetId);
+                    
+                    let q = 0;
+                    if(qtyInput) {
+                        q = parseFloat(qtyInput.value) || 0;
+                    }
+                    totalAddon += (h * q);
+                }
+            });
+
+            // 5. Total Akhir
             const grandTotal = subTotal + totalAddon;
 
-            document.getElementById('total_biaya_tampil').value = "Rp " + new Intl.NumberFormat('id-ID').format(grandTotal);
-            document.getElementById('total_biaya').value = grandTotal;
-        }
+            // 6. Tampilkan
+            const elTampil = document.getElementById('total_biaya_tampil');
+            const elHidden = document.getElementById('total_biaya');
 
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID').format(angka);
+            if(elTampil) elTampil.value = "Rp " + formatRupiah(grandTotal);
+            if(elHidden) elHidden.value = grandTotal;
         }
 
         function toggleAddonQty(checkbox, inputId) {
             const inputQty = document.getElementById(inputId);
             const beratUtama = document.getElementById('berat').value;
+            const jenis = checkbox.getAttribute('data-jenis'); 
 
             if(checkbox.checked) {
                 inputQty.style.display = 'block';
-                if(inputQty.value == "" || inputQty.value == 0) {
+                
+                if (jenis === 'Ekspress') {
+                     // Ekspress: Ikut Berat & Readonly
                      inputQty.value = beratUtama ? beratUtama : 1;
+                     inputQty.readOnly = true; 
+                     inputQty.style.backgroundColor = "#e9ecef"; 
+                } else {
+                     // Biasa: Default 1 & Bisa diedit (Hanya isi 1 jika kosong, jgn timpa data DB)
+                     if(inputQty.value == "" || inputQty.value == 0) {
+                         inputQty.value = 1; 
+                     }
+                     inputQty.readOnly = false;
+                     inputQty.style.backgroundColor = "#ffffff";
                 }
             } else {
                 inputQty.style.display = 'none';
-                inputQty.value = 0; 
+                inputQty.value = 0; // Nol-kan biar hitungan berkurang
             }
             hitungTotal();
+        }
+
+        function autofillPelanggan() {
+            const inputVal = document.getElementById('pelanggan').value;
+            const list = document.getElementById('customer_list');
+            const options = list.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === inputVal) {
+                    const hp = options[i].getAttribute('data-hp');
+                    const almt = options[i].getAttribute('data-alamat');
+                    
+                    document.getElementById('no_hp').value = hp;
+                    document.getElementById('alamat').value = almt;
+                    break;
+                }
+            }
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
         }
 
         function toggleDetailSection() {
@@ -480,6 +541,7 @@
             } else {
                 containerDP.style.display = 'none';
                 inputDP.required = false;
+                // inputDP.value = ''; // Jangan kosongkan value di Edit, siapa tau user salah klik
             }
         }
 

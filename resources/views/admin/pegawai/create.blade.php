@@ -136,7 +136,7 @@
                         <select id="role" name="role" required>
                             <option value="">-- Pilih Jabatan --</option>
                             <option value="pegawai">Pegawai (Karyawan)</option>
-                            <option value="owner">Owner (Pemilik)</option>
+                            <option value="admin">Admin</option>
                         </select>
                     </div>
 

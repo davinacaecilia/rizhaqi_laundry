@@ -5,63 +5,75 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Transaksi;
+use App\Models\LaporanHarianPegawai;
+use Illuminate\Support\Facades\Auth;
 
 class PegawaiTransaksiController extends Controller
 {
-    public function index()
-    {
-        // Data dummy utk tampilan
-        $transaksi = [
-            ['id' => 1, 'nama' => 'Budi', 'status' => 'proses'],
-            ['id' => 2, 'nama' => 'Ani', 'status' => 'selesai'],
-        ];
-
-        return view('pegawai.transaksi.index', compact('transaksi'));
-    }
-
-    public function show($id)
-    {
-        $transaksi = [
-            'id' => $id,
-            'nama' => 'Dummy Pelanggan',
-            'berat' => 5,
-            'status' => 'proses'
-        ];
-
-        return view('pegawai.transaksi.show', compact('transaksi'));
-    }
 
     public function status(Request $request)
-{
-    $query = Transaksi::with('pelanggan')
-        ->whereIn('status_pesanan', ['disetrika', 'packing']);
+    {
+        $query = Transaksi::with('pelanggan')
+            // 1. Ambil kolom asli
+            ->select('transaksi.*')
 
-    // Filter Tanggal
-    if ($request->has('date') && $request->date != '') {
-        $query->whereDate('tgl_masuk', $request->date);
+            // 2. Wajib: Tambahkan VIRTUAL COLUMNS yang dibutuhkan oleh Blade Admin
+            // Ini agar Blade tidak error saat mengakses $item->sisa_tagihan
+            ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
+            ->selectRaw('fn_sisa_tagihan(id_transaksi) as sisa_tagihan')
+
+            // 3. Filter status sesuai User Requirement Pegawai (Setrika & Packing)
+            ->whereIn('status_pesanan', ['disetrika', 'packing']);
+
+        // Filter Tanggal
+        if ($request->has('date') && $request->date != '') {
+            $query->whereDate('tgl_masuk', $request->date);
+        }
+
+        // Urutkan berdasarkan status (disetrika dulu, baru packing) dan tanggal masuk
+        $transaksi = $query->orderByRaw("FIELD(status_pesanan, 'disetrika', 'packing')")
+            ->orderBy('tgl_masuk', 'asc')
+            ->get();
+
+        // Variabel $counts harus dikirim sebagai array kosong agar view tidak error
+        $counts = [];
+
+        // Asumsi nama view yang benar adalah 'pegawai.transaksi.status'
+        return view('pegawai.transaksi.status', compact('transaksi', 'counts'));
     }
-
-    // GANTI paginate() JADI get()
-    $transaksi = $query->orderByRaw("FIELD(status_pesanan, 'disetrika', 'packing')")
-                       ->orderBy('tgl_masuk', 'asc')
-                       ->get(); // <--- PENTING: Pakai get() untuk ambil semua data
-
-    return view('pegawai.transaksi.status', compact('transaksi'));
-}
 
     public function updateStatus($id)
     {
         $trx = Transaksi::findOrFail($id);
-        
-        if($trx->status_pesanan == 'disetrika') {
-            $trx->status_pesanan = 'packing';
-            $trx->save();
-            
-            // Opsional: Tambah ke Log Pegawai disini
-            
-            return redirect()->back()->with('success', 'Pekerjaan selesai! Status berubah ke Packing.');
+
+        // Hanya izinkan update dari 'disetrika' ke 'packing'
+        if ($trx->status_pesanan !== 'disetrika') {
+            return redirect()->back()->with(
+                'error',
+                'Status pesanan ' . $trx->kode_invoice . ' tidak dapat diubah (Status saat ini: ' . $trx->status_pesanan . ').'
+            );
         }
-        
-        return redirect()->back()->with('error', 'Status tidak valid.');
+
+        // Update status transaksi
+        $trx->update([
+            'status_pesanan' => 'packing'
+        ]);
+
+        LaporanHarianPegawai::firstOrCreate(
+            [
+                'id_transaksi' => $trx->id_transaksi, // kunci unik
+            ],
+            [
+                'id_user'        => Auth::id(),
+                'tgl_dikerjakan' => now(),
+            ]
+        );
+
+        return redirect()->back()->with(
+            'success',
+            'Status pesanan ' . $trx->kode_invoice . ' berhasil diperbarui ke Packing.'
+        );
     }
+
 }
+

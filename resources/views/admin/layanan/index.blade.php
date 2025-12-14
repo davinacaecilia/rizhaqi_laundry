@@ -143,9 +143,11 @@
                         <li><a class="active" href="{{ route('admin.layanan.index') }}">Data Layanan</a></li>
                     </ul>
                 </div>
+                @if(auth()->user()->role === 'owner')
                 <a href="{{ route('admin.layanan.create') }}" class="btn-add">
                     <i class='bx bx-plus'></i> Tambah Layanan
                 </a>
+                @endif
             </div>
 
             <div class="table-data">
@@ -166,7 +168,9 @@
                                     <th>Nama Layanan</th>
                                     <th>Satuan</th>
                                     <th>Harga</th>
+                                    @if(auth()->user()->role === 'owner')
                                     <th>Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -197,7 +201,7 @@
                                             Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
                                         @endif
                                     </td>
-                                    
+                                    @if(auth()->user()->role === 'owner')
                                     <td>
                                         <div class="btn-action-group">
                                             {{-- TOMBOL EDIT --}}
@@ -215,6 +219,7 @@
                                             </form>
                                         </div>
                                     </td>
+                                    @endif
                                 </tr>
                                 @empty
                                 <tr>

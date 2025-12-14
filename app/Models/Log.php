@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids; // 1. Import UUID
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Log extends Model
 {
+    use HasFactory, HasUuids;
     protected $table = 'Log';
+     protected $primaryKey = 'id_log'; // PK Custom
+    public $incrementing = false; // Matikan Auto Increment
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_user',

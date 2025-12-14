@@ -151,6 +151,7 @@
                 </ul>
             </li>
 
+<<<<<<< HEAD
             {{-- MENU LAPORAN (DROPDOWN BARU) --}}
             <li class="{{ Request::is('admin/laporan*') ? 'active' : '' }} has-dropdown">
                 <a href="#" class="dropdown-toggle">
@@ -173,6 +174,12 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            
+            <li class="{{ Request::is('admin/laporan/kinerja') ? 'active' : '' }}">
+                <a href="{{ route('admin.laporan.kinerja') }}"> <i class='bx bxs-report'></i>
+                    <span class="text">Laporan Pegawai</span>
+                </a>
             </li>
 
             <li class="{{ Request::is('admin/log-aktivitas') ? 'active' : '' }}">

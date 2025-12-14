@@ -81,33 +81,6 @@ return new class extends Migration
                 RETURN v_total_berat;
             END
         ");
-
-        // ==============================================================================
-        // 6. FUNCTION: PENDAPATAN BERSIH (LAPORAN)
-        // ==============================================================================
-        // Uang Masuk (Pembayaran) - Uang Keluar (Pengeluaran).
-        DB::unprepared("DROP FUNCTION IF EXISTS fn_pendapatan_bersih");
-        DB::unprepared("
-            CREATE FUNCTION fn_pendapatan_bersih(p_bulan INT, p_tahun INT) 
-            RETURNS DECIMAL(15,2)
-            READS SQL DATA
-            BEGIN
-                DECLARE v_pemasukan DECIMAL(15,2);
-                DECLARE v_pengeluaran DECIMAL(15,2);
-
-                -- Uang Masuk (Tabel Pembayaran)
-                SELECT COALESCE(SUM(jlh_pembayaran), 0) INTO v_pemasukan
-                FROM pembayaran 
-                WHERE MONTH(tgl_bayar) = p_bulan AND YEAR(tgl_bayar) = p_tahun;
-
-                -- Uang Keluar (Tabel Pengeluaran)
-                SELECT COALESCE(SUM(jumlah), 0) INTO v_pengeluaran
-                FROM pengeluaran 
-                WHERE MONTH(tanggal) = p_bulan AND YEAR(tanggal) = p_tahun;
-
-                RETURN (v_pemasukan - v_pengeluaran);
-            END
-        ");
     }
 
     /**
@@ -118,6 +91,5 @@ return new class extends Migration
         DB::unprepared("DROP FUNCTION IF EXISTS fn_hitung_total_transaksi");
         DB::unprepared("DROP FUNCTION IF EXISTS fn_sisa_tagihan");
         DB::unprepared("DROP FUNCTION IF EXISTS fn_total_berat_hari_ini");
-        DB::unprepared("DROP FUNCTION IF EXISTS fn_pendapatan_bersih");
     }
 };

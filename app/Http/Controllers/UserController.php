@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Transaksi;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -29,7 +30,10 @@ class UserController extends Controller
     public function checkStatus(Request $request)
     {
         $kode = $request->input('kode');
-        $transaksi = Transaksi::where('kode_invoice', $kode)->first();
+        $transaksi = DB::connection('public_access')
+                    ->table('transaksi')
+                    ->where('kode_invoice', $kode)
+                    ->first();
 
         $status_display = 'Kode pesanan tidak ditemukan.';
         $raw_status = null;

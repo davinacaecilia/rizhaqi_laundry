@@ -80,66 +80,116 @@
                         </div>
                     </div>
                     
+                    {{-- AREA TABEL KANAN (LOG vs TRANSAKSI) --}}
+                    
                     @if(auth()->user()->role === 'owner')
-                    {{-- TABEL LOG AKTIVITAS (PENGGANTI CHART DONAT) --}}
-                    <div class="chart-card" style="overflow: hidden;"> 
-                        <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div>
-                                <h2>Aktivitas Terbaru</h2>
+                        {{-- ========================== --}}
+                        {{-- TAMPILAN UNTUK OWNER (LOG) --}}
+                        {{-- ========================== --}}
+                        <div class="chart-card" style="overflow: hidden;"> 
+                            <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div>
+                                    <h2>Aktivitas Terbaru</h2>
+                                </div>
+                                <a href="{{ route('admin.log.index') }}" style="font-size: 12px; color: var(--accent-blue); text-decoration: none;">
+                                    Lihat Semua <i class='bx bx-right-arrow-alt'></i>
+                                </a>
                             </div>
-                            <a href="{{ route('admin.log.index') }}" style="font-size: 12px; color: var(--accent-blue); text-decoration: none;">
-                                Lihat Semua <i class='bx bx-right-arrow-alt'></i>
-                            </a>
-                        </div>
-                        
-                        <div class="recent-activity-table" style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                                <thead>
-                                    <tr style="text-align: left; border-bottom: 1px solid #eee;">
-                                        <th style="padding: 8px; color: #888; font-weight: 600;">User</th>
-                                        <th style="padding: 8px; color: #888; font-weight: 600;">Aksi</th>
-                                        <th style="padding: 8px; color: #888; font-weight: 600;">Waktu</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($recentLogs as $log)
-                                        <tr style="border-bottom: 1px solid #f9f9f9;">
-                                            <td style="padding: 10px 8px;">
-                                                <div style="display: flex; align-items: center; gap: 8px;">
-                                                    {{-- Avatar Bulat --}}
-                                                    <div style="width: 24px; height: 24px; background: #e0f2f1; color: #00695c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">
-                                                        {{-- Ambil huruf depan nama user (misal: Admin -> A, Pegawai -> P) --}}
-                                                        {{ substr($log->user->nama ?? 'T', 0, 1) }}
+                            
+                            <div class="recent-activity-table" style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                    <thead>
+                                        <tr style="text-align: left; border-bottom: 1px solid #eee;">
+                                            <th style="padding: 8px; color: #888; font-weight: 600;">User</th>
+                                            <th style="padding: 8px; color: #888; font-weight: 600;">Aksi</th>
+                                            <th style="padding: 8px; color: #888; font-weight: 600;">Waktu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($recentLogs as $log)
+                                            <tr style="border-bottom: 1px solid #f9f9f9;">
+                                                <td style="padding: 10px 8px;">
+                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                        <div style="width: 24px; height: 24px; background: #e0f2f1; color: #00695c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">
+                                                            {{ substr($log->user->nama ?? 'T', 0, 1) }}
+                                                        </div>
+                                                        <span style="font-weight: 500;">
+                                                            {{ $log->user->nama ?? 'Sistem' }}
+                                                        </span>
                                                     </div>
-                                                    
-                                                    {{-- Nama User --}}
-                                                    <span style="font-weight: 500;">
-                                                        {{ $log->user->nama ?? 'Tidak diketahui' }}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td style="padding: 10px 8px;">
-                                                <span style="display: block; color: #333;">{{ $log->aksi }}</span>
-                                                <small style="color: #999; font-size: 11px;">
-                                                    {{ Str::limit($log->keterangan, 30) }} 
-                                                </small>
-                                            </td>
-                                            <td style="padding: 10px 8px; color: #666; white-space: nowrap;">
-                                                {{-- WAKTU BAHASA INDONESIA --}}
-                                                {{ \Carbon\Carbon::parse($log->waktu)->locale('id')->diffForHumans() }}
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" style="text-align: center; padding: 20px; color: #999;">
-                                                Belum ada aktivitas.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                                </td>
+                                                <td style="padding: 10px 8px;">
+                                                    <span style="display: block; color: #333;">{{ $log->aksi }}</span>
+                                                </td>
+                                                <td style="padding: 10px 8px; color: #666; white-space: nowrap;">
+                                                    {{ \Carbon\Carbon::parse($log->waktu)->locale('id')->diffForHumans() }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" style="text-align: center; padding: 20px; color: #999;">Kosong.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+
+                    @else
+                        {{-- ========================== --}}
+                        {{-- TAMPILAN UNTUK ADMIN (TRANSAKSI) --}}
+                        {{-- ========================== --}}
+                        <div class="chart-card" style="overflow: hidden;"> 
+                            <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div>
+                                    <h2>Transaksi Terbaru</h2>
+                                    <p>5 Order terakhir masuk</p>
+                                </div>
+                                <a href="{{ route('admin.transaksi.index') }}" style="font-size: 12px; color: var(--accent-blue); text-decoration: none;">
+                                    Lihat Semua <i class='bx bx-right-arrow-alt'></i>
+                                </a>
+                            </div>
+                            
+                            <div class="recent-activity-table" style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                    <thead>
+                                        <tr style="text-align: left; border-bottom: 1px solid #eee;">
+                                            <th style="padding: 8px; color: #888; font-weight: 600;">Invoice</th>
+                                            <th style="padding: 8px; color: #888; font-weight: 600;">Pelanggan</th>
+                                            <th style="padding: 8px; color: #888; font-weight: 600;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($recentTransactions as $item)
+                                            <tr style="border-bottom: 1px solid #f9f9f9;">
+                                                <td style="padding: 10px 8px; font-weight: bold; color: #333;">
+                                                    {{ $item->kode_invoice }}
+                                                </td>
+                                                <td style="padding: 10px 8px;">
+                                                    {{ $item->pelanggan->nama ?? 'Umum' }}
+                                                    <div style="font-size: 10px; color: #888;">
+                                                        {{ \Carbon\Carbon::parse($item->tgl_masuk)->format('d M Y') }}
+                                                    </div>
+                                                </td>
+                                                <td style="padding: 10px 8px;">
+                                                    @if($item->status_pembayaran == 'lunas')
+                                                        <span style="background: #E8F5E9; color: #2E7D32; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">Lunas</span>
+                                                    @else
+                                                        <span style="background: #FFEBEE; color: #C62828; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">Belum Lunas</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" style="text-align: center; padding: 20px; color: #999;">
+                                                    Belum ada transaksi.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>

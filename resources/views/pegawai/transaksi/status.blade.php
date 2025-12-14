@@ -282,9 +282,6 @@
                     <div class="head">
                         <div class="filter-row">
                             <h3 class="filter-title">Antrian Setrika & Packing</h3>
-
-                            {{-- HILANGKAN SEARCH BAR DAN STATUS PILLS (Pegawai hanya fokus 2 status) --}}
-                            {{-- Jika ingin filter tanggal, harus diubah ke form GET seperti Admin --}}
                         </div>
                     </div>
 

@@ -76,7 +76,6 @@
     </style>
 </head>
 <body>
-
     @include('partial.sidebar')
 
     <section id="content">

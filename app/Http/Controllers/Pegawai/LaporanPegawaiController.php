@@ -4,36 +4,44 @@ namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\Models\LaporanHarianPegawai;
-use Illuminate\Support\Facades\DB; // Import DB Facade
+use Illuminate\Support\Facades\Auth;
 
 class LaporanPegawaiController extends Controller
 {
-    public function index()
-{
-    $laporan = LaporanHarianPegawai::select(
-            // GANTI 'laporan_harian_pegawai.id' DENGAN NAMA PRIMARY KEY YANG BENAR
-            'laporan_harian_pegawai.id_laporan', // <-- ASUMSI NAMA PRIMARY KEY
+    public function index(Request $request)
+    {
+        $currentUserId = Auth::id();
 
-            'laporan_harian_pegawai.tgl_dikerjakan',
-            'laporan_harian_pegawai.id_transaksi',
-            'u.nama as nama_pegawai',
-            DB::raw('COALESCE(SUM(dt.jumlah), 0) as total_berat')
-        )
-        ->join('users as u', 'laporan_harian_pegawai.id_user', '=', 'u.id_user')
-        ->leftJoin('detail_transaksi as dt', 'laporan_harian_pegawai.id_transaksi', '=', 'dt.id_transaksi')
+        if (!$currentUserId) {
+            return redirect('/login')->with('error', 'Anda harus login untuk mengakses laporan.');
+        }
 
-        // Ganti juga di GROUP BY
-        ->groupBy(
-            'laporan_harian_pegawai.id_laporan', // <-- GANTI DI SINI JUGA
-            'laporan_harian_pegawai.tgl_dikerjakan',
-            'laporan_harian_pegawai.id_transaksi',
-            'u.nama'
-        )
-        ->orderBy('laporan_harian_pegawai.tgl_dikerjakan', 'desc')
-        ->get();
+        $dateFilter = $request->input('date');
 
-    return view('pegawai.laporan-pegawai', compact('laporan'));
-}
+        $query = LaporanHarianPegawai::with([
+                'transaksi.pelanggan',
+                'pegawai'
+            ])
+            ->where('id_user', $currentUserId);
+
+        if ($dateFilter) {
+            $query->whereDate('tgl_dikerjakan', $dateFilter);
+        }
+
+        $laporan = $query->orderBy('tgl_dikerjakan', 'desc')
+                         ->orderBy('created_at', 'desc')
+                         ->get();
+
+        // Total berat dari transaksi
+        $totalBeratDikerjakan = $laporan->sum(function ($item) {
+            return $item->transaksi->berat ?? 0;
+        });
+
+        return view('pegawai.laporan-pegawai', compact(
+            'laporan',
+            'dateFilter',
+            'totalBeratDikerjakan'
+        ));
+    }
 }

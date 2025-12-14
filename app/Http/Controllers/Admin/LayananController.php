@@ -144,14 +144,15 @@ class LayananController extends Controller
                 'harga_min' => 'required|numeric|min:0',
                 'harga_max' => 'required|numeric|gt:harga_min',
             ]);
-            $data['harga_satuan'] = $request->harga_min;
-            $data['harga_maksimum'] = $request->harga_max;
+            $data['harga_min'] = $request->harga_min;
+            $data['harga_max'] = $request->harga_max;
         } else {
             $request->validate([
                 'harga_tetap' => 'required|numeric|min:0',
             ]);
             $data['harga_satuan'] = $request->harga_tetap;
-            $data['harga_maksimum'] = null;
+            $data['harga_min'] = null; // Pastikan null agar dianggap harga tetap
+            $data['harga_max'] = null; // Pastikan null agar dianggap harga tetap
         }
 
         // 5. Eksekusi Update

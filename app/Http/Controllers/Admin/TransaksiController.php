@@ -623,8 +623,6 @@ class TransaksiController extends Controller
         // Cari transaksi
         $transaksi = Transaksi::findOrFail($id);
 
-        // Ubah status pesanan jadi 'dibatalkan'
-        // Ubah juga status bayar jadi 'batal' (opsional, biar jelas di laporan keuangan)
         $transaksi->update([
             'status_pesanan' => 'batal'
         ]);

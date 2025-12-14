@@ -161,31 +161,6 @@ return new class extends Migration
                 GROUP BY status_kategori;
             END
         ");
-
-        // ==============================================================================
-        // 3. PROCEDURE: PEMBATALAN TRANSAKSI (Rollback Stok/Log)
-        // ==============================================================================
-        // Manfaat: Mencatat alasan pembatalan dengan rapi.
-        DB::unprepared("DROP PROCEDURE IF EXISTS sp_batalkan_transaksi");
-        DB::unprepared("
-            CREATE PROCEDURE sp_batalkan_transaksi(
-                IN p_id_transaksi CHAR(36),
-                IN p_id_user CHAR(36),
-                IN p_alasan TEXT
-            )
-            BEGIN
-                -- Update status jadi 'batal'
-                UPDATE transaksi 
-                SET status_pesanan = 'batal', 
-                    catatan = CONCAT(catatan, ' [DIBATALKAN: ', p_alasan, ']'),
-                    updated_at = NOW()
-                WHERE id_transaksi = p_id_transaksi;
-
-                -- Insert Log Manual (Karena trigger update biasa pesannya standar)
-                INSERT INTO log (id_log, id_user, aksi, keterangan, waktu)
-                VALUES (UUID(), p_id_user, 'CANCEL ORDER', CONCAT('Transaksi dibatalkan. Alasan: ', p_alasan), NOW());
-            END
-        ");
     }
 
     public function down(): void
@@ -194,6 +169,5 @@ return new class extends Migration
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_ambil_cucian");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_update_status_transaksi");
         DB::unprepared("DROP PROCEDURE IF EXISTS sp_get_status_counts");
-        DB::unprepared("DROP PROCEDURE IF EXISTS sp_batalkan_transaksi");
     }
 };

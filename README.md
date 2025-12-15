@@ -28,12 +28,12 @@ Website Rizhaqi Laundry ini dibuat dengan harapan dapat menyelesaikan permasalah
 - **View Laporan Transaksi Bulanan** : Melihat dan mencetak laporan transaksi bulanan.
 - **View Log Aktivitas** : Memantau aktivitas yang berhubungan dengan database (INSERT, UPDATE, DELETE).
    
-3.**Admin**
+3. **Admin**
 - **Mengelola Data Transaksi** : Melihat dan menambah transaksi baru.
 - **View Invoice** : Melihat dan mencetak invoice transaksi.
 - **Mengelola Data Pelanggan** : Melihat, menambah, dan mengubah data pelanggan.
 - Melihat Daftar Pegawai dan Layanan 
-  
+
 4. **Pegawai**
 - **Mengelola Data Transaksi** : Melihat dan mengubah transaksi yang memiliki status pesanan 'disetrika'.
 - **View Laporan Cucian Harian** : Melihat dan mencetak laporan cucian harian pegawai yang dibutuhkan untuk menghitung gaji harian.

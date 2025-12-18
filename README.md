@@ -16,16 +16,27 @@ Website Rizhaqi Laundry ini dibuat dengan harapan dapat menyelesaikan permasalah
 1. **Pelanggan**
 - **Pengecekan Status Order** : Pelanggan dapat memantau dan mengecek status order secara *real-time* melalui website dengan menggunakan kode invoice order
 
-2. **Pemilik**
-- **Input Data Transaksi, Pegawai, Pelanggan, Layanan**
-- **Update Status Order, Status Keaktifan Pegawai, Data Pelanggan dan Layanan**
-- **Print Invoice** : Pemilik dapat mencetak invoice transaksi yang telah dilakukan
-- **Generate Laporan Harian** : Pemilik dapat dengan mudah mencetak laporan harian yang dibutuhkan (laporan cucian masuk, laporan uang masuk, laporan uang keluar, laporan cuci harian pegawai) secara otomatis tanpa harus melakukan rekap data secara manual
-- **View Log** : Pemilik dapat memantau aktivitas yang berhubungan dengan database (INSERT, UPDATE, DELETE)
-  
-3. **Pegawai**
-- **Update Status Order**
-- **Generate Laporan Cucian Harian** : Pegawai dapat mencetak laporan cucian harian pegawai yang dibutuhkan untuk menghitung gaji harian
+2. **Owner (Pemilik)**
+- **Mengelola Data Transaksi** : Melihat, menambah, mengubah detail, dan membatalkan transaksi.
+- **View Invoice** : Melihat dan mencetak invoice transaksi.
+- **Mengelola Data Pelanggan** : Melihat, menambah, mengubah, dan menghapus data pelanggan.
+- **Mengelola Data Pegawai** : Melihat, menambah, mengubah status keaktifan, dan menghapus data pegawai.
+- **Mengelola Data Layanan** : Melihat, menambah, mengubah, dan menghapus data layanan.
+- **Mengelola Data Alat** : Melihat, menambah, mengubah, dan menghapus data alat.
+- **Mengelola Data Pengeluaran** : Melihat, menambah, mengubah, dan menghapus data pengeluaran.
+- **View Laporan Transaksi Harian** : Melihat dan mencetak laporan transaksi harian (laporan cucian masuk harian dan cashflow).
+- **View Laporan Transaksi Bulanan** : Melihat dan mencetak laporan transaksi bulanan.
+- **View Log Aktivitas** : Memantau aktivitas yang berhubungan dengan database (INSERT, UPDATE, DELETE).
+   
+3. **Admin**
+- **Mengelola Data Transaksi** : Melihat dan menambah transaksi baru.
+- **View Invoice** : Melihat dan mencetak invoice transaksi.
+- **Mengelola Data Pelanggan** : Melihat, menambah, dan mengubah data pelanggan.
+- Melihat Daftar Pegawai dan Layanan 
+
+4. **Pegawai**
+- **Mengelola Data Transaksi** : Melihat dan mengubah transaksi yang memiliki status pesanan 'disetrika'.
+- **View Laporan Cucian Harian** : Melihat dan mencetak laporan cucian harian pegawai yang dibutuhkan untuk menghitung gaji harian.
 
 ## Tech Stack
 
@@ -74,6 +85,10 @@ Atur file .env sesuai dengan konfigurasi database lokalmu
 Jalankan migrasi database
 
     php artisan migrate
+
+Jalankan seeder
+
+    php artisan db:seed
 
 Jalankan server
 

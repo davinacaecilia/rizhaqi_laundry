@@ -10,7 +10,7 @@ class Log extends Model
 {
     use HasFactory, HasUuids;
     protected $table = 'Log';
-     protected $primaryKey = 'id_log'; // PK Custom
+    protected $primaryKey = 'id_log'; // PK Custom
     public $incrementing = false; // Matikan Auto Increment
     protected $keyType = 'string';
 

@@ -9,16 +9,16 @@
     <title>Status Order - Rizhaqi Laundry Admin</title>
 
     <style>
-        /* CSS LAMA ANDA TETAP (TIDAK BERUBAH) */
+        /* --- CSS BAWAAN ANDA --- */
         .table-container table { width: 100%; border-collapse: collapse; border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-light); }
         .table-container thead tr { background-color: var(--surface-white); border-bottom: 1px solid var(--border-light); }
         .table-container th, .table-container td { padding: 15px; border: 1px solid var(--border-light); text-align: left; font-size: 14px; color: var(--text-primary); }
         .table-container th { font-weight: 600; color: var(--text-secondary); font-family: var(--google-sans); background-color: var(--surface-white); }
         .table-container tbody tr:hover { background-color: rgba(26, 115, 232, 0.04); }
+        
+        /* Button Styles */
         .btn-status { padding: 8px 16px; border-radius: 6px; color: white; font-weight: 500; font-size: 13px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: 0.2s; }
         .btn-status:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* WARNA TOMBOL & BADGE */
         .btn-blue { background-color: var(--accent-blue); }
         .btn-orange { background-color: #FF9800; }
         .btn-purple { background-color: #9C27B0; }
@@ -26,6 +26,8 @@
         .btn-green { background-color: var(--accent-green); }
         .btn-dark { background-color: #455A64; }
         .btn-red { background-color: var(--accent-red); }
+
+        /* Badge Styles */
         .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; white-space: nowrap; }
         .st-diterima { background: #E0E0E0; color: #424242; }
         .st-dicuci { background: #E3F2FD; color: #1565C0; }
@@ -36,7 +38,7 @@
         .st-selesai { background: #212121; color: #fff; }
         .st-dibatalkan { background: #FFEBEE; color: #C62828; text-decoration: line-through; }
 
-        /* FILTER UI */
+        /* Filter & Search UI */
         .table-data .order .head { display: flex; flex-direction: column; gap: 15px; align-items: flex-start; }
         .filter-row { display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap; }
         .filter-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-right: auto; }
@@ -46,21 +48,19 @@
         .filter-pill:hover { background: #f5f5f5; border-color: #ccc; }
         .filter-pill.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
 
-        /* SEARCH BAR */
+        /* Search Bar */
         .table-search-wrapper { position: relative; display: flex; align-items: center; margin-left: auto; }
         .table-search-input { width: 0; padding: 0; border: none; margin-left: 0; background: transparent; transition: width 0.3s ease, padding 0.3s ease; opacity: 0; pointer-events: none; height: 40px; border-radius: 20px; }
         .table-search-input.show { width: 200px; padding: 6px 12px; border: 1px solid var(--border-light); margin-right: 10px; opacity: 1; pointer-events: auto; background: var(--surface-white); }
         .table-search-input:focus { border-color: var(--accent-blue); outline: none; }
         .bx-search-toggle { cursor: pointer; font-size: 20px; color: #888; padding: 5px; }
 
-        /* SUMMARY CARDS */
+        /* Summary Cards */
         .status-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; list-style: none; padding: 0; }
         .status-summary li { background: #fff; padding: 12px; border-radius: 10px; border: 1px solid var(--border-light); display: flex; align-items: center; gap: 12px; transition: all 0.2s ease; cursor: default; }
         .status-summary li .bx { width: 36px; height: 36px; border-radius: 8px; font-size: 20px; display: flex; align-items: center; justify-content: center; }
         .status-summary li .info h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0; line-height: 1; }
         .status-summary li .info p { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
-
-        /* WARNA SUMMARY ICON */
         .bg-diterima { background: #EEEEEE; color: #616161; }
         .bg-dicuci { background: #E3F2FD; color: #1976D2; }
         .bg-kering { background: #FFF3E0; color: #F57C00; }
@@ -68,6 +68,36 @@
         .bg-packing { background: #E0F2F1; color: #00796B; }
         .bg-siap { background: #E8F5E9; color: #388E3C; }
         .bg-selesai { background: #263238; color: #fff; }
+
+        /* --- TAMBAHAN BARU: ALERT STYLE --- */
+        .alert-wrapper { margin-bottom: 20px; animation: fadeIn 0.4s ease; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .alert .bx { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+        
+        /* Warna Alert Sukses (Hijau Soft) */
+        .alert-success { background-color: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        
+        /* Warna Alert Error (Merah Soft) */
+        .alert-danger { background-color: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+        
+        /* Tombol Close di Alert */
+        .alert-close {
+            margin-left: auto; background: none; border: none; 
+            font-size: 18px; color: inherit; cursor: pointer; opacity: 0.6;
+        }
+        .alert-close:hover { opacity: 1; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -76,7 +106,38 @@
 
     <section id="content">
         @include('partial.navbar')
+        
         <main>
+            
+            @if(session('success'))
+                <div class="alert-wrapper">
+                    <div class="alert alert-success">
+                        <i class='bx bx-check-circle'></i>
+                        <div>
+                            <strong>Berhasil!</strong><br>
+                            {{ session('success') }}
+                        </div>
+                        <button class="alert-close" onclick="this.parentElement.parentElement.style.display='none';">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert-wrapper">
+                    <div class="alert alert-danger">
+                        <i class='bx bx-error-circle'></i>
+                        <div>
+                            <strong>Terjadi Kesalahan!</strong><br>
+                            {{ session('error') }}
+                        </div>
+                        <button class="alert-close" onclick="this.parentElement.parentElement.style.display='none';">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+            @endif
             <div class="head-title">
                 <div class="left">
                     <h1>Status Order</h1>
@@ -102,7 +163,6 @@
 
             <div class="table-data">
                 <div class="order">
-
                     <div class="head">
                         <div class="filter-row">
                             <h3 class="filter-title">Update Status (Real-time)</h3>
@@ -113,13 +173,9 @@
                         </div>
 
                         <div class="filter-row">
-                            {{-- DATE FILTER (auto handled by script.js) --}}
                             <input type="date" id="dateFilter" class="filter-date" title="Filter Tanggal Masuk">
-
-                            {{-- STATUS PILLS (handled by custom JS below) --}}
                             <div class="status-pills-container">
                                 @php $currentStatus = request('status', 'all'); @endphp
-                                <!-- <span class="filter-pill {{ $currentStatus == 'all' ? 'active' : '' }}" data-status="all">Semua</span> -->
                                 <span class="filter-pill {{ $currentStatus == 'diterima' ? 'active' : '' }}" data-status="diterima">Diterima</span>
                                 <span class="filter-pill {{ $currentStatus == 'dicuci' ? 'active' : '' }}" data-status="dicuci">Dicuci</span>
                                 <span class="filter-pill {{ $currentStatus == 'dikeringkan' ? 'active' : '' }}" data-status="dikeringkan">Dikeringkan</span>
@@ -146,10 +202,8 @@
                             <tbody>
                             @foreach ($transaksi as $item)
                                 @php
-                                    // 1. LOGIK WARNA BADGE (Sama seperti sebelumnya)
                                     $rawStatus = strtolower($item->status_pesanan ?? 'diterima');
                                     $badgeClass = 'st-diterima';
-
                                     $mapStatus = [
                                         'diterima' => 'st-diterima', 'dicuci' => 'st-dicuci',
                                         'dikeringkan' => 'st-dikeringkan', 'disetrika' => 'st-disetrika',
@@ -158,7 +212,7 @@
                                     ];
                                     if(isset($mapStatus[$rawStatus])) $badgeClass = $mapStatus[$rawStatus];
 
-                                    // 2. LOGIK STATUS SELANJUTNYA
+                                    // Status Logic
                                     $btnClass = 'btn-blue'; $btnText = 'Mulai Cuci'; $btnIcon = 'bx-water'; $nextStatus = 'dicuci';
                                     $isCancelled = ($rawStatus == 'batal');
                                     $isFinished = ($rawStatus == 'selesai');
@@ -172,14 +226,8 @@
                                         case 'siap diambil': $nextStatus = 'selesai'; $btnText = 'Serahkan (Selesai)'; $btnClass = 'btn-dark'; $btnIcon = 'bx-package'; break;
                                     }
 
-                                    // 3. LOGIK PEMBATASAN (UPDATED)
-                                    // Ambil role user yang sedang login
+                                    // Role Restriction Logic
                                     $role = auth()->user()->role; 
-
-                                    // Logika: 
-                                    // Jika user BUKAN 'pegawai' (berarti Admin atau Owner)
-                                    // DAN status sedang 'disetrika'
-                                    // MAKA tombol akan dikunci/dibatasi.
                                     $isRestricted = ($role !== 'pegawai' && $rawStatus == 'disetrika');
                                 @endphp
 
@@ -187,34 +235,22 @@
                                     <td><strong>{{ $item->kode_invoice }}</strong></td>
                                     <td>{{ optional($item->pelanggan)->nama ?? 'Tanpa Nama' }}</td>
                                     <td>{{ date('d M Y', strtotime($item->tgl_masuk)) }}</td>
-                                    <td>
-                                        <span class="status-badge {{ $badgeClass }}">{{ ucwords($rawStatus) }}</span>
-                                    </td>
+                                    <td><span class="status-badge {{ $badgeClass }}">{{ ucwords($rawStatus) }}</span></td>
                                     <td>
                                         @if($isCancelled)
-                                            <span style="color: #C62828; font-size: 13px; font-weight: 600;">
-                                                <i class='bx bx-x-circle'></i> Order Dibatalkan
-                                            </span>
-
+                                            <span style="color: #C62828; font-size: 13px; font-weight: 600;"><i class='bx bx-x-circle'></i> Order Dibatalkan</span>
                                         @elseif($isFinished)
-                                            <span style="color: #2E7D32; font-size: 13px; font-weight: 600;">
-                                                <i class='bx bx-check-double'></i> Transaksi Selesai
-                                            </span>
-
+                                            <span style="color: #2E7D32; font-size: 13px; font-weight: 600;"><i class='bx bx-check-double'></i> Transaksi Selesai</span>
                                         @elseif($isRestricted)
-                                            {{-- TAMPILAN UNTUK ADMIN & OWNER (Saat status Disetrika) --}}
                                             <span style="color: #FF9800; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; background: #FFF3E0; padding: 6px 12px; border-radius: 6px;">
                                                 <i class='bx bx-time-five'></i> Menunggu Pegawai (Packing)
                                             </span>
-
                                         @else
-                                            {{-- TAMPILAN UNTUK PEGAWAI (Atau status selain Disetrika) --}}
                                             <form action="{{ route('admin.transaksi.updateStatus', $item->id_transaksi) }}" method="POST">
                                                 @csrf 
                                                 @method('PUT')
                                                 <input type="hidden" name="status" value="{{ $nextStatus }}">
-                                                <button type="submit" class="btn-status {{ $btnClass }}"
-                                                    onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">
+                                                <button type="submit" class="btn-status {{ $btnClass }}" onclick="return confirm('Update status ke {{ ucfirst($nextStatus) }}?')">
                                                     <i class='bx {{ $btnIcon }}'></i> {{ $btnText }}
                                                 </button>
                                             </form>
@@ -222,11 +258,9 @@
                                     </td>
                                 </tr>
                             @endforeach
-                        </tbody>
+                            </tbody>
                         </table>
                     </div>
-
-                
                 </div>
             </div>
         </main>
@@ -235,6 +269,5 @@
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
     <script src="{{ asset('admin/script/pagination.js') }}"></script>
-
 </body>
 </html>

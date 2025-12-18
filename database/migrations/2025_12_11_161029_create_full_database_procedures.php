@@ -27,8 +27,16 @@ return new class extends Migration
             BEGIN
                 DECLARE v_total_tagihan DECIMAL(15,2);
                 DECLARE v_total_bayar_sekarang DECIMAL(15,2);
+                
+                -- Variabel Info untuk Log
+                DECLARE v_kode_invoice VARCHAR(50);
+                DECLARE v_status_baru VARCHAR(20);
 
-                -- 1. Catat Uang Masuk
+                -- 1. AMBIL KODE INVOICE (Hanya untuk isi pesan Log nanti)
+                SELECT kode_invoice INTO v_kode_invoice 
+                FROM transaksi WHERE id_transaksi = p_id_transaksi;
+
+                -- 2. Catat Uang Masuk ke Tabel Pembayaran
                 INSERT INTO pembayaran (
                     id_pembayaran, id_transaksi, id_user, jlh_pembayaran, 
                     tgl_bayar, keterangan, created_at, updated_at
@@ -37,25 +45,50 @@ return new class extends Migration
                     NOW(), p_keterangan, NOW(), NOW()
                 );
 
-                -- 2. Update Jumlah Bayar di Transaksi
+                -- 3. Update Jumlah Bayar di Transaksi
                 UPDATE transaksi 
-                SET jumlah_bayar = jumlah_bayar + p_jumlah
+                SET jumlah_bayar = jumlah_bayar + p_jumlah,
+                    updated_at = NOW()
                 WHERE id_transaksi = p_id_transaksi;
 
-                -- 3. PANGGIL FUNCTION (Pastikan function ini juga sudah fix collation-nya)
+                -- 4. PANGGIL FUNCTION HITUNG TOTAL
                 SET v_total_tagihan = fn_hitung_total_transaksi(p_id_transaksi);
 
-                -- 4. Ambil Total yang SUDAH dibayar
+                -- 5. Ambil Total yang SUDAH dibayar saat ini
                 SELECT jumlah_bayar INTO v_total_bayar_sekarang
                 FROM transaksi 
                 WHERE id_transaksi = p_id_transaksi;
 
-                -- 5. Cek Status Lunas / DP
+                -- 6. Cek Status Lunas / DP
                 IF v_total_bayar_sekarang >= v_total_tagihan THEN
-                    UPDATE transaksi SET status_bayar = 'lunas' WHERE id_transaksi = p_id_transaksi;
+                    SET v_status_baru = 'lunas';
                 ELSE
-                    UPDATE transaksi SET status_bayar = 'dp' WHERE id_transaksi = p_id_transaksi;
+                    SET v_status_baru = 'dp';
                 END IF;
+
+                -- 7. Update Status Pembayaran di Transaksi
+                UPDATE transaksi 
+                SET status_bayar = v_status_baru 
+                WHERE id_transaksi = p_id_transaksi;
+
+                -- 8. CATAT KE LOG (Mencatat setiap ada uang masuk)
+                INSERT INTO log (
+                    id_log, 
+                    id_user, 
+                    aksi, 
+                    keterangan, 
+                    waktu
+                ) VALUES (
+                    UUID(), 
+                    p_id_user, 
+                    'Input Pembayaran', 
+                    CONCAT(
+                        'Menerima pembayaran Rp ', FORMAT(p_jumlah, 0), 
+                        ' untuk invoice ', v_kode_invoice, 
+                        '. Status kini: ', v_status_baru
+                    ), 
+                    NOW()
+                );
             END
         ");
 

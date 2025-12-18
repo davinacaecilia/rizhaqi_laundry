@@ -174,10 +174,29 @@ class LayananController extends Controller
             return redirect()->route('admin.layanan.index')->with('error', 'Admin tidak diizinkan menghapus layanan.');
         }
         
+        try {
+        // 2. Cari Data
         $layanan = Layanan::findOrFail($id);
+
+        // 3. Coba Hapus
+        // Jika data ini terkunci Foreign Key, baris ini akan melempar Error
         $layanan->delete();
 
+        // 4. Jika berhasil (tidak error), kembali dengan pesan sukses
         return redirect()->route('admin.layanan.index')
-            ->with('success', 'Layanan dihapus');
+            ->with('success', 'Layanan berhasil dihapus');
+
+    } catch (\Illuminate\Database\QueryException $e) {
+        // 5. TANGKAP ERROR DATABASE
+        
+        // Kode '23000' adalah kode standar SQL untuk "Integrity Constraint Violation"
+        // Artinya: Data ini sedang dipakai oleh tabel lain (Transaksi)
+        if ($e->getCode() == "23000") {
+            return redirect()->back()->with('error', 'Gagal Menghapus: Layanan ini sudah pernah digunakan dalam riwayat transaksi. Data tidak boleh dihapus demi arsip laporan.');
+        }
+
+        // Jika errornya karena hal lain, tampilkan pesan aslinya
+        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+    }
     }
 }

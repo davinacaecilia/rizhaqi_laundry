@@ -114,7 +114,11 @@
                                                             {{ substr($log->user->nama ?? 'T', 0, 1) }}
                                                         </div>
                                                         <span style="font-weight: 500;">
-                                                            {{ $log->user->nama ?? 'Sistem' }}
+                                                            @if ($log->id_user)
+                                                                {{ $log->user->nama }}
+                                                            @else
+                                                                <span style="color:#999; font-style:italic;">Tidak diketahui</span>
+                                                            @endif
                                                         </span>
                                                     </div>
                                                 </td>

@@ -10,6 +10,30 @@
 
     <title>Data Layanan - Rizhaqi Laundry Admin</title>
     <style>
+        /* --- CSS ALERT (DARI HALAMAN LOGIN) --- */
+        .alert {
+            padding: 12px;
+            margin: 0 0 20px 0; /* Margin bawah biar ada jarak sama tabel */
+            border-radius: 8px; /* Sedikit lebih tumpul biar sesuai tema */
+            text-align: left;   /* Text rata kiri lebih enak dibaca di tabel */
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box; /* Agar padding tidak merusak lebar */
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* --- CSS TABEL BAWAAN --- */
         .table-container table {
             width: 100%;
             border-collapse: collapse;
@@ -159,6 +183,25 @@
                             <i class='bx bx-search'></i>
                         </button>
                     </div>
+
+                    {{-- --- AREA NOTIFIKASI ERROR/SUKSES --- --}}
+                    {{-- Ditaruh di sini agar muncul di dalam kotak putih (order) --}}
+                    
+                    @if(session('success'))
+                        <div class="alert alert-success">
+                            <i class='bx bx-check-circle'></i>
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-error">
+                            <i class='bx bx-error-circle' ></i>
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    {{-- ----------------------------------- --}}
+
                     <div class="table-container">
                         <table>
                             <thead>
@@ -239,31 +282,3 @@
 
     <script src="{{ asset('admin/script/script.js') }}"></script>
     <script src="{{ asset('admin/script/sidebar.js') }}"></script>
-
-    <script>
-        const searchBtn = document.getElementById('tableSearchBtn');
-        const searchInput = document.getElementById('tableSearchInput');
-
-        // Toggle input search
-        searchBtn.addEventListener('click', () => {
-            searchInput.classList.toggle('show');
-            if (searchInput.classList.contains('show')) searchInput.focus();
-        });
-
-        // Live search logic
-        searchInput.addEventListener('input', () => {
-            const filter = searchInput.value.toLowerCase();
-            const rows = document.querySelectorAll('.table-container tbody tr');
-
-            rows.forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                // Pastikan bukan baris "Belum ada data"
-                if(row.cells.length > 1) {
-                    row.style.display = rowText.includes(filter) ? '' : 'none';
-                }
-            });
-        });
-    </script>
-
-</body>
-</html>

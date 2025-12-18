@@ -131,6 +131,32 @@
         .table-container {
             position: relative;
         }
+
+        .alert-wrapper { margin-bottom: 20px; animation: fadeIn 0.4s ease; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .alert .bx { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+        
+        /* Warna Alert */
+        .alert-success { background-color: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        .alert-danger { background-color: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+        
+        /* Tombol Close */
+        .alert-close {
+            margin-left: auto; background: none; border: none; 
+            font-size: 18px; color: inherit; cursor: pointer; opacity: 0.6;
+        }
+        .alert-close:hover { opacity: 1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -140,6 +166,36 @@
         @include('partial.navbar')
 
         <main>
+            @if(session('success'))
+                <div class="alert-wrapper">
+                    <div class="alert alert-success">
+                        <i class='bx bx-check-circle'></i>
+                        <div>
+                            <strong>Berhasil!</strong><br>
+                            {{ session('success') }}
+                        </div>
+                        <button class="alert-close" onclick="this.parentElement.parentElement.style.display='none';">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert-wrapper">
+                    <div class="alert alert-danger">
+                        <i class='bx bx-error-circle'></i>
+                        <div>
+                            <strong>Gagal!</strong><br>
+                            {{ session('error') }}
+                        </div>
+                        <button class="alert-close" onclick="this.parentElement.parentElement.style.display='none';">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+            @endif
+            
             <div class="head-title">
                 <div class="left">
                     <h1>Data Pelanggan</h1>

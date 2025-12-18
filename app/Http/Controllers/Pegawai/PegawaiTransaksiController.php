@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaksi;
 use App\Models\LaporanHarianPegawai;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PegawaiTransaksiController extends Controller
 {
@@ -43,26 +44,31 @@ class PegawaiTransaksiController extends Controller
     }
 
     public function updateStatus($id)
-    {
-        $trx = Transaksi::findOrFail($id);
+{
+    // 1. Cek Data & Validasi Awal (Tetap pakai Eloquent utk baca status)
+    $trx = Transaksi::findOrFail($id);
 
-        // Hanya izinkan update dari 'disetrika' ke 'packing'
-        if ($trx->status_pesanan !== 'disetrika') {
-            return redirect()->back()->with(
-                'error',
-                'Status pesanan ' . $trx->kode_invoice . ' tidak dapat diubah (Status saat ini: ' . $trx->status_pesanan . ').'
-            );
-        }
+    // SOP: Pegawai hanya boleh mengubah dari 'disetrika' ke 'packing'
+    if ($trx->status_pesanan !== 'disetrika') {
+        return redirect()->back()->with(
+            'error',
+            'Status pesanan ' . $trx->kode_invoice . ' tidak dapat diubah (Status saat ini: ' . $trx->status_pesanan . ').'
+        );
+    }
 
-        // Update status transaksi
-        $trx->update([
-            'status_pesanan' => 'packing'
+    try {
+        // 2. Jalankan Stored Procedure untuk Update Status
+        // Parameter: (ID Transaksi, Status Baru, ID User)
+        DB::statement("CALL sp_update_status_transaksi(?, ?, ?)", [
+            $id,
+            'packing', // Hardcode 'packing' karena pegawai cuma punya akses ini
+            Auth::id()
         ]);
 
+        // 3. Catat ke Laporan Harian Pegawai
+        // (Kita taruh sini agar terekam setelah SP berhasil dijalankan)
         LaporanHarianPegawai::firstOrCreate(
-            [
-                'id_transaksi' => $trx->id_transaksi, // kunci unik
-            ],
+            ['id_transaksi' => $id], // Cek agar tidak duplikat
             [
                 'id_user'        => Auth::id(),
                 'tgl_dikerjakan' => now(),
@@ -73,7 +79,22 @@ class PegawaiTransaksiController extends Controller
             'success',
             'Status pesanan ' . $trx->kode_invoice . ' berhasil diperbarui ke Packing.'
         );
+
+    } catch (\Exception $e) {
+        // 4. Tangkap Error dari Database (Trigger/SP)
+        $pesan = $e->getMessage();
+
+        // Bersihkan pesan error SQL bawaan agar lebih manusiawi
+        if (str_contains($pesan, 'GAGAL:')) {
+            // Mengambil teks setelah kata "GAGAL:" (dari Trigger)
+            $pesan = substr($pesan, strpos($pesan, 'GAGAL:'));
+        } elseif (str_contains($pesan, 'Security Alert:')) {
+            $pesan = substr($pesan, strpos($pesan, 'Security Alert:'));
+        }
+
+        return redirect()->back()->with('error', $pesan);
     }
+}
 
 }
 

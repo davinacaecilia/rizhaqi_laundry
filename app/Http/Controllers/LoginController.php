@@ -24,34 +24,36 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
-        // HANYA ROLE INI YANG BOLEH LOGIN
-        if (!in_array($user->role, ['admin', 'owner', 'pegawai'])) {
-            Auth::logout();
-            return back()->with('error', 'Akun tidak memiliki akses.');
+        if ($user->is_active == 1) {
+            if (!in_array($user->role, ['admin', 'owner', 'pegawai'])) {
+                Auth::logout();
+                return back()->with('error', 'Akun tidak memiliki akses.');
+            }
+    
+            // Redirect sesuai role
+            if (in_array($user->role, ['admin', 'owner'])) {
+                return redirect()->route('admin.dashboard');
+            }
+    
+            if ($user->role === 'pegawai') {
+                return redirect()->route('pegawai.dashboard');
+            }
         }
-
-        // Redirect sesuai role
-        if (in_array($user->role, ['admin', 'owner'])) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->role === 'pegawai') {
-            return redirect()->route('pegawai.dashboard');
-        }
+    } else {
+        return back()->with('error', 'Email atau password salah.');
     }
-
-    return back()->with('error', 'Email atau password salah.');
+    return back()->with('error', 'Akun tidak aktif. Silakan hubungi owner.');    
 }
 
    public function logout()
-{
-    Auth::logout();
+    {
+        Auth::logout();
 
-    request()->session()->forget('internal_login'); // ⬅️ PENTING
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
+        request()->session()->forget('internal_login');
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
 
-    return redirect('/')->with('success', 'Anda berhasil logout!');
-}
+        return redirect('/')->with('success', 'Anda berhasil logout!');
+    }
 
 }

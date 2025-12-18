@@ -12,8 +12,7 @@ class UserController extends Controller
     // Halaman Home
     public function home()
     {
-        $layanan = Layanan::on('public_access') // Gunakan koneksi terbatas
-            ->where('kategori', '!=', 'ADD ON') // Tidak perlu tampilkan Add On
+        $layanan = Layanan::on('public_access') // Gunakan koneksi terbatas// Tidak perlu tampilkan Add On
             ->orderBy('kategori', 'asc')
             ->orderBy('nama_layanan', 'asc')
             ->get();
@@ -53,12 +52,11 @@ class UserController extends Controller
             $raw_status = $transaksi->status_pesanan;
             $isSuccess = true;
 
-            // --- LOGIC PENGELOMPOKAN STATUS UNTUK USER (5 KATEGORI) ---
             $diproses_group = ['dicuci', 'dikeringkan', 'disetrika', 'packing'];
 
             if (in_array($raw_status, $diproses_group)) {
                 $status_for_user = 'diproses';
-                $status_display = 'Diproses'; // Tampilkan detail internal juga
+                $status_display = 'Diproses'; 
             } elseif ($raw_status == 'siap diambil') {
                 $status_for_user = 'siap_diambil';
                 $status_display = 'Siap Diambil';
@@ -72,16 +70,13 @@ class UserController extends Controller
                 $status_for_user = 'selesai';
                 $status_display = 'Selesai';
             } else {
-                // Fallback untuk status yang tidak terdefinisi
                 $status_for_user = $raw_status;
                 $status_display = ucwords(str_replace('_', ' ', $raw_status));
             }
 
-            // Kirim status yang dikelompokkan ke view
             return view('status', compact('status_display', 'kode', 'isSuccess', 'status_for_user'));
         }
 
-        // Kasus kode tidak ditemukan
         return view('status', compact('status_display', 'kode', 'isSuccess', 'raw_status'));
     }
 }

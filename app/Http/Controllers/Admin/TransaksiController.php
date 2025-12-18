@@ -49,10 +49,8 @@ class TransaksiController extends Controller
         }
 
         // Order & Paginate
-        $transaksi = $query->orderBy('tgl_masuk', 'desc')->paginate(10);
+        $transaksi = $query->orderBy('tgl_masuk', 'desc')->get();
 
-        // Append query string (biar filter ga ilang pas ganti halaman)
-        $transaksi->appends($request->all());
 
         return view('admin.transaksi.index', compact('transaksi'));
     }
@@ -234,7 +232,6 @@ class TransaksiController extends Controller
 
     public function edit($id)
     {
-        // 1. Ambil Data Transaksi Lama (Ini wajib ada di Edit)
         $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.layanan', 'inventaris'])
             ->select('transaksi.*')
             ->selectRaw('fn_hitung_total_transaksi(id_transaksi) as total_biaya')
@@ -442,16 +439,7 @@ class TransaksiController extends Controller
                 'Pelunasan via Menu Cepat'
             ]);
 
-            // ============================================================
-            // KUNCI PERBAIKAN: REFRESH DATA!
-            // ============================================================
-            // Ambil ulang data terbaru dari database setelah SP selesai bekerja.
-            // Supaya PHP tahu kondisi terkini (apakah trigger sudah update status?)
             $transaksi->refresh();
-
-            // 3. LOGIC PELUNASAN (Opsional / Backup)
-            // Cek dulu, apakah status sudah berubah otomatis oleh Trigger DB?
-            // Jika status masih belum lunas, baru kita bantu update lewat Laravel.
 
             if ($transaksi->status_bayar != 'lunas') {
 
@@ -529,43 +517,58 @@ class TransaksiController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-    {
-        // PERBAIKAN: Validasi harus menerima 'siap diambil' (pakai spasi)
-        $request->validate([
-            'status' => 'required|in:dicuci,dikeringkan,disetrika,packing,siap diambil,selesai'
-        ]);
+{
+    // Validasi input status
+    $request->validate([
+        'status' => 'required|in:dicuci,dikeringkan,disetrika,packing,siap diambil,selesai'
+    ]);
 
-        try {
-            if ($request->status == 'selesai') {
-                // ... logic selesai (sama) ...
-                DB::statement("CALL sp_ambil_cucian(?, ?)", [$id, Auth::id() ?? 1]);
-                $msg = 'Order berhasil diselesaikan.';
-            } else {
-                // ... logic status lain ...
-                DB::statement("CALL sp_update_status_transaksi(?, ?, ?)", [
-                    $id,
-                    $request->status, // Ini akan mengirim 'siap diambil' ke DB
-                    Auth::id() ?? 1
-                ]);
-                $msg = 'Status order berhasil diperbarui.';
-            }
-
-            return back()->with('success', $msg);
-
-        } catch (\Exception $e) {
-            $pesan = $e->getMessage();
-
-            // Bersihkan pesan error SQL biar enak dibaca user
-            if (str_contains($pesan, 'GAGAL:')) {
-                // Ambil teks setelah kata GAGAL:
-                $pesan = substr($pesan, strpos($pesan, 'GAGAL:'));
-            } else if (str_contains($pesan, 'Security Alert:')) {
-                $pesan = substr($pesan, strpos($pesan, 'Security Alert:'));
-            }
-
-            return back()->with('error', $pesan);
+    try {
+        if ($request->status == 'selesai') {
+            // Panggil SP untuk menyelesaikan pesanan (cek lunas atau belum)
+            // Jika belum lunas, SP akan melempar error (SIGNAL SQLSTATE)
+            DB::statement("CALL sp_ambil_cucian(?, ?)", [$id, Auth::id() ?? 1]);
+            
+            $msg = 'Order berhasil diselesaikan.';
+        } else {
+            // Update status biasa (Dicuci -> Dikeringkan, dll)
+            DB::statement("CALL sp_update_status_transaksi(?, ?, ?)", [
+                $id,
+                $request->status, 
+                Auth::id() ?? 1
+            ]);
+            
+            $msg = 'Status order berhasil diperbarui.';
         }
+
+        // Jika berhasil, kembali dengan pesan sukses
+        return back()->with('success', $msg);
+
+    } catch (\Exception $e) {
+        $pesan = $e->getMessage();
+
+        // 1. Cek apakah ini error custom dari Stored Procedure (ada kata 'GAGAL:')
+        if (str_contains($pesan, 'GAGAL:')) {
+            
+            // Langkah A: Ambil teks mulai dari kata "GAGAL:" ke belakang
+            $pesan = substr($pesan, strpos($pesan, 'GAGAL:'));
+            
+            // Langkah B: Hapus bagian teknis Laravel "(Connection: ...)"
+            // Caranya: Kita pecah string berdasarkan kata "(Connection:", lalu ambil bagian depannya saja.
+            $parts = explode('(Connection:', $pesan);
+            $pesan = $parts[0]; 
+        } 
+        
+        // 2. Opsional: Cek error lain
+        else if (str_contains($pesan, 'Security Alert:')) {
+            $pesan = substr($pesan, strpos($pesan, 'Security Alert:'));
+            $parts = explode('(Connection:', $pesan); // Jaga-jaga kalau ada juga
+            $pesan = $parts[0];
+        }
+
+        return back()->with('error', $pesan);
     }
+}
 
     public function bayarCicilan(Request $request)
     {

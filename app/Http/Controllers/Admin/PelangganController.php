@@ -63,9 +63,28 @@ class PelangganController extends Controller
             return redirect()->route('admin.pelanggan.index')->with('error', 'Admin tidak diizinkan untuk menghapus data pelanggan.');
         }
 
-        $pelanggan = Pelanggan::findOrFail($id);
-        $pelanggan->delete();
+        $pelanggan = Pelanggan::find($id);
 
-        return redirect()->route('admin.pelanggan.index')->with('success', 'Pelanggan dihapus');
+    // 2. CEK APAKAH DATA ADA
+    if ($pelanggan) {
+
+        // 3. CEK APAKAH PELANGGAN PUNYA TRANSAKSI?
+        // Penting: Pelanggan yang sudah pernah transaksi sebaiknya TIDAK dihapus
+        // karena akan menghilangkan riwayat laporan keuangan.
+        if ($pelanggan->transaksi()->exists()) {
+            return back()->with('error', 'Gagal! Pelanggan tidak bisa dihapus karena memiliki riwayat transaksi.');
+        }
+
+        // 4. EKSEKUSI HAPUS
+        try {
+            $pelanggan->delete();
+            return back()->with('success', 'Data pelanggan berhasil dihapus.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan sistem saat menghapus data.');
+        }
+
+    } else {
+        return back()->with('error', 'Data pelanggan tidak ditemukan.');
+    }
     }
 }

@@ -270,17 +270,6 @@
                                                                 class='bx @if($user->is_active) bx-power-off @else bx-check @endif'></i>
                                                         </button>
                                                     </form>
-
-                                                    {{-- TOMBOL HAPUS --}}
-                                                    <form action="{{ route('admin.pegawai.destroy', $user->id_user) }}"
-                                                        method="POST" style="display:inline;"
-                                                        onsubmit="return confirm('Hapus permanen pegawai {{ $user->nama }}?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn-detail btn-delete" title="Hapus">
-                                                            <i class='bx bx-trash'></i>
-                                                        </button>
-                                                    </form>
                                                 @endif
 
                                             </div>
